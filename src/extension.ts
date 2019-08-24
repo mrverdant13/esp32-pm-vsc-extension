@@ -6,22 +6,25 @@ import * as vscode from 'vscode';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "esp32-idf" is now active!');
+	// make defconfig
+	context.subscriptions.push(vscode.commands.registerCommand('extension.defconfig', () => {
+		const terminal = vscode.window.createTerminal({
+			env: {
+				"CHERE_INVOKING": "1",
+				"MSYSTEM": "MINGW32",
+				"workspaceDir": "${workspaceFolder}"
+			},
+			name: `make defconfig`,
+			shellArgs: ["--login"],
+			shellPath: 'C:/msys32/usr/bin/bash.exe',
+		});
+		terminal.show(true);
+		terminal.sendText("make defconfig");
+	}));
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello world!');
-	});
-
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(vscode.commands.registerCommand('extension.test', () => {
+		vscode.window.showInformationMessage('Test');
+	}));
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
