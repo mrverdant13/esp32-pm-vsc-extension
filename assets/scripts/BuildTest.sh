@@ -6,4 +6,4 @@ echo "void app_main();" >> main/main.cpp
 echo "}" >> main/main.cpp
 rm -r "build/main"
 clear
-make -j$threadsNumber all
+make -j all
