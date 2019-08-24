@@ -6,20 +6,26 @@ import * as vscode from 'vscode';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// make defconfig
-	context.subscriptions.push(vscode.commands.registerCommand('extension.defconfig', () => {
-		const terminal = vscode.window.createTerminal({
+	function createEspIdfTerminal(name: string): vscode.Terminal {
+		const _terminal = vscode.window.createTerminal({
 			env: {
 				"CHERE_INVOKING": "1",
 				"MSYSTEM": "MINGW32",
 				"workspaceDir": "${workspaceFolder}"
 			},
-			name: `make defconfig`,
+			name: name,
 			shellArgs: ["--login"],
 			shellPath: 'C:/msys32/usr/bin/bash.exe',
 		});
+		_terminal.hide();
+		_terminal.sendText("stty -echo && tput rs1");
+		return _terminal;
+	}
+
+	context.subscriptions.push(vscode.commands.registerCommand('extension.defconfig', () => {
+		const terminal = createEspIdfTerminal("Defconfig");
 		terminal.show(true);
-		terminal.sendText("stty -echo && tput rs1 && make defconfig && history -c && exit");
+		terminal.sendText("make defconfig && history -c && exit");
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.test', () => {
