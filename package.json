@@ -1,5 +1,5 @@
 {
-	"name": "esp32-idf",
+	"name": "esp32-idf-vsc-extension",
 	"version": "0.0.1",
 	"publisher": "mr-verdant-13",
 	"engines": {
