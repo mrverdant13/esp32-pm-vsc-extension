@@ -16,8 +16,8 @@
 		"commands": [
 			{
 				"category": "ESP32-IDF",
-				"title": "Test",
-				"command": "extension.test"
+				"title": "Menuconfig",
+				"command": "extension.menuconfig"
 			},
 			{
 				"category": "ESP32-IDF",

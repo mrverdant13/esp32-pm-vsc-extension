@@ -28,6 +28,12 @@ export function activate(context: vscode.ExtensionContext) {
 		terminal.sendText("make defconfig && history -c && exit");
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('extension.menuconfig', () => {
+		const terminal = createEspIdfTerminal("Menuconfig");
+		terminal.show(true);
+		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/Menuconfig.sh && history -c && exit");
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('extension.test', () => {
 		vscode.window.showInformationMessage('Test');
 	}));
