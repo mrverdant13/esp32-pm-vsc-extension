@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 			shellPath: 'C:/msys32/usr/bin/bash.exe',
 		});
 		terminal.show(true);
-		terminal.sendText("make defconfig");
+		terminal.sendText("stty -echo && tput rs1 && make defconfig && history -c && exit");
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.test', () => {
