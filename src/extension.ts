@@ -1,9 +1,7 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { lstatSync, readdirSync } from 'fs';
+import { join, sep } from 'path';
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
 	function createEspIdfTerminal(name: string): vscode.Terminal {
@@ -34,8 +32,64 @@ export function activate(context: vscode.ExtensionContext) {
 		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/Menuconfig.sh && history -c && exit");
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.test', () => {
-		vscode.window.showInformationMessage('Test');
+	async function showQuickPickFrom(elements: string[], hint: string) {
+		return await vscode.window.showQuickPick(
+			elements,
+			{ placeHolder: hint }
+		);
+	}
+
+	function getFolders(path: string): string[] {
+		var folders: string[] = [];
+		var workspaceFolders = vscode.workspace.workspaceFolders;
+		if (workspaceFolders) {
+			var finalPath: string = join(workspaceFolders[0].uri.fsPath, path);
+			readdirSync(finalPath).forEach((element) => {
+				if (lstatSync(join(finalPath, element)).isDirectory()) {
+					folders.push(element);
+				}
+			});
+		}
+		return folders;
+	}
+
+	function getFiles(path: string): string[] {
+		var files: string[] = [];
+		var workspaceFolders = vscode.workspace.workspaceFolders;
+		if (workspaceFolders) {
+			var finalPath: string = join(workspaceFolders[0].uri.fsPath, path);
+			readdirSync(finalPath).forEach((element) => {
+				if (lstatSync(join(finalPath, element)).isFile()) {
+					files.push(element);
+				}
+			});
+		}
+		return files;
+	}
+
+	context.subscriptions.push(vscode.commands.registerCommand('extension.buildTest', async () => {
+		var testFolder: string = 'main/test/';
+		var entryPointPrefix: string = 'main';
+		var entryPointSufixCpp: string = '.cpp';
+		var entryPointSufixC: string = '.c';
+		var selectedTestFolder = await showQuickPickFrom(getFolders(testFolder), 'Test to be built');
+		if (!selectedTestFolder) { vscode.window.showWarningMessage("No test selected."); return; }
+		var entryPoints: string[] = [];
+		getFiles(join(testFolder, selectedTestFolder)).forEach((file) => {
+			if (file.startsWith(entryPointPrefix) && (file.endsWith(entryPointSufixCpp) || file.endsWith(entryPointSufixC))) { entryPoints.push(file); }
+		});
+		var testFile: string | undefined;
+		if (entryPoints.length === 0) { vscode.window.showErrorMessage("There is no entry point for the selected test."); return; }
+		else if (entryPoints.length === 1) { testFile = entryPoints[0]; }
+		else {
+			testFile = await showQuickPickFrom(entryPoints, "Entry point for the test.");
+			if (!testFile) { vscode.window.showWarningMessage("No entry point selected."); return; }
+		}
+
+		const terminal = createEspIdfTerminal("Build test");
+		terminal.show(true);
+		terminal.sendText('export testFile="' + selectedTestFolder + '/' + testFile + '"');
+		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildTest.sh && history -c && exit");
 	}));
 }
 

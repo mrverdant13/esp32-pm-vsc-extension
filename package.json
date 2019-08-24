@@ -23,6 +23,11 @@
 				"category": "ESP32-IDF",
 				"title": "Defconfig",
 				"command": "extension.defconfig"
+			},
+			{
+				"category": "ESP32-IDF",
+				"title": "Build test",
+				"command": "extension.buildTest"
 			}
 		]
 	},
