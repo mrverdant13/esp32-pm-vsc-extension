@@ -28,6 +28,11 @@
 				"category": "ESP32-IDF",
 				"title": "Build test",
 				"command": "extension.buildTest"
+			},
+			{
+				"category": "ESP32-IDF",
+				"title": "Flash",
+				"command": "extension.flash"
 			}
 		]
 	},
