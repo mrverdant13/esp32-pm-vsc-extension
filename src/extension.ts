@@ -118,6 +118,17 @@ export function activate(context: vscode.ExtensionContext) {
 		return serialPorts;
 	}
 
+	context.subscriptions.push(vscode.commands.registerCommand('extension.flash', async () => {
+		var serialPorts: string[] = await getSerialPorts();
+		console.log(serialPorts);
+		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
+		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
+		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
+		const terminal = createEspIdfTerminal("Flash");
+		terminal.show(true);
+		terminal.sendText('make flash ESPPORT=' + selectedSerialPort + ' && history -c && exit');
+	}));
+
 }
 
 export function deactivate() { }
