@@ -33,6 +33,11 @@
 				"category": "ESP32-IDF",
 				"title": "Flash",
 				"command": "extension.flash"
+			},
+			{
+				"category": "ESP32-IDF",
+				"title": "Monitor",
+				"command": "extension.monitor"
 			}
 		]
 	},
