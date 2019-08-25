@@ -1,8 +1,12 @@
 import * as vscode from 'vscode';
 import { lstatSync, readdirSync } from 'fs';
-import { join, sep } from 'path';
+import { join } from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
+
+	function delay(ms: number) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
 
 	function createEspIdfTerminal(name: string): vscode.Terminal {
 		const _terminal = vscode.window.createTerminal({
@@ -83,7 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
 		else if (entryPoints.length === 1) { testFile = entryPoints[0]; }
 		else {
 			testFile = await showQuickPickFrom(entryPoints, "Entry point for the test.");
-			if (!testFile) { vscode.window.showWarningMessage("No entry point selected."); return; }
+			if (!testFile) { vscode.window.showErrorMessage("No entry point selected."); return; }
 		}
 
 		const terminal = createEspIdfTerminal("Build test");
@@ -91,6 +95,29 @@ export function activate(context: vscode.ExtensionContext) {
 		terminal.sendText('export testFile="' + selectedTestFolder + '/' + testFile + '"');
 		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildTest.sh && history -c && exit");
 	}));
+
+	async function getSerialPorts() {
+		const comPortsFile: string = "comPortsFile";
+		const terminal = createEspIdfTerminal("Generate serial ports");
+		terminal.sendText('export comPortsFile="' + comPortsFile + '" && sh ' + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/GenerateComList.sh && history -c && exit");
+		var fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher('**/build/' + comPortsFile, true, true, false);
+		var serialPorts: string[] = [];
+		var serialPortsChecked: boolean = false;
+		fsw.onDidDelete(
+			async () => {
+				var workspaceFolders = vscode.workspace.workspaceFolders;
+				if (workspaceFolders) {
+					var fileContent = (await vscode.workspace.fs.readFile(vscode.Uri.file(workspaceFolders[0].uri.fsPath + "/build/" + comPortsFile + ".txt"))).toString().trim();
+					if (fileContent.length > 0) { serialPorts = fileContent.split("\n"); }
+				}
+				serialPortsChecked = true;
+			}
+		);
+		while (!serialPortsChecked) { await delay(100); }
+		fsw.dispose();
+		return serialPorts;
+	}
+
 }
 
 export function deactivate() { }
