@@ -129,6 +129,17 @@ export function activate(context: vscode.ExtensionContext) {
 		terminal.sendText('make flash ESPPORT=' + selectedSerialPort + ' && history -c && exit');
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('extension.monitor', async () => {
+		var serialPorts: string[] = await getSerialPorts();
+		console.log(serialPorts);
+		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
+		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
+		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
+		const terminal = createEspIdfTerminal("Monitor");
+		terminal.show(true);
+		terminal.sendText('make monitor ESPPORT=' + selectedSerialPort + ' && history -c && exit');
+	}));
+
 }
 
 export function deactivate() { }
