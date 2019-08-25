@@ -154,6 +154,12 @@ export function activate(context: vscode.ExtensionContext) {
 		terminal.sendText('make clean && history -c && exit');
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('extension.remove-auto-gen', async () => {
+		const terminal = createEspIdfTerminal("Remove auto-generated files");
+		terminal.show(true);
+		terminal.sendText('rm sdkcondig && rm sdkconfig.old && rm main/main.cpp && rm -r "build" && history -c && exit');
+	}));
+
 }
 
 export function deactivate() { }

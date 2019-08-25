@@ -48,6 +48,11 @@
 				"category": "ESP32-IDF",
 				"title": "Clean",
 				"command": "extension.clean"
+			},
+			{
+				"category": "ESP32-IDF",
+				"title": "Remove auto-generated files",
+				"command": "extension.remove-auto-gen"
 			}
 		]
 	},
