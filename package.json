@@ -43,6 +43,11 @@
 				"category": "ESP32-IDF",
 				"title": "Flash & Monitor",
 				"command": "extension.flash-monitor"
+			},
+			{
+				"category": "ESP32-IDF",
+				"title": "Clean",
+				"command": "extension.clean"
 			}
 		]
 	},

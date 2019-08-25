@@ -120,7 +120,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.flash', async () => {
 		var serialPorts: string[] = await getSerialPorts();
-		console.log(serialPorts);
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
 		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
@@ -131,7 +130,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.monitor', async () => {
 		var serialPorts: string[] = await getSerialPorts();
-		console.log(serialPorts);
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
 		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
@@ -142,13 +140,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.flash-monitor', async () => {
 		var serialPorts: string[] = await getSerialPorts();
-		console.log(serialPorts);
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
 		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
 		const terminal = createEspIdfTerminal("Flash & Monitor");
 		terminal.show(true);
 		terminal.sendText('make flash monitor ESPPORT=' + selectedSerialPort + ' && history -c && exit');
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('extension.clean', async () => {
+		const terminal = createEspIdfTerminal("Clean");
+		terminal.show(true);
+		terminal.sendText('make clean && history -c && exit');
 	}));
 
 }
