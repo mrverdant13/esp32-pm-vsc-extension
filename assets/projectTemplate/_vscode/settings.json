@@ -8,18 +8,5 @@
     "terminal.integrated.shellArgs.windows": [
         "--login"
     ],
-    "files.associations": {
-        "*.cpp": "cpp",
-        "ew": "cpp",
-        "*.cc": "cpp",
-        "*.C": "cpp",
-        "*.cxx": "cpp",
-        "*.c++": "cpp",
-        "*.hpp": "cpp",
-        "*.hh": "cpp",
-        "*.H": "cpp",
-        "*.hxx": "cpp",
-        "*.h++": "cpp"
-    },
     "C_Cpp.intelliSenseEngine": "Tag Parser"
 }
