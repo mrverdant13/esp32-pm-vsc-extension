@@ -21,6 +21,11 @@
 			},
 			{
 				"category": "ESP32-IDF",
+				"title": "Initialize project",
+				"command": "extension.init-project"
+			},
+			{
+				"category": "ESP32-IDF",
 				"title": "Menuconfig",
 				"command": "extension.menuconfig"
 			},
