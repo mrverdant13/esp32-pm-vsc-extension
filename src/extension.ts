@@ -15,6 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
 			openLabel: "Select project location"
 		});
 		if (!projectLocation) { vscode.window.showErrorMessage("Project location not selected"); return; }
+		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
+		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
 		introducedName = join(projectLocation[0].fsPath, introducedName);
 		await vscode.workspace.fs.copy(
 			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate")),
@@ -23,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 		await vscode.workspace.fs.rename(vscode.Uri.file(join(introducedName, "_vscode")), vscode.Uri.file(join(introducedName, ".vscode")));
 		await vscode.workspace.fs.rename(vscode.Uri.file(join(introducedName, ".vscode/_gitignore")), vscode.Uri.file(join(introducedName, ".vscode/.gitignore")));
-		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(introducedName), true);
+		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(introducedName), useNewWindow.includes("new"));
 	}));
 
 	function delay(ms: number) {
@@ -32,14 +34,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	function createEspIdfTerminal(name: string): vscode.Terminal {
 		const _terminal = vscode.window.createTerminal({
-			env: {
-				"CHERE_INVOKING": "1",
-				"MSYSTEM": "MINGW32",
-				"workspaceDir": "${workspaceFolder}"
-			},
+			// env: {
+			// 	"CHERE_INVOKING": "1",
+			// 	"MSYSTEM": "MINGW32",
+			// 	"workspaceDir": "${workspaceFolder}"
+			// },
 			name: name,
-			shellArgs: ["--login"],
-			shellPath: 'C:/msys32/usr/bin/bash.exe',
+			// shellArgs: ["--login"],
+			// shellPath: 'C:/msys32/usr/bin/bash.exe',
 		});
 		_terminal.hide();
 		_terminal.sendText("stty -echo && tput rs1");
