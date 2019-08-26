@@ -16,45 +16,31 @@ export function delay(ms: number) {
 }
 
 export function getFolders(path: string): string[] {
-    var folders: string[] = [];
-    var workspaceFolders = vscode.workspace.workspaceFolders;
-    if (workspaceFolders) {
-        var finalPath: string = join(workspaceFolders[0].uri.fsPath, path);
-        readdirSync(finalPath).forEach((element) => {
-            if (lstatSync(join(finalPath, element)).isDirectory()) {
-                folders.push(element);
-            }
-        });
-    }
-    return folders;
+    return readdirSync(path).filter((element) => {
+        if (lstatSync(join(path, element)).isDirectory()) { return element; }
+    });
 }
 
 export function getFiles(path: string): string[] {
-    var files: string[] = [];
-    var workspaceFolders = vscode.workspace.workspaceFolders;
-    if (workspaceFolders) {
-        var finalPath: string = join(workspaceFolders[0].uri.fsPath, path);
-        readdirSync(finalPath).forEach((element) => {
-            if (lstatSync(join(finalPath, element)).isFile()) {
-                files.push(element);
-            }
-        });
-    }
-    return files;
+    return readdirSync(path).filter((element) => {
+        if (lstatSync(join(path, element)).isFile()) { return element; }
+    });
 }
 
-export async function folderExists(uri: vscode.Uri): Promise<boolean> {
-    var contents: [string, vscode.FileType][] = await vscode.workspace.fs.readDirectory(vscode.Uri.file(uri.fsPath.replace(/[^(\/|\\)]+$/gi, "")));
-    return contents.some((element) => { return (element[0] === uri.fsPath.replace(/^.*[\/|\\]/gi, "") && element[1] === vscode.FileType.Directory); });
+export function folderExists(path: string): boolean {
+    return getFolders(path.replace(/[^(\/|\\)]+$/gi, "")).some((folder) => {
+        return folder === path.replace(/^.*[\/|\\]/gi, "");
+    });
 }
 
-export async function fileExists(uri: vscode.Uri): Promise<boolean> {
-    var contents: [string, vscode.FileType][] = await vscode.workspace.fs.readDirectory(vscode.Uri.file(uri.fsPath.replace(/[^(\/|\\)]+$/gi, "")));
-    return contents.some((element) => { return (element[0] === uri.fsPath.replace(/^.*[\/|\\]/gi, "") && element[1] === vscode.FileType.File); });
+export function fileExists(path: string): boolean {
+    return getFiles(path.replace(/[^(\/|\\)]+$/gi, "")).some((file) => {
+        return file === path.replace(/^.*[\/|\\]/gi, "");
+    });
 }
 
 export async function isEsp32idfProject(): Promise<boolean> {
     var workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) { return false; }
-    return await folderExists(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, ".esp32-idf")));
+    return await folderExists(join(workspaceFolders[0].uri.fsPath, ".esp32-idf"));
 }

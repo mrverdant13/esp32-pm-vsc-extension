@@ -38,11 +38,11 @@ export function activate(context: vscode.ExtensionContext) {
 			openLabel: "Select project folder"
 		});
 		if (!projectLocation) { vscode.window.showErrorMessage("Project location not selected"); return; }
-		if (!await utils.folderExists(vscode.Uri.file(join(projectLocation[0].fsPath, "main"))) || !await utils.fileExists(vscode.Uri.file(join(projectLocation[0].fsPath, "Makefile")))) {
+		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main")) || !await utils.fileExists(join(projectLocation[0].fsPath, "Makefile"))) {
 			vscode.window.showErrorMessage("The folder does not contain an ESP-IDF project");
 			return;
 		}
-		if (!await utils.folderExists(vscode.Uri.file(join(projectLocation[0].fsPath, "main/test")))) {
+		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main/test"))) {
 			vscode.window.showErrorMessage('The project must use a "test" directory inside the "main" folder.');
 			return;
 		}
@@ -94,10 +94,12 @@ export function activate(context: vscode.ExtensionContext) {
 		var entryPointPrefix: string = 'main';
 		var entryPointSufixCpp: string = '.cpp';
 		var entryPointSufixC: string = '.c';
-		var selectedTestFolder = await showQuickPickFrom(utils.getFolders(testFolder), 'Test to be built');
+		var workspaceFolders = vscode.workspace.workspaceFolders;
+		if (!workspaceFolders) { return; }
+		var selectedTestFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, testFolder)), 'Test to be built');
 		if (!selectedTestFolder) { vscode.window.showWarningMessage("No test selected."); return; }
 		var entryPoints: string[] = [];
-		utils.getFiles(join(testFolder, selectedTestFolder)).forEach((file) => {
+		utils.getFiles(join(workspaceFolders[0].uri.fsPath, testFolder, selectedTestFolder)).forEach((file) => {
 			if (file.startsWith(entryPointPrefix) && (file.endsWith(entryPointSufixCpp) || file.endsWith(entryPointSufixC))) { entryPoints.push(file); }
 		});
 		var testFile: string | undefined;
