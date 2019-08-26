@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('extension.menuconfig', () => {
 		const terminal = createEspIdfTerminal("Menuconfig");
 		terminal.show(true);
-		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/Menuconfig.sh && history -c && exit");
+		terminal.sendText("set CHERE_INVOKING=1 && start C:/msys32/mingw32.exe make menuconfig && history -c && exit");
 	}));
 
 	async function showQuickPickFrom(elements: string[], hint: string) {
