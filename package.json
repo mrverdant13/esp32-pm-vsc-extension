@@ -16,6 +16,11 @@
 		"commands": [
 			{
 				"category": "ESP32-IDF",
+				"title": "Create project",
+				"command": "extension.create-project"
+			},
+			{
+				"category": "ESP32-IDF",
 				"title": "Menuconfig",
 				"command": "extension.menuconfig"
 			},
@@ -27,7 +32,7 @@
 			{
 				"category": "ESP32-IDF",
 				"title": "Build test",
-				"command": "extension.buildTest"
+				"command": "extension.build-test"
 			},
 			{
 				"category": "ESP32-IDF",
