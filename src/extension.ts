@@ -88,44 +88,16 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}
 
-	function getFolders(path: string): string[] {
-		var folders: string[] = [];
-		var workspaceFolders = vscode.workspace.workspaceFolders;
-		if (workspaceFolders) {
-			var finalPath: string = join(workspaceFolders[0].uri.fsPath, path);
-			readdirSync(finalPath).forEach((element) => {
-				if (lstatSync(join(finalPath, element)).isDirectory()) {
-					folders.push(element);
-				}
-			});
-		}
-		return folders;
-	}
-
-	function getFiles(path: string): string[] {
-		var files: string[] = [];
-		var workspaceFolders = vscode.workspace.workspaceFolders;
-		if (workspaceFolders) {
-			var finalPath: string = join(workspaceFolders[0].uri.fsPath, path);
-			readdirSync(finalPath).forEach((element) => {
-				if (lstatSync(join(finalPath, element)).isFile()) {
-					files.push(element);
-				}
-			});
-		}
-		return files;
-	}
-
 	context.subscriptions.push(vscode.commands.registerCommand('extension.build-test', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
 		var testFolder: string = 'main/test/';
 		var entryPointPrefix: string = 'main';
 		var entryPointSufixCpp: string = '.cpp';
 		var entryPointSufixC: string = '.c';
-		var selectedTestFolder = await showQuickPickFrom(getFolders(testFolder), 'Test to be built');
+		var selectedTestFolder = await showQuickPickFrom(utils.getFolders(testFolder), 'Test to be built');
 		if (!selectedTestFolder) { vscode.window.showWarningMessage("No test selected."); return; }
 		var entryPoints: string[] = [];
-		getFiles(join(testFolder, selectedTestFolder)).forEach((file) => {
+		utils.getFiles(join(testFolder, selectedTestFolder)).forEach((file) => {
 			if (file.startsWith(entryPointPrefix) && (file.endsWith(entryPointSufixCpp) || file.endsWith(entryPointSufixC))) { entryPoints.push(file); }
 		});
 		var testFile: string | undefined;
