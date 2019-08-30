@@ -113,6 +113,16 @@ export function activate(context: vscode.ExtensionContext) {
 		const terminal = utils.createEspIdfTerminal("Build test");
 		terminal.show(true);
 		terminal.sendText('export testFile="' + selectedTestFolder + '/' + testFile + '"');
+		terminal.sendText('rm main/main.cpp');
+		terminal.sendText('echo "#include \"test/${testFile}\"" > main/main.cpp');
+		terminal.sendText('echo "extern \"C\"" >> main/main.cpp');
+		terminal.sendText('echo "{" >> main/main.cpp');
+		terminal.sendText('echo "void app_main();" >> main/main.cpp');
+		terminal.sendText('echo "}" >> main/main.cpp');
+		terminal.sendText('rm -r "build/main"');
+		terminal.sendText('clear');
+		terminal.sendText('make -j all');
+
 		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildTest.sh && history -c && exit");
 	}));
 
