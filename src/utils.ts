@@ -2,15 +2,6 @@ import * as vscode from 'vscode';
 import { join } from 'path';
 import { readdirSync, lstatSync } from 'fs';
 
-export function createEspIdfTerminal(name: string): vscode.Terminal {
-    const _terminal = vscode.window.createTerminal({
-        name: name,
-    });
-    _terminal.hide();
-    _terminal.sendText("stty -echo && tput rs1");
-    return _terminal;
-}
-
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
