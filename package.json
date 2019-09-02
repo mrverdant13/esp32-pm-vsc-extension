@@ -16,6 +16,12 @@
 		"commands": [
 			{
 				"category": "ESP32-IDF",
+				"title": "Install the ESP-IDF",
+				"command": "extension.install-esp-idf",
+				"enablement": "isWindows"
+			},
+			{
+				"category": "ESP32-IDF",
 				"title": "Create project",
 				"command": "extension.create-project"
 			},

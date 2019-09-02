@@ -5,6 +5,31 @@ import * as utils from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
 
+	context.subscriptions.push(vscode.commands.registerCommand('extension.install-esp-idf', async () => {
+		var msys32Location = await vscode.window.showOpenDialog({
+			canSelectFiles: false,
+			canSelectFolders: true,
+			canSelectMany: false,
+			openLabel: "Select 'msys32' location"
+		});
+		if (!msys32Location) { vscode.window.showErrorMessage("'msys32' location not selected"); return; }
+		msys32Location[0] = vscode.Uri.file(join(msys32Location[0].fsPath, msys32Location[0].fsPath.endsWith('msys32') ? '' : 'msys32'));
+		if (!await utils.folderExists(join(msys32Location[0].fsPath, 'home')) || !await utils.folderExists(join(msys32Location[0].fsPath, 'etc/profile.d'))) {
+			vscode.window.showErrorMessage("Invalid 'msys32' location.");
+			return;
+		}
+		if (msys32Location[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
+		utils.executeShellCommands(
+			"ESP-IDF installation",
+			[
+				'echo "ESP32-IDF: Cloning the ESP-IDF...\n"',
+				'export msys32Loc="' + msys32Location[0].fsPath.replace(/\\/gi, '/') + '"',
+				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/InstallEspIdf.sh',
+			]
+		);
+		vscode.window.showInformationMessage("Cloning the ESP-IDF");
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
 		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });
 		if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Name project not introduced"); return; }
@@ -16,9 +41,9 @@ export function activate(context: vscode.ExtensionContext) {
 			openLabel: "Select project location"
 		});
 		if (!projectLocation) { vscode.window.showErrorMessage("Project location not selected"); return; }
-		introducedName = join(projectLocation[0].fsPath, introducedName);
 		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
 		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
+		introducedName = join(projectLocation[0].fsPath, introducedName);
 		await vscode.workspace.fs.copy(
 			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate")),
 			vscode.Uri.file(introducedName),
