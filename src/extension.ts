@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { lstatSync, readdirSync } from 'fs';
 import { join } from 'path';
 
 import * as utils from './utils';
@@ -49,9 +48,9 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showWarningMessage("Some files (main/main.c, main/main.cpp, .vscode/settings.js, .vscode/c_cpp_properties.js) may be removed. Do you want to continue?");
 		var removeFiles = await showQuickPickFrom(["Continue", "Cancell"], "Do you wan to continue?");
 		if (!removeFiles) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
+		if (removeFiles.includes("Cancell")) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
 		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
 		if (!useNewWindow) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
-		if (removeFiles.includes("Cancell")) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
 		vscode.workspace.fs.delete(vscode.Uri.file(join(projectLocation[0].fsPath, "main/main.c")));
 		vscode.workspace.fs.delete(vscode.Uri.file(join(projectLocation[0].fsPath, "main/main.cpp")));
 		await vscode.workspace.fs.copy(
@@ -64,21 +63,37 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/c_cpp_properties.json")),
 			{ overwrite: true }
 		);
+		if (!await utils.fileExists(join(projectLocation[0].fsPath, ".esp32-idf"))) {
+			await vscode.workspace.fs.copy(
+				vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/.esp32-idf")),
+				vscode.Uri.file(join(projectLocation[0].fsPath, ".esp32-idf")),
+				{ overwrite: true }
+			);
+		}
 		vscode.commands.executeCommand("vscode.openFolder", projectLocation[0], useNewWindow.includes("new"));
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.defconfig', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		const terminal = utils.createEspIdfTerminal("Defconfig");
-		terminal.show(true);
-		terminal.sendText("make defconfig && history -c && exit");
+		utils.executeShellCommands(
+			"Defconfig",
+			[
+				'echo "ESP32-IDF: Applying default config values...\n"',
+				'make defconfig',
+			]
+		);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.menuconfig', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		const terminal = utils.createEspIdfTerminal("Menuconfig");
-		terminal.show(true);
-		terminal.sendText("set CHERE_INVOKING=1 && start C:/msys32/mingw32.exe make menuconfig && history -c && exit");
+		utils.executeShellCommands(
+			"Menuconfig",
+			[
+				'echo "ESP32-IDF: Launching graphical config menu...\n"',
+				'set CHERE_INVOKING=1',
+				'start C:/msys32/mingw32.exe make menuconfig',
+			]
+		);
 	}));
 
 	async function showQuickPickFrom(elements: string[], hint: string) {
@@ -110,26 +125,26 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!testFile) { vscode.window.showErrorMessage("No entry point selected."); return; }
 		}
 
-		const terminal = utils.createEspIdfTerminal("Build test");
-		terminal.show(true);
-		terminal.sendText('export testFile="' + selectedTestFolder + '/' + testFile + '"');
-		terminal.sendText('rm main/main.cpp');
-		terminal.sendText('echo "#include \"test/${testFile}\"" > main/main.cpp');
-		terminal.sendText('echo "extern \"C\"" >> main/main.cpp');
-		terminal.sendText('echo "{" >> main/main.cpp');
-		terminal.sendText('echo "void app_main();" >> main/main.cpp');
-		terminal.sendText('echo "}" >> main/main.cpp');
-		terminal.sendText('rm -r "build/main"');
-		terminal.sendText('clear');
-		terminal.sendText('make -j all');
-
-		terminal.sendText("sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildTest.sh && history -c && exit");
+		utils.executeShellCommands(
+			"Build test",
+			[
+				'echo "ESP32-IDF: Building test...\n"',
+				'export testFile="' + selectedTestFolder + '/' + testFile + '"',
+				"sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildTest.sh",
+			]
+		);
 	}));
 
 	async function getSerialPorts() {
 		const comPortsFile: string = "comPortsFile";
-		const terminal = utils.createEspIdfTerminal("Generate serial ports");
-		terminal.sendText('export comPortsFile="' + comPortsFile + '" && sh ' + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/GenerateComList.sh && history -c && exit");
+		utils.executeShellCommands(
+			'Generate serial ports',
+			[
+				'echo "ESP32-IDF: Generating serial ports list...\n"',
+				'export comPortsFile="' + comPortsFile + '"',
+				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateComList.sh',
+			]
+		);
 		var fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher('**/build/' + comPortsFile, true, true, false);
 		var serialPorts: string[] = [];
 		var serialPortsChecked: boolean = false;
@@ -154,9 +169,13 @@ export function activate(context: vscode.ExtensionContext) {
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
 		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
-		const terminal = utils.createEspIdfTerminal("Flash");
-		terminal.show(true);
-		terminal.sendText('make flash ESPPORT=' + selectedSerialPort + ' && history -c && exit');
+		utils.executeShellCommands(
+			'Flash',
+			[
+				'echo "ESP32-IDF: Flashing project...\n"',
+				'make flash ESPPORT=' + selectedSerialPort,
+			]
+		);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.monitor', async () => {
@@ -165,9 +184,13 @@ export function activate(context: vscode.ExtensionContext) {
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
 		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
-		const terminal = utils.createEspIdfTerminal("Monitor");
-		terminal.show(true);
-		terminal.sendText('make monitor ESPPORT=' + selectedSerialPort + ' && history -c && exit');
+		utils.executeShellCommands(
+			'Monitor',
+			[
+				'echo "ESP32-IDF: Opening serial port...\n"',
+				'make monitor ESPPORT=' + selectedSerialPort,
+			]
+		);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.flash-monitor', async () => {
@@ -176,23 +199,37 @@ export function activate(context: vscode.ExtensionContext) {
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
 		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
-		const terminal = utils.createEspIdfTerminal("Flash & Monitor");
-		terminal.show(true);
-		terminal.sendText('make flash monitor ESPPORT=' + selectedSerialPort + ' && history -c && exit');
+		utils.executeShellCommands(
+			'Flash & Monitor',
+			[
+				'echo "ESP32-IDF: Flashing project and opening serial port...\n"',
+				'make flash monitor ESPPORT=' + selectedSerialPort,
+			]
+		);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.clean', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		const terminal = utils.createEspIdfTerminal("Clean");
-		terminal.show(true);
-		terminal.sendText('make clean && history -c && exit');
+		utils.executeShellCommands(
+			'Clean',
+			[
+				'echo "ESP32-IDF: Deleting build output files...\n"',
+				'make clean',
+				'echo "\nESP32-IDF: Build output files deleted.\n"',
+			]
+		);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.remove-auto-gen', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		const terminal = utils.createEspIdfTerminal("Remove auto-generated files");
-		terminal.show(true);
-		terminal.sendText('rm sdkcondig && rm sdkconfig.old && rm main/main.cpp && rm -r "build" && history -c && exit');
+		utils.executeShellCommands(
+			'Remove auto-generated files',
+			[
+				'echo "ESP32-IDF: Deleting build output files...\n"',
+				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/RemoveAutoGen.sh',
+				'echo "\nESP32-IDF: Build output files deleted.\n"',
+			]
+		);
 	}));
 
 }
