@@ -1,4 +1,4 @@
-rm "build/$comPortsFile"
+rm -f "build/$comPortsFile"
 
 touch "build/$comPortsFile"
 
@@ -11,4 +11,4 @@ done
 
 cat "build/$comPortsFile" > "build/$comPortsFile.txt"
 sleep 1
-rm "build/$comPortsFile"
+rm -f "build/$comPortsFile"
