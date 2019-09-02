@@ -3,7 +3,6 @@
     "terminal.integrated.env.windows": {
         "CHERE_INVOKING": "1",
         "MSYSTEM": "MINGW32",
-        "workspaceFolder": "${workspaceFolder}"
     },
     "terminal.integrated.shellArgs.windows": [
         "--login"
