@@ -42,5 +42,18 @@ export function fileExists(path: string): boolean {
 export async function isEsp32idfProject(): Promise<boolean> {
     var workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) { return false; }
-    return await folderExists(join(workspaceFolders[0].uri.fsPath, ".esp32-idf"));
+    return await fileExists(join(workspaceFolders[0].uri.fsPath, ".esp32-idf"));
+}
+
+export function executeShellCommands(name: string, commandLines: string[]): void {
+    var _task = new vscode.Task(
+        { type: "shell" },
+        vscode.TaskScope.Workspace,
+        name,
+        "ESP32-IDF",
+        new vscode.ShellExecution(commandLines.join(" && "))
+    );
+    _task.presentationOptions.echo = false;
+    _task.presentationOptions.focus = true;
+    vscode.tasks.executeTask(_task);
 }
