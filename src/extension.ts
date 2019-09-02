@@ -15,10 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectMany: false,
 			openLabel: "Select project location"
 		});
-		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
-		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
 		if (!projectLocation) { vscode.window.showErrorMessage("Project location not selected"); return; }
 		introducedName = join(projectLocation[0].fsPath, introducedName);
+		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
+		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
 		await vscode.workspace.fs.copy(
 			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate")),
 			vscode.Uri.file(introducedName),
