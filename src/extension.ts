@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
-		
+
 		// Ask the user for the new project name.
 		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });
 		if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Name project not introduced"); return; }
@@ -138,11 +138,13 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.workspace.fs.delete(vscode.Uri.file(join(introducedName, ".vscode/_c_cpp_properties.json")));
 		await vscode.workspace.fs.delete(vscode.Uri.file(join(introducedName, ".vscode/_settings.json")));
 
-		// Launch the new project according to the user election
+		// Launch the new project according to the user election.
 		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(introducedName), useNewWindow.includes("new"));
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.init-project', async () => {
+
+		// Ask the user for the existing project location.
 		var projectLocation = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
 			canSelectFolders: true,
@@ -150,32 +152,48 @@ export function activate(context: vscode.ExtensionContext) {
 			openLabel: "Select project folder"
 		});
 		if (!projectLocation) { vscode.window.showErrorMessage("Project location not selected"); return; }
-		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main")) || !await utils.fileExists(join(projectLocation[0].fsPath, "Makefile"))) {
-			vscode.window.showErrorMessage("The folder does not contain an ESP-IDF project");
-			return;
-		}
-		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main/test"))) {
-			vscode.window.showErrorMessage('The project must use a "test" directory inside the "main" folder.');
-			return;
-		}
-		vscode.window.showWarningMessage("Some files (main/main.c, main/main.cpp, .vscode/settings.js, .vscode/c_cpp_properties.js) may be removed. Do you want to continue?");
-		var removeFiles = await showQuickPickFrom(["Continue", "Cancell"], "Do you wan to continue?");
-		if (!removeFiles) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
-		if (removeFiles.includes("Cancell")) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
+
+		// Check if the provided folder contains an ESP-IDF project.
+		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main")) || !await utils.fileExists(join(projectLocation[0].fsPath, "Makefile"))) { vscode.window.showErrorMessage("The folder does not contain an ESP-IDF project"); return; }
+
+		// Check if the provided folder contains an ESP32-IDF project.
+		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main/test"))) { vscode.window.showErrorMessage('The project must use a "test" directory inside the "main" folder.'); return; }
+
+		// Ask the user for confirmation to remove files.
+		var removeMain = await vscode.window.showWarningMessage("The following files will be removed: 'main/main.c', 'main/main.cpp'", 'Continue', 'Cancel');
+		if (!removeMain || removeMain === 'Cancel') { vscode.window.showErrorMessage("Project initialization cancelled."); return; }
+
+		// Ask the user if the new project should be launched in the current window or in a new one.
+		var overwriteFiles = await showQuickPickFrom(["settings.json", "c_cpp_properties.json"], "Files that can be overwritten.", true);
+		// if (!overwriteFiles) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
+
+		// Ask the user if the project should be launched in the current window or in a new one.
 		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
 		if (!useNewWindow) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
+
+		// Remove 'main' files.
 		vscode.workspace.fs.delete(vscode.Uri.file(join(projectLocation[0].fsPath, "main/main.c")));
 		vscode.workspace.fs.delete(vscode.Uri.file(join(projectLocation[0].fsPath, "main/main.cpp")));
-		await vscode.workspace.fs.copy(
-			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/_vscode/settings.json")),
-			vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/settings.json")),
-			{ overwrite: true }
-		);
-		await vscode.workspace.fs.copy(
-			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/_vscode/c_cpp_properties.json")),
-			vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/c_cpp_properties.json")),
-			{ overwrite: true }
-		);
+
+		// Overwrite the selected files
+		if (overwriteFiles) {
+			if (overwriteFiles.includes('settings.json')) {
+				await vscode.workspace.fs.copy(
+					vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/_vscode/settings.json")),
+					vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/settings.json")),
+					{ overwrite: true }
+				);
+			}
+			if (overwriteFiles.includes('c_cpp_properties.json')) {
+				await vscode.workspace.fs.copy(
+					vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/_vscode/c_cpp_properties.json")),
+					vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/c_cpp_properties.json")),
+					{ overwrite: true }
+				);
+			}
+		}
+
+		// Create a new '.esp32-idf' file if it does not exist.
 		if (!await utils.fileExists(join(projectLocation[0].fsPath, ".esp32-idf"))) {
 			await vscode.workspace.fs.copy(
 				vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/.esp32-idf")),
@@ -183,6 +201,8 @@ export function activate(context: vscode.ExtensionContext) {
 				{ overwrite: true }
 			);
 		}
+
+		// Launch the project according to the user election.
 		vscode.commands.executeCommand("vscode.openFolder", projectLocation[0], useNewWindow.includes("new"));
 	}));
 
@@ -209,10 +229,13 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	async function showQuickPickFrom(elements: string[], hint: string) {
+	async function showQuickPickFrom(elements: string[], hint: string, canPickMany: boolean = false) {
 		return await vscode.window.showQuickPick(
 			elements,
-			{ placeHolder: hint }
+			{
+				placeHolder: hint,
+				canPickMany: canPickMany
+			}
 		);
 	}
 
