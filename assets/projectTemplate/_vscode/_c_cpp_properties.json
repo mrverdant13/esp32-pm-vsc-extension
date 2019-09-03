@@ -11,7 +11,7 @@
                 "${workspaceFolder}/components/**",
                 "${workspaceFolder}/build/**",
                 "${workspaceFolder}/main",
-                "MSYS32_PATH/home/esp-idf/components/**"
+                "IDF_PATH/components/**"
             ],
             "browse": {
                 "path": [
@@ -19,7 +19,7 @@
                     "${workspaceFolder}/components/**",
                     "${workspaceFolder}/build/**",
                     "${workspaceFolder}/main",
-                    "MSYS32_PATH/home/esp-idf/components/**"
+                    "IDF_PATH/components/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.c_cpp.db"
