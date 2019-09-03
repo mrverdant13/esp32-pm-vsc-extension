@@ -21,6 +21,11 @@
 			},
 			{
 				"category": "ESP32-IDF",
+				"title": "Test",
+				"command": "extension.register-mingw32-terminal"
+			},
+			{
+				"category": "ESP32-IDF",
 				"title": "Create project",
 				"command": "extension.create-project"
 			},
