@@ -358,14 +358,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.remove-auto-gen', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		utils.executeShellCommands(
-			'Remove auto-generated files',
-			[
-				'echo "ESP32-IDF: Deleting build output files...\n"',
-				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/RemoveAutoGen.sh',
-				'echo "\nESP32-IDF: Build output files deleted.\n"',
-			]
-		);
+
+		// Remove auto-generated files.
+		var workspaceFolders = vscode.workspace.workspaceFolders;
+		if (workspaceFolders) {
+			vscode.workspace.fs.delete(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, "main/main.c")));
+			vscode.workspace.fs.delete(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, "main/main.cpp")));
+			vscode.workspace.fs.delete(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, "sdkconfig")));
+			vscode.workspace.fs.delete(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, "build")));
+		}
 	}));
 
 }
