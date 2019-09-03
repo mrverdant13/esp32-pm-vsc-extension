@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "!!! WARNING !!! AUTO-GENERATED FILE !!!"
+        },
+        {
+            "name": "ESP32-Windows",
+            "intelliSenseMode": "clang-x64",
+            "includePath": [
+                "MSYS32_PATH/opt/xtensa-esp32-elf/**",
+                "${workspaceFolder}/components/**",
+                "${workspaceFolder}/build/**",
+                "${workspaceFolder}/main",
+                "MSYS32_PATH/home/esp-idf/components/**"
+            ],
+            "browse": {
+                "path": [
+                    "MSYS32_PATH/opt/xtensa-esp32-elf/**",
+                    "${workspaceFolder}/components/**",
+                    "${workspaceFolder}/build/**",
+                    "${workspaceFolder}/main",
+                    "MSYS32_PATH/home/esp-idf/components/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.c_cpp.db"
+            },
+            "cStandard": "c11",
+            "cppStandard": "c++11"
+        }
+    ],
+    "version": 4
+}

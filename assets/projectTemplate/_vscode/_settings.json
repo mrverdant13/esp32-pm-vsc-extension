@@ -1,0 +1,11 @@
+{
+    "terminal.integrated.shell.windows": "BASH_PATH",
+    "terminal.integrated.env.windows": {
+        "CHERE_INVOKING": "1",
+        "MSYSTEM": "MINGW32"
+    },
+    "terminal.integrated.shellArgs.windows": [
+        "--login"
+    ],
+    "C_Cpp.intelliSenseEngine": "Tag Parser"
+}
