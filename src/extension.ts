@@ -6,28 +6,98 @@ import * as utils from './utils';
 export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.install-esp-idf', async () => {
+
+		// Values
+		const tempFileName: string = 'temp.txt';
+		const executionName: string = 'Cloning ESP-IDF';
+		const lastIdfFolderName: string = 'esp-idf.old';
+
+		// The user must select the location of the 'msys32' folder.
 		var msys32Location = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
 			canSelectFolders: true,
 			canSelectMany: false,
 			openLabel: "Select 'msys32' location"
 		});
+
+		// If the location is 'undefined', it has not been selected.
 		if (!msys32Location) { vscode.window.showErrorMessage("'msys32' location not selected"); return; }
+
+		// The user may have chosen the 'msys32' folder or its container.
 		msys32Location[0] = vscode.Uri.file(join(msys32Location[0].fsPath, msys32Location[0].fsPath.endsWith('msys32') ? '' : 'msys32'));
-		if (!await utils.folderExists(join(msys32Location[0].fsPath, 'home')) || !await utils.folderExists(join(msys32Location[0].fsPath, 'etc/profile.d'))) {
-			vscode.window.showErrorMessage("Invalid 'msys32' location.");
-			return;
-		}
+
+		// If the folders '.../msys32/home/' or '.../msys32/etc/profile.d/' do not exist, the 'msys32' folder is invalid.
+		if (!await utils.folderExists(join(msys32Location[0].fsPath, 'home')) || !await utils.folderExists(join(msys32Location[0].fsPath, 'etc/profile.d'))) { vscode.window.showErrorMessage("Invalid 'msys32' location."); return; }
+
+		// The 'msys32' folder location must not include empty spaces.
 		if (msys32Location[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
-		utils.executeShellCommands(
-			"ESP-IDF installation",
-			[
-				'echo "ESP32-IDF: Cloning the ESP-IDF...\n"',
-				'export msys32Loc="' + msys32Location[0].fsPath.replace(/\\/gi, '/') + '"',
-				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/InstallEspIdf.sh',
-			]
+
+		// Export the MSYS32_PATH variable.
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(msys32Location[0].fsPath, 'etc/profile.d/export_msys32_path.sh')),
+			Buffer.from('export MSYS32_PATH="' + msys32Location[0].fsPath.replace(/\\/gi, '/') + '"')
 		);
-		vscode.window.showInformationMessage("Cloning the ESP-IDF");
+
+		// Remove the '$tempFileName' file that is used as a success indicator.
+		if (utils.fileExists(join(msys32Location[0].fsPath, 'home', tempFileName))) {
+			await vscode.workspace.fs.delete(vscode.Uri.file(join(msys32Location[0].fsPath, 'home', tempFileName)));
+		}
+
+		// Rename any existing 'esp-idf' folder as 'esp-idf.old'.
+		if (utils.folderExists(join(msys32Location[0].fsPath, 'home/esp-idf'))) {
+			if (utils.folderExists(join(msys32Location[0].fsPath, 'home', lastIdfFolderName))) {
+				await vscode.workspace.fs.delete(vscode.Uri.file(join(msys32Location[0].fsPath, 'home', lastIdfFolderName)));
+			}
+			await vscode.workspace.fs.rename(vscode.Uri.file(join(msys32Location[0].fsPath, 'home/esp-idf')), vscode.Uri.file(join(msys32Location[0].fsPath, 'home/esp-idf.old')));
+		}
+
+		// Clone the ESP-IDF and create the '$tempFileName' file to indicate success.
+		utils.executeShellCommands(
+			executionName,
+			[
+				'echo ' + executionName + '...',
+				'cd "' + join(msys32Location[0].fsPath, 'home').replace(/\\/gi, '/') + '"',
+				'git clone --recursive https://github.com/espressif/esp-idf.git',
+				'echo "Done" >> ' + tempFileName,
+			],
+		);
+
+		// Wait until the task finishes.
+		var taskFinished: boolean = false;
+		var disp = vscode.tasks.onDidEndTask((event) => {
+			if (event.execution.task.name === executionName) {
+				taskFinished = true;
+			}
+		});
+		while (!taskFinished) { await utils.delay(100); }
+		disp.dispose();
+
+		// Check if the cloning process was successful.
+		if (!utils.fileExists(join(msys32Location[0].fsPath, 'home', tempFileName))) { vscode.window.showErrorMessage("The ESP-IDF could not be cloned."); return; }
+
+		// Export the IDF_PATH variable.
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(msys32Location[0].fsPath, 'etc/profile.d/export_idf_path.sh')),
+			Buffer.from('export IDF_PATH="' + join(msys32Location[0].fsPath, 'home/esp-idf').replace(/\\/gi, '/') + '"')
+		);
+
+		// Update the VSC integrated terminal path.
+		var documentContent = (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/projectTemplate/_vscode/_settings.json'))).getText();
+		documentContent = documentContent.replace(/BASH_PATH/gi, join(msys32Location[0].fsPath, 'usr/bin/bash.exe').replace(/\\/gi, '/'));
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(context.extensionPath, 'assets/projectTemplate/_vscode/settings.json')),
+			Buffer.from(documentContent)
+		);
+
+		// Update the VSC C/C++ properties.
+		documentContent = (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/projectTemplate/_vscode/_c_cpp_properties.json'))).getText();
+		documentContent = documentContent.replace(/MSYS32_PATH/gi, msys32Location[0].fsPath.replace(/\\/gi, '/'));
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(context.extensionPath, 'assets/projectTemplate/_vscode/c_cpp_properties.json')),
+			Buffer.from(documentContent)
+		);
+
+		vscode.window.showInformationMessage("ESP32-IDF successfully installed.");
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
@@ -50,7 +120,8 @@ export function activate(context: vscode.ExtensionContext) {
 			{ overwrite: false }
 		);
 		await vscode.workspace.fs.rename(vscode.Uri.file(join(introducedName, "_vscode")), vscode.Uri.file(join(introducedName, ".vscode")));
-		await vscode.workspace.fs.rename(vscode.Uri.file(join(introducedName, ".vscode/_gitignore")), vscode.Uri.file(join(introducedName, ".vscode/.gitignore")));
+		await vscode.workspace.fs.delete(vscode.Uri.file(join(introducedName, ".vscode/_c_cpp_properties.json")));
+		await vscode.workspace.fs.delete(vscode.Uri.file(join(introducedName, ".vscode/_settings.json")));
 		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(introducedName), useNewWindow.includes("new"));
 	}));
 

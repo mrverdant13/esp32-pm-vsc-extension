@@ -17,8 +17,7 @@
 			{
 				"category": "ESP32-IDF",
 				"title": "Install the ESP-IDF",
-				"command": "extension.install-esp-idf",
-				"enablement": "isWindows"
+				"command": "extension.install-esp-idf"
 			},
 			{
 				"category": "ESP32-IDF",
