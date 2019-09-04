@@ -4,6 +4,7 @@ import { join } from 'path';
 import * as utils from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
+	var separator: string = '=';
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.install-esp-idf', async () => {
 
@@ -103,8 +104,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
 
-		var separator: string = '=';
-
 		// The user must select the location of the 'msys32' folder.
 		var msys32Selection = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
@@ -114,32 +113,42 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 
 		// If the location is 'undefined', it has not been selected.
-		if (!msys32Selection) { vscode.window.showErrorMessage("'msys32' location not selected"); return; }
+		if (!msys32Selection) {
+			vscode.window.showErrorMessage("'msys32' location not selected");
+			return;
+		}
 
 		// The user may have chosen the 'msys32' folder or its container.
 		var msys32Location: string = join(msys32Selection[0].fsPath, msys32Selection[0].fsPath.endsWith('msys32') ? '' : 'msys32');
 
 		// If the folders '.../msys32/home/' or '.../msys32/etc/profile.d/' do not exist, the 'msys32' folder is invalid.
-		if (!await utils.folderExists(join(msys32Location, 'home')) || !await utils.folderExists(join(msys32Location, 'etc/profile.d'))) { vscode.window.showErrorMessage("Invalid 'msys32' location."); return; }
+		if (!await utils.folderExists(join(msys32Location, 'home')) || !await utils.folderExists(join(msys32Location, 'etc/profile.d'))) {
+			vscode.window.showErrorMessage("Invalid 'msys32' location.");
+			return;
+		}
 
 		// The 'msys32' folder location must not include empty spaces.
-		if (msys32Location.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
+		if (msys32Location.includes(" ")) {
+			vscode.window.showErrorMessage("The 'msys32' path should not include spaces.");
+			return;
+		}
 
 		// Get the registered values
 		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
 
 		// Check if the 'msys32' folder path was already registered.
-		var registeredObject = values.MSYS32_PATHs.find(
-			(object) => {
-				return object.includes(msys32Location);
-			}
-		);
+		var registeredObject = values.MSYS32_PATHs.find((object) => {
+			return object.includes(msys32Location);
+		});
 
 		// If the 'msys32' path is already registered, ask the user if it will be renamed or removed.
 		var assignName: boolean = true;
 		if (registeredObject !== undefined) {
 			var response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + registeredObject.split(separator)[0] + "'.", 'Rename', 'Remove');
-			if (!response) { vscode.window.showErrorMessage('Existing register kept.'); return; }
+			if (!response) {
+				vscode.window.showErrorMessage('Existing register kept.');
+				return;
+			}
 			values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(registeredObject), 1);
 			if (response === 'Rename') { assignName = true; }
 			else { assignName = false; }
@@ -148,7 +157,10 @@ export function activate(context: vscode.ExtensionContext) {
 		// Ask the user for the 'msys32' register name.
 		if (assignName) {
 			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the 'msys32' register" });
-			if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Register name not introduced"); return; }
+			if (!introducedName || introducedName.trim().length === 0) {
+				vscode.window.showErrorMessage("Register name not introduced");
+				return;
+			}
 			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(separator, 'gi'), '_').toUpperCase();
 			values.MSYS32_PATHs.push(introducedName + separator + msys32Location);
 		}
