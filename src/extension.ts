@@ -103,38 +103,64 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
 
+		var separator: string = '=';
+
 		// The user must select the location of the 'msys32' folder.
-		var msys32Location = await vscode.window.showOpenDialog({
+		var msys32Selection = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
 			canSelectFolders: true,
 			canSelectMany: false,
-			openLabel: "Select 'msys32' location"
+			openLabel: "Select 'msys32' folder location"
 		});
 
 		// If the location is 'undefined', it has not been selected.
-		if (!msys32Location) { vscode.window.showErrorMessage("'msys32' location not selected"); return; }
+		if (!msys32Selection) { vscode.window.showErrorMessage("'msys32' location not selected"); return; }
 
 		// The user may have chosen the 'msys32' folder or its container.
-		msys32Location[0] = vscode.Uri.file(join(msys32Location[0].fsPath, msys32Location[0].fsPath.endsWith('msys32') ? '' : 'msys32'));
+		var msys32Location: string = join(msys32Selection[0].fsPath, msys32Selection[0].fsPath.endsWith('msys32') ? '' : 'msys32');
 
 		// If the folders '.../msys32/home/' or '.../msys32/etc/profile.d/' do not exist, the 'msys32' folder is invalid.
-		if (!await utils.folderExists(join(msys32Location[0].fsPath, 'home')) || !await utils.folderExists(join(msys32Location[0].fsPath, 'etc/profile.d'))) { vscode.window.showErrorMessage("Invalid 'msys32' location."); return; }
+		if (!await utils.folderExists(join(msys32Location, 'home')) || !await utils.folderExists(join(msys32Location, 'etc/profile.d'))) { vscode.window.showErrorMessage("Invalid 'msys32' location."); return; }
 
 		// The 'msys32' folder location must not include empty spaces.
-		if (msys32Location[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
+		if (msys32Location.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
 
-		// Store the 'msys32' folder path if it has not been included yet.
+		// Get the registered values
 		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
-		if (!values.MSYS32_PATHs.includes(msys32Location[0].fsPath)) {
-			values.MSYS32_PATHs.push(msys32Location[0].fsPath);
+
+		// Check if the 'msys32' folder path was already registered.
+		var registeredObject = values.MSYS32_PATHs.find(
+			(object) => {
+				return object.includes(msys32Location);
+			}
+		);
+
+		// If the 'msys32' path is already registered, ask the user if it will be renamed or removed.
+		var assignName: boolean = true;
+		if (registeredObject !== undefined) {
+			var response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + registeredObject.split(separator)[0] + "'.", 'Rename', 'Remove');
+			if (!response) { vscode.window.showErrorMessage('Existing register kept.'); return; }
+			values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(registeredObject), 1);
+			if (response === 'Rename') { assignName = true; }
+			else { assignName = false; }
 		}
+
+		// Ask the user for the 'msys32' register name.
+		if (assignName) {
+			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the 'msys32' register" });
+			if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Register name not introduced"); return; }
+			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(separator, 'gi'), '_').toUpperCase();
+			values.MSYS32_PATHs.push(introducedName + separator + msys32Location);
+		}
+
+		// Store the register in the 'values.json' file.
 		await vscode.workspace.fs.writeFile(
 			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
 			Buffer.from(JSON.stringify(values))
 		);
 
-		// Notify the successful ESP-IDF installation
-		vscode.window.showInformationMessage("MinGW32 terminal registered.");
+		// Reload window
+		vscode.commands.executeCommand('workbench.action.reloadWindow');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
@@ -144,31 +170,28 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectFiles: false,
 			canSelectFolders: true,
 			canSelectMany: false,
-			openLabel: "Select the ESP-IDF API location"
+			openLabel: "Select the ESP-IDF API folder location"
 		});
 
 		// If the location is 'undefined', it has not been selected.
 		if (!espidfLocation) { vscode.window.showErrorMessage("ESP-IDF API location not selected"); return; }
 
-		// The user may have chosen the ESP-IDF API folder or its container.
-		espidfLocation[0] = vscode.Uri.file(join(espidfLocation[0].fsPath, espidfLocation[0].fsPath.endsWith('esp-idf') ? '' : 'esp-idf'));
-
-		// If the folders '.../esp-idf/components/' or '.../esp-idf/examples/' do not exist, the ESP-IDF API folder is invalid.
-		if (!await utils.folderExists(join(espidfLocation[0].fsPath, 'components')) || !await utils.folderExists(join(espidfLocation[0].fsPath, 'examples'))) { vscode.window.showErrorMessage("Invalid ESP-IDF API location."); return; }
+		// If the selected folder does not contain the 'esp-idf' string or if the folders '.../esp-idf/components/' or '.../esp-idf/examples/' do not exist, the ESP-IDF API folder is invalid.
+		if (!espidfLocation[0].fsPath.includes('esp-idf') || !await utils.folderExists(join(espidfLocation[0].fsPath, 'components')) || !await utils.folderExists(join(espidfLocation[0].fsPath, 'examples'))) { vscode.window.showErrorMessage("Invalid ESP-IDF API folder."); return; }
 
 		// The ESP-IDF API folder location must not include empty spaces.
 		if (espidfLocation[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The ESP-IDF API path should not include spaces."); return; }
 
 		// Store the ESP-IDF API folder path if it has not been included yet.
-		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
-		if (!values.IDF_PATHs.includes(espidfLocation[0].fsPath)) {
-			values.IDF_PATHs.push(espidfLocation[0].fsPath);
-		}
-		console.log(values.IDF_PATHs);
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
-			Buffer.from(JSON.stringify(values))
-		);
+		// var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
+		// if (!values.IDF_PATHs.includes(espidfLocation[0].fsPath)) {
+		// 	values.IDF_PATHs.push(espidfLocation[0].fsPath);
+		// }
+		// console.log(values.IDF_PATHs);
+		// await vscode.workspace.fs.writeFile(
+		// 	vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
+		// 	Buffer.from(JSON.stringify(values))
+		// );
 
 		// Notify the successful ESP-IDF installation
 		vscode.window.showInformationMessage("ESP-IDF API registered.");
@@ -178,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Ask the user for the new project name.
 		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });
-		if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Name project not introduced"); return; }
+		if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Project name not introduced"); return; }
 		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '-').toLowerCase();
 
 		// Ask the user for the new project location.
