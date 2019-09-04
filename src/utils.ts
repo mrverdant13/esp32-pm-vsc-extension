@@ -48,3 +48,20 @@ export function executeShellCommands(name: string, commandLines: string[]): void
     _task.presentationOptions.focus = true;
     vscode.tasks.executeTask(_task);
 }
+
+export interface Esp32IdfValues {
+    MSYS32_PATHs: string[];
+    IDF_PATHs: string[];
+}
+
+export async function getEsp32IdfValues(context: vscode.ExtensionContext): Esp32IdfValues {
+    var values: Esp32IdfValues = JSON.parse(
+        fileExists(join(context.extensionPath, 'assets/local-data/values.json'))
+            ? (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/local-data/values.json'))).getText()
+            : '{}'
+    );
+    if (!values.MSYS32_PATHs) { values.MSYS32_PATHs = []; }
+    if (!values.IDF_PATHs) { values.IDF_PATHs = []; }
+
+    return values;
+}

@@ -123,19 +123,11 @@ export function activate(context: vscode.ExtensionContext) {
 		// The 'msys32' folder location must not include empty spaces.
 		if (msys32Location[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
 
-		// Store the 'msys32' folder path
-		interface Esp32IdfValues {
-			MSYS32_PATHs: string[];
-			IDF_PATHs: string[];
+		// Store the 'msys32' folder path if it has not been included yet.
+		var values: utils.Esp32IdfValues = utils.getEsp32IdfValues(context);
+		if (!values.MSYS32_PATHs.includes(msys32Location[0].fsPath)) {
+			values.MSYS32_PATHs.push(msys32Location[0].fsPath);
 		}
-		var values: Esp32IdfValues = JSON.parse(
-			utils.fileExists(join(context.extensionPath, 'assets/local-data/values.json'))
-				? (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/local-data/values.json'))).getText()
-				: '{}'
-		);
-		if (!values.MSYS32_PATHs) { values.MSYS32_PATHs = []; }
-		if (!values.IDF_PATHs) { values.IDF_PATHs = []; }
-		values.MSYS32_PATHs.push(msys32Location[0].fsPath);
 		await vscode.workspace.fs.writeFile(
 			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
 			Buffer.from(JSON.stringify(values))
