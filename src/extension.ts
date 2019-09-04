@@ -124,7 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (msys32Location[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The 'msys32' path should not include spaces."); return; }
 
 		// Store the 'msys32' folder path if it has not been included yet.
-		var values: utils.Esp32IdfValues = utils.getEsp32IdfValues(context);
+		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
 		if (!values.MSYS32_PATHs.includes(msys32Location[0].fsPath)) {
 			values.MSYS32_PATHs.push(msys32Location[0].fsPath);
 		}
@@ -135,6 +135,43 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Notify the successful ESP-IDF installation
 		vscode.window.showInformationMessage("MinGW32 terminal registered.");
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
+
+		// The user must select the location of the folder containing the ESP-IDF API.
+		var espidfLocation = await vscode.window.showOpenDialog({
+			canSelectFiles: false,
+			canSelectFolders: true,
+			canSelectMany: false,
+			openLabel: "Select the ESP-IDF API location"
+		});
+
+		// If the location is 'undefined', it has not been selected.
+		if (!espidfLocation) { vscode.window.showErrorMessage("ESP-IDF API location not selected"); return; }
+
+		// The user may have chosen the ESP-IDF API folder or its container.
+		espidfLocation[0] = vscode.Uri.file(join(espidfLocation[0].fsPath, espidfLocation[0].fsPath.endsWith('esp-idf') ? '' : 'esp-idf'));
+
+		// If the folders '.../esp-idf/components/' or '.../esp-idf/examples/' do not exist, the ESP-IDF API folder is invalid.
+		if (!await utils.folderExists(join(espidfLocation[0].fsPath, 'components')) || !await utils.folderExists(join(espidfLocation[0].fsPath, 'examples'))) { vscode.window.showErrorMessage("Invalid ESP-IDF API location."); return; }
+
+		// The ESP-IDF API folder location must not include empty spaces.
+		if (espidfLocation[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The ESP-IDF API path should not include spaces."); return; }
+
+		// Store the ESP-IDF API folder path if it has not been included yet.
+		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
+		if (!values.IDF_PATHs.includes(espidfLocation[0].fsPath)) {
+			values.IDF_PATHs.push(espidfLocation[0].fsPath);
+		}
+		console.log(values.IDF_PATHs);
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
+			Buffer.from(JSON.stringify(values))
+		);
+
+		// Notify the successful ESP-IDF installation
+		vscode.window.showInformationMessage("ESP-IDF API registered.");
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {

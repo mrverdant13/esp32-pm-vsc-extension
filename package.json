@@ -21,7 +21,12 @@
 			},
 			{
 				"category": "ESP32-IDF",
-				"title": "Test",
+				"title": "Register ESP-IDF API",
+				"command": "extension.register-esp-idf"
+			},
+			{
+				"category": "ESP32-IDF",
+				"title": "Register MinGW32 terminal",
 				"command": "extension.register-mingw32-terminal"
 			},
 			{
