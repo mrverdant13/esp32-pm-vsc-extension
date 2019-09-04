@@ -136,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// Get the registered values
 		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
 
-		// Check if the 'msys32' folder path was already registered.
+		// Check if the selected 'msys32' folder path was already registered.
 		var registeredObject = values.MSYS32_PATHs.find((object) => {
 			return object.includes(msys32Location);
 		});
@@ -177,36 +177,75 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
 
-		// The user must select the location of the folder containing the ESP-IDF API.
-		var espidfLocation = await vscode.window.showOpenDialog({
+		// The user must select the location of an ESP-IDF API folder.
+		var espidfSelection = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
 			canSelectFolders: true,
 			canSelectMany: false,
-			openLabel: "Select the ESP-IDF API folder location"
+			openLabel: "Select the ESP-IDF API folder"
 		});
 
 		// If the location is 'undefined', it has not been selected.
-		if (!espidfLocation) { vscode.window.showErrorMessage("ESP-IDF API location not selected"); return; }
+		if (!espidfSelection) {
+			vscode.window.showErrorMessage("ESP-IDF API location not selected");
+			return;
+		}
 
-		// If the selected folder does not contain the 'esp-idf' string or if the folders '.../esp-idf/components/' or '.../esp-idf/examples/' do not exist, the ESP-IDF API folder is invalid.
-		if (!espidfLocation[0].fsPath.includes('esp-idf') || !await utils.folderExists(join(espidfLocation[0].fsPath, 'components')) || !await utils.folderExists(join(espidfLocation[0].fsPath, 'examples'))) { vscode.window.showErrorMessage("Invalid ESP-IDF API folder."); return; }
+		// Get the path of the selected location
+		var espidfLocation: string = espidfSelection[0].fsPath;
+
+		// If the folders '.../*esp-idf*/components/' or '.../*esp-idf*/examples/' do not exist, the ESP-IDF API folder is invalid.
+		if (!await utils.folderExists(join(espidfLocation, 'components')) || !await utils.folderExists(join(espidfLocation, 'examples'))) {
+			vscode.window.showErrorMessage("The selected folder does not contain an ESP-IDF API.");
+			return;
+		}
 
 		// The ESP-IDF API folder location must not include empty spaces.
-		if (espidfLocation[0].fsPath.includes(" ")) { vscode.window.showErrorMessage("The ESP-IDF API path should not include spaces."); return; }
+		if (espidfLocation.includes(" ")) {
+			vscode.window.showErrorMessage("The ESP-IDF API path should not include spaces.");
+			return;
+		}
 
-		// Store the ESP-IDF API folder path if it has not been included yet.
-		// var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
-		// if (!values.IDF_PATHs.includes(espidfLocation[0].fsPath)) {
-		// 	values.IDF_PATHs.push(espidfLocation[0].fsPath);
-		// }
-		// console.log(values.IDF_PATHs);
-		// await vscode.workspace.fs.writeFile(
-		// 	vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
-		// 	Buffer.from(JSON.stringify(values))
-		// );
+		// Get the registered values
+		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
 
-		// Notify the successful ESP-IDF installation
-		vscode.window.showInformationMessage("ESP-IDF API registered.");
+		// Check if the selected ESP-IDF API folder path was already registered.
+		var registeredObject = values.IDF_PATHs.find((object) => {
+			return object.includes(espidfLocation);
+		});
+
+		// If the ESP-IDF API path is already registered, ask the user if it will be renamed or removed.
+		var assignName: boolean = true;
+		if (registeredObject !== undefined) {
+			var response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered as '" + registeredObject.split(separator)[0] + "'.", 'Rename', 'Remove');
+			if (!response) {
+				vscode.window.showErrorMessage('Existing register kept.');
+				return;
+			}
+			values.IDF_PATHs.splice(values.IDF_PATHs.indexOf(registeredObject), 1);
+			if (response === 'Rename') { assignName = true; }
+			else { assignName = false; }
+		}
+
+		// Ask the user for the ESP-IDF API register name.
+		if (assignName) {
+			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the ESP-IDF API register" });
+			if (!introducedName || introducedName.trim().length === 0) {
+				vscode.window.showErrorMessage("Register name not introduced");
+				return;
+			}
+			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(separator, 'gi'), '_').toUpperCase();
+			values.IDF_PATHs.push(introducedName + separator + espidfLocation);
+		}
+
+		// Store the register in the 'values.json' file.
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
+			Buffer.from(JSON.stringify(values))
+		);
+
+		// Reload window
+		vscode.commands.executeCommand('workbench.action.reloadWindow');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
