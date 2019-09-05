@@ -3,6 +3,7 @@ import { join } from 'path';
 import { readdirSync, lstatSync } from 'fs';
 
 const relativeValuesPath: string = 'assets/local-data/values.json';
+export const Esp32IdfValuesSeparator: string = '=';
 
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -61,6 +62,11 @@ export interface Esp32IdfValues {
     IDF_PATHs: Array<string>;
 }
 
+export enum Esp32IdfValueType {
+    MSYS32 = 0,
+    IDF = 1,
+}
+
 export async function getEsp32IdfValues(context: vscode.ExtensionContext) {
     var values: Esp32IdfValues = JSON.parse(
         fileExists(join(context.extensionPath, relativeValuesPath))
@@ -77,4 +83,31 @@ export async function setEsp32IdfValues(context: vscode.ExtensionContext, values
         vscode.Uri.file(join(context.extensionPath, relativeValuesPath)),
         Buffer.from(JSON.stringify(values))
     );
+}
+
+export async function removeUnexistingEsp32IdfValues(context: vscode.ExtensionContext, valueType: Esp32IdfValueType) {
+    var values: Esp32IdfValues = await getEsp32IdfValues(context);
+    switch (valueType) {
+        case Esp32IdfValueType.MSYS32: {
+            values.MSYS32_PATHs.forEach(
+                (msys32Path) => {
+                    if (!folderExists(msys32Path.split(Esp32IdfValuesSeparator)[1])) {
+                        values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(msys32Path), 1);
+                    }
+                }
+            );
+            break;
+        }
+        case Esp32IdfValueType.MSYS32: {
+            values.IDF_PATHs.forEach(
+                (espidfPath) => {
+                    if (!folderExists(espidfPath.split(Esp32IdfValuesSeparator)[1])) {
+                        values.IDF_PATHs.splice(values.IDF_PATHs.indexOf(espidfPath), 1);
+                    }
+                }
+            );
+        }
+    }
+
+
 }
