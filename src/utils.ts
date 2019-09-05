@@ -85,27 +85,26 @@ export async function setEsp32IdfValues(context: vscode.ExtensionContext, values
     );
 }
 
+async function getExistingPaths(paths: string[]): Promise<string[]> {
+    var newPaths: string[] = [];
+    for (var index: number = 0; index < paths.length; index++) {
+        if (await folderExists(paths[index].split(Esp32IdfValuesSeparator)[1])) {
+            newPaths.push(paths[index]);
+        }
+    }
+    return newPaths;
+}
+
 export async function removeNonexistentEsp32IdfValues(context: vscode.ExtensionContext, valueType: Esp32IdfValueType) {
     var values: Esp32IdfValues = await getEsp32IdfValues(context);
     switch (valueType) {
         case Esp32IdfValueType.MSYS32: {
-            values.MSYS32_PATHs.forEach(
-                (msys32Path) => {
-                    if (!folderExists(msys32Path.split(Esp32IdfValuesSeparator)[1])) {
-                        values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(msys32Path), 1);
-                    }
-                }
-            );
+            values.MSYS32_PATHs = await getExistingPaths(values.MSYS32_PATHs);
             break;
         }
-        case Esp32IdfValueType.MSYS32: {
-            values.IDF_PATHs.forEach(
-                (espidfPath) => {
-                    if (!folderExists(espidfPath.split(Esp32IdfValuesSeparator)[1])) {
-                        values.IDF_PATHs.splice(values.IDF_PATHs.indexOf(espidfPath), 1);
-                    }
-                }
-            );
+        case Esp32IdfValueType.IDF: {
+            values.IDF_PATHs = await getExistingPaths(values.IDF_PATHs);
+            break;
         }
     }
     await setEsp32IdfValues(context, values);
