@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { join } from 'path';
 import { readdirSync, lstatSync } from 'fs';
 
+const relativeValuesPath: string = 'assets/local-data/values.json';
+
 export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -61,11 +63,18 @@ export interface Esp32IdfValues {
 
 export async function getEsp32IdfValues(context: vscode.ExtensionContext) {
     var values: Esp32IdfValues = JSON.parse(
-        fileExists(join(context.extensionPath, 'assets/local-data/values.json'))
-            ? (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/local-data/values.json'))).getText()
+        fileExists(join(context.extensionPath, relativeValuesPath))
+            ? (await vscode.workspace.openTextDocument(join(context.extensionPath, relativeValuesPath))).getText()
             : '{}'
     );
     if (values.MSYS32_PATHs === undefined) { values.MSYS32_PATHs = []; }
     if (values.IDF_PATHs === undefined) { values.IDF_PATHs = []; }
     return values;
+}
+
+export async function setEsp32IdfValues(context: vscode.ExtensionContext, values: Esp32IdfValues) {
+    await vscode.workspace.fs.writeFile(
+        vscode.Uri.file(join(context.extensionPath, relativeValuesPath)),
+        Buffer.from(JSON.stringify(values))
+    );
 }
