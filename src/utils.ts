@@ -6,6 +6,23 @@ export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
+    try {
+        var fileStat: vscode.FileStat = await vscode.workspace.fs.stat(vscode.Uri.file(path));
+        return fileStat.type === type;
+    } catch (error) {
+        return false;
+    }
+}
+
+export async function folderExists(path: string): Promise<boolean> {
+    return await elementExists(path, vscode.FileType.Directory);
+}
+
+export async function fileExists(path: string): Promise<boolean> {
+    return await elementExists(path, vscode.FileType.File);
+}
+
 export function getFolders(path: string): string[] {
     return readdirSync(path).filter((element) => {
         if (lstatSync(join(path, element)).isDirectory()) { return element; }
@@ -15,18 +32,6 @@ export function getFolders(path: string): string[] {
 export function getFiles(path: string): string[] {
     return readdirSync(path).filter((element) => {
         if (lstatSync(join(path, element)).isFile()) { return element; }
-    });
-}
-
-export function folderExists(path: string): boolean {
-    return getFolders(path.replace(/[^(\/|\\)]+$/gi, "")).some((folder) => {
-        return folder === path.replace(/^.*[\/|\\]/gi, "");
-    });
-}
-
-export function fileExists(path: string): boolean {
-    return getFiles(path.replace(/[^(\/|\\)]+$/gi, "")).some((file) => {
-        return file === path.replace(/^.*[\/|\\]/gi, "");
     });
 }
 
