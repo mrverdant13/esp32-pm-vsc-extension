@@ -108,6 +108,5 @@ export async function removeNonexistentEsp32IdfValues(context: vscode.ExtensionC
             );
         }
     }
-
-
+    await setEsp32IdfValues(context, values);
 }
