@@ -16,11 +16,6 @@
 		"commands": [
 			{
 				"category": "ESP32-IDF",
-				"title": "Install the ESP-IDF",
-				"command": "extension.install-esp-idf"
-			},
-			{
-				"category": "ESP32-IDF",
 				"title": "Register ESP-IDF API",
 				"command": "extension.register-esp-idf"
 			},
