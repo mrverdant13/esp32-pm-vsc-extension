@@ -27,9 +27,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
 
-		// Remove nonexistent 'msys32' registered values.
-		await utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.MSYS32);
-
 		// The user must select the location of the 'msys32' folder.
 		var msys32Selection = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
@@ -76,8 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 			values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(registeredObject), 1);
-			if (response === 'Rename') { assignName = true; }
-			else { assignName = false; }
+			if (response === 'Remove') { assignName = false; }
 		}
 
 		// Ask the user for the 'msys32' register name.
@@ -100,9 +96,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
 
-		// Remove nonexistent ESP-IDF API registered values.
-		await utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.IDF);
-
 		// The user must select the location of an ESP-IDF API folder.
 		var espidfSelection = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
@@ -113,11 +106,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// If the location is 'undefined', it has not been selected.
 		if (!espidfSelection) {
-			vscode.window.showErrorMessage("ESP-IDF API location not selected");
+			vscode.window.showErrorMessage("ESP-IDF API folder not selected");
 			return;
 		}
 
-		// Get the path of the selected location
+		// Get the path of the selected folder.
 		var espidfLocation: string = espidfSelection[0].fsPath;
 
 		// If the folders '.../*esp-idf*/components/' or '.../*esp-idf*/examples/' do not exist, the ESP-IDF API folder is invalid.
@@ -149,8 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 			values.IDF_PATHs.splice(values.IDF_PATHs.indexOf(registeredObject), 1);
-			if (response === 'Rename') { assignName = true; }
-			else { assignName = false; }
+			if (response === 'Remove') { assignName = false; }
 		}
 
 		// Ask the user for the ESP-IDF API register name.
@@ -172,18 +164,6 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
-
-		// Remove nonexistent paths.
-		utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.MSYS32);
-		utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.IDF);
-
-		// Register MinGW32 terminal or ESP-IDF API if necessary.
-		if ((await utils.getEsp32IdfValues(context)).IDF_PATHs.length === 0) {
-			vscode.commands.executeCommand('extension.register-esp-idf');
-		}
-		if ((await utils.getEsp32IdfValues(context)).MSYS32_PATHs.length === 0) {
-			vscode.commands.executeCommand('extension.register-mingw32-terminal');
-		}
 
 		// Ask the user for the new project name.
 		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });

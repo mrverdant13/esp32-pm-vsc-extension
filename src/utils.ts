@@ -75,6 +75,9 @@ export async function getEsp32IdfValues(context: vscode.ExtensionContext) {
     );
     if (values.MSYS32_PATHs === undefined) { values.MSYS32_PATHs = []; }
     if (values.IDF_PATHs === undefined) { values.IDF_PATHs = []; }
+    values.MSYS32_PATHs = await getExistingPaths(values.MSYS32_PATHs);
+    values.IDF_PATHs = await getExistingPaths(values.IDF_PATHs);
+    await setEsp32IdfValues(context, values);
     return values;
 }
 
@@ -93,19 +96,4 @@ async function getExistingPaths(paths: string[]): Promise<string[]> {
         }
     }
     return newPaths;
-}
-
-export async function removeNonexistentEsp32IdfValues(context: vscode.ExtensionContext, valueType: Esp32IdfValueType) {
-    var values: Esp32IdfValues = await getEsp32IdfValues(context);
-    switch (valueType) {
-        case Esp32IdfValueType.MSYS32: {
-            values.MSYS32_PATHs = await getExistingPaths(values.MSYS32_PATHs);
-            break;
-        }
-        case Esp32IdfValueType.IDF: {
-            values.IDF_PATHs = await getExistingPaths(values.IDF_PATHs);
-            break;
-        }
-    }
-    await setEsp32IdfValues(context, values);
 }
