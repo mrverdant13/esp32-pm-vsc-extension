@@ -4,6 +4,27 @@ import { join } from 'path';
 import * as utils from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
+	context.subscriptions.push(vscode.commands.registerCommand('extension.install-esp-idf', async () => {
+
+		vscode.commands.executeCommand('extension.register-esp-idf');
+
+		// Update the VSC integrated terminal path.
+		// var documentContent = (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/projectTemplate/_vscode/_settings.json'))).getText();
+		// documentContent = documentContent.replace(/BASH_PATH/gi, join(msys32Location[0].fsPath, 'usr/bin/bash.exe').replace(/\\/gi, '/'));
+		// await vscode.workspace.fs.writeFile(
+		// 	vscode.Uri.file(join(context.extensionPath, 'assets/projectTemplate/_vscode/settings.json')),
+		// 	Buffer.from(documentContent)
+		// );
+
+		// Update the VSC C/C++ properties.
+		// documentContent = (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/projectTemplate/_vscode/_c_cpp_properties.json'))).getText();
+		// documentContent = documentContent.replace(/MSYS32_PATH/gi, msys32Location[0].fsPath.replace(/\\/gi, '/'));
+		// await vscode.workspace.fs.writeFile(
+		// 	vscode.Uri.file(join(context.extensionPath, 'assets/projectTemplate/_vscode/c_cpp_properties.json')),
+		// 	Buffer.from(documentContent)
+		// );
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
 
 		// Remove nonexistent 'msys32' registered values.
@@ -152,9 +173,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
 
-		// Remove nonexistent paths
+		// Remove nonexistent paths.
 		utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.MSYS32);
 		utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.IDF);
+
+		// Register MinGW32 terminal or ESP-IDF API if necessary.
+		if ((await utils.getEsp32IdfValues(context)).IDF_PATHs.length === 0) {
+			vscode.commands.executeCommand('extension.register-esp-idf');
+		}
+		if ((await utils.getEsp32IdfValues(context)).MSYS32_PATHs.length === 0) {
+			vscode.commands.executeCommand('extension.register-mingw32-terminal');
+		}
 
 		// Ask the user for the new project name.
 		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });
