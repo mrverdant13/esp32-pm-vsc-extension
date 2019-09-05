@@ -4,9 +4,10 @@ import { join } from 'path';
 import * as utils from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
-	var separator: string = '=';
-
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
+
+		// Remove nonexistent 'msys32' registered values.
+		await utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.MSYS32);
 
 		// The user must select the location of the 'msys32' folder.
 		var msys32Selection = await vscode.window.showOpenDialog({
@@ -48,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// If the 'msys32' path is already registered, ask the user if it will be renamed or removed.
 		var assignName: boolean = true;
 		if (registeredObject !== undefined) {
-			var response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + registeredObject.split(separator)[0] + "'.", 'Rename', 'Remove');
+			var response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + registeredObject.split(utils.Esp32IdfValuesSeparator)[0] + "'.", 'Rename', 'Remove');
 			if (!response) {
 				vscode.window.showErrorMessage('Existing register kept.');
 				return;
@@ -65,21 +66,21 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage("Register name not introduced");
 				return;
 			}
-			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(separator, 'gi'), '_').toUpperCase();
-			values.MSYS32_PATHs.push(introducedName + separator + msys32Location);
+			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(utils.Esp32IdfValuesSeparator, 'gi'), '_').toUpperCase();
+			values.MSYS32_PATHs.push(introducedName + utils.Esp32IdfValuesSeparator + msys32Location);
 		}
 
-		// Store the register in the 'values.json' file.
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
-			Buffer.from(JSON.stringify(values))
-		);
+		// Store the register.
+		await utils.setEsp32IdfValues(context, values);
 
 		// Reload window
-		vscode.commands.executeCommand('workbench.action.reloadWindow');
+		// vscode.commands.executeCommand('workbench.action.reloadWindow');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
+
+		// Remove nonexistent ESP-IDF API registered values.
+		await utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.IDF);
 
 		// The user must select the location of an ESP-IDF API folder.
 		var espidfSelection = await vscode.window.showOpenDialog({
@@ -121,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// If the ESP-IDF API path is already registered, ask the user if it will be renamed or removed.
 		var assignName: boolean = true;
 		if (registeredObject !== undefined) {
-			var response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered as '" + registeredObject.split(separator)[0] + "'.", 'Rename', 'Remove');
+			var response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered as '" + registeredObject.split(utils.Esp32IdfValuesSeparator)[0] + "'.", 'Rename', 'Remove');
 			if (!response) {
 				vscode.window.showErrorMessage('Existing register kept.');
 				return;
@@ -138,21 +139,22 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage("Register name not introduced");
 				return;
 			}
-			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(separator, 'gi'), '_').toUpperCase();
-			values.IDF_PATHs.push(introducedName + separator + espidfLocation);
+			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(utils.Esp32IdfValuesSeparator, 'gi'), '_').toUpperCase();
+			values.IDF_PATHs.push(introducedName + utils.Esp32IdfValuesSeparator + espidfLocation);
 		}
 
-		// Store the register in the 'values.json' file.
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(context.extensionPath, 'assets/local-data/values.json')),
-			Buffer.from(JSON.stringify(values))
-		);
+		// Store the register.
+		await utils.setEsp32IdfValues(context, values);
 
 		// Reload window
-		vscode.commands.executeCommand('workbench.action.reloadWindow');
+		// vscode.commands.executeCommand('workbench.action.reloadWindow');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
+
+		// Remove nonexistent paths
+		utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.MSYS32);
+		utils.removeNonexistentEsp32IdfValues(context, utils.Esp32IdfValueType.IDF);
 
 		// Ask the user for the new project name.
 		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });
