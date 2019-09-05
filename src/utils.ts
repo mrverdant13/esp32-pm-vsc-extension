@@ -85,7 +85,7 @@ export async function setEsp32IdfValues(context: vscode.ExtensionContext, values
     );
 }
 
-export async function removeUnexistingEsp32IdfValues(context: vscode.ExtensionContext, valueType: Esp32IdfValueType) {
+export async function removeNonexistentEsp32IdfValues(context: vscode.ExtensionContext, valueType: Esp32IdfValueType) {
     var values: Esp32IdfValues = await getEsp32IdfValues(context);
     switch (valueType) {
         case Esp32IdfValueType.MSYS32: {
