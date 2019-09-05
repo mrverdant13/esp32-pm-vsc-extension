@@ -57,6 +57,16 @@ export function executeShellCommands(name: string, commandLines: string[]): void
     vscode.tasks.executeTask(_task);
 }
 
+async function getExistingEsp32IdfPaths(paths: string[]): Promise<string[]> {
+    var newPaths: string[] = [];
+    for (var index: number = 0; index < paths.length; index++) {
+        if (await folderExists(paths[index].split(Esp32IdfValuesSeparator)[1])) {
+            newPaths.push(paths[index]);
+        }
+    }
+    return newPaths;
+}
+
 export interface Esp32IdfValues {
     MSYS32_PATHs: Array<string>;
     IDF_PATHs: Array<string>;
@@ -69,14 +79,13 @@ export enum Esp32IdfValueType {
 
 export async function getEsp32IdfValues(context: vscode.ExtensionContext) {
     var values: Esp32IdfValues = JSON.parse(
-        fileExists(join(context.extensionPath, relativeValuesPath))
-            ? (await vscode.workspace.openTextDocument(join(context.extensionPath, relativeValuesPath))).getText()
-            : '{}'
-    );
+        (await fileExists(join(context.extensionPath, relativeValuesPath)))
+            ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, relativeValuesPath)))).toString()
+            : '{}');
     if (values.MSYS32_PATHs === undefined) { values.MSYS32_PATHs = []; }
     if (values.IDF_PATHs === undefined) { values.IDF_PATHs = []; }
-    values.MSYS32_PATHs = await getExistingPaths(values.MSYS32_PATHs);
-    values.IDF_PATHs = await getExistingPaths(values.IDF_PATHs);
+    values.MSYS32_PATHs = await getExistingEsp32IdfPaths(values.MSYS32_PATHs);
+    values.IDF_PATHs = await getExistingEsp32IdfPaths(values.IDF_PATHs);
     await setEsp32IdfValues(context, values);
     return values;
 }
@@ -86,14 +95,68 @@ export async function setEsp32IdfValues(context: vscode.ExtensionContext, values
         vscode.Uri.file(join(context.extensionPath, relativeValuesPath)),
         Buffer.from(JSON.stringify(values))
     );
+    // await vscode.workspace.saveAll(false);
 }
 
-async function getExistingPaths(paths: string[]): Promise<string[]> {
-    var newPaths: string[] = [];
-    for (var index: number = 0; index < paths.length; index++) {
-        if (await folderExists(paths[index].split(Esp32IdfValuesSeparator)[1])) {
-            newPaths.push(paths[index]);
+async function getValueArray(context: vscode.ExtensionContext, type: Esp32IdfValueType) {
+    const values = await getEsp32IdfValues(context);
+    var valueArray: Array<string> = [];
+    switch (type) {
+        case Esp32IdfValueType.MSYS32: {
+            valueArray = values.MSYS32_PATHs;
+            break;
+        }
+        case Esp32IdfValueType.IDF: {
+            valueArray = values.IDF_PATHs;
+            break;
         }
     }
-    return newPaths;
+    return valueArray;
+}
+
+export async function getRegister(context: vscode.ExtensionContext, path: string, type: Esp32IdfValueType) {
+    const value = (await getValueArray(context, type)).find((value) => {
+        return value.includes(path);
+    });
+    if (value === undefined) { return ''; }
+    return value;
+}
+
+export async function getRegisterName(context: vscode.ExtensionContext, path: string, type: Esp32IdfValueType) {
+    return (await getRegister(context, path, type)).split(Esp32IdfValuesSeparator)[0];
+}
+
+export async function pathIsRegistered(context: vscode.ExtensionContext, path: string, type: Esp32IdfValueType) {
+    return ((await getRegister(context, path, type)) !== '');
+}
+
+export async function removeRegister(context: vscode.ExtensionContext, path: string, type: Esp32IdfValueType) {
+    var values = await getEsp32IdfValues(context);
+    switch (type) {
+        case Esp32IdfValueType.MSYS32: {
+            values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(await getRegister(context, path, type)), 1);
+            break;
+        }
+        case Esp32IdfValueType.IDF: {
+            values.IDF_PATHs.splice(values.IDF_PATHs.indexOf(await getRegister(context, path, type)), 1);
+            break;
+        }
+    }
+    await setEsp32IdfValues(context, values);
+}
+
+export async function addRegister(context: vscode.ExtensionContext, name: string, path: string, type: Esp32IdfValueType) {
+    var values = await getEsp32IdfValues(context);
+    name = name.replace(RegExp(Esp32IdfValuesSeparator, 'gi'), '_');
+    switch (type) {
+        case Esp32IdfValueType.MSYS32: {
+            values.MSYS32_PATHs.push(name + Esp32IdfValuesSeparator + path);
+            break;
+        }
+        case Esp32IdfValueType.IDF: {
+            values.IDF_PATHs.push(name + Esp32IdfValuesSeparator + path);
+            break;
+        }
+    }
+    await setEsp32IdfValues(context, values);
 }

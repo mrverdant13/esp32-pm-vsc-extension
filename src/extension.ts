@@ -56,42 +56,27 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		// Get the registered values
-		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
-
-		// Check if the selected 'msys32' folder path was already registered.
-		var registeredObject = values.MSYS32_PATHs.find((object) => {
-			return object.includes(msys32Location);
-		});
-
 		// If the 'msys32' path is already registered, ask the user if it will be renamed or removed.
-		var assignName: boolean = true;
-		if (registeredObject !== undefined) {
-			var response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + registeredObject.split(utils.Esp32IdfValuesSeparator)[0] + "'.", 'Rename', 'Remove');
-			if (!response) {
+		var response: string | undefined = '';
+		if (await utils.pathIsRegistered(context, msys32Location, utils.Esp32IdfValueType.MSYS32)) {
+			response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + (await utils.getRegisterName(context, msys32Location, utils.Esp32IdfValueType.MSYS32)) + "'.", 'Rename', 'Remove');
+			if (response === undefined) {
 				vscode.window.showErrorMessage('Existing register kept.');
 				return;
 			}
-			values.MSYS32_PATHs.splice(values.MSYS32_PATHs.indexOf(registeredObject), 1);
-			if (response === 'Remove') { assignName = false; }
+			await utils.removeRegister(context, msys32Location, utils.Esp32IdfValueType.MSYS32);
 		}
 
 		// Ask the user for the 'msys32' register name.
-		if (assignName) {
+		if (response !== 'Remove') {
 			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the 'msys32' register" });
 			if (!introducedName || introducedName.trim().length === 0) {
 				vscode.window.showErrorMessage("Register name not introduced");
 				return;
 			}
-			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(utils.Esp32IdfValuesSeparator, 'gi'), '_').toUpperCase();
-			values.MSYS32_PATHs.push(introducedName + utils.Esp32IdfValuesSeparator + msys32Location);
+			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toUpperCase();
+			await utils.addRegister(context, introducedName, msys32Location, utils.Esp32IdfValueType.MSYS32);
 		}
-
-		// Store the register.
-		await utils.setEsp32IdfValues(context, values);
-
-		// Reload window
-		// vscode.commands.executeCommand('workbench.action.reloadWindow');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
@@ -125,42 +110,27 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		// Get the registered values
-		var values: utils.Esp32IdfValues = await utils.getEsp32IdfValues(context);
-
-		// Check if the selected ESP-IDF API folder path was already registered.
-		var registeredObject = values.IDF_PATHs.find((object) => {
-			return object.includes(espidfLocation);
-		});
-
 		// If the ESP-IDF API path is already registered, ask the user if it will be renamed or removed.
-		var assignName: boolean = true;
-		if (registeredObject !== undefined) {
-			var response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered as '" + registeredObject.split(utils.Esp32IdfValuesSeparator)[0] + "'.", 'Rename', 'Remove');
-			if (!response) {
+		var response: string | undefined = '';
+		if (await utils.pathIsRegistered(context, espidfLocation, utils.Esp32IdfValueType.IDF)) {
+			response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered as '" + (await utils.getRegisterName(context, espidfLocation, utils.Esp32IdfValueType.IDF)) + "'.", 'Rename', 'Remove');
+			if (response === undefined) {
 				vscode.window.showErrorMessage('Existing register kept.');
 				return;
 			}
-			values.IDF_PATHs.splice(values.IDF_PATHs.indexOf(registeredObject), 1);
-			if (response === 'Remove') { assignName = false; }
+			await utils.removeRegister(context, espidfLocation, utils.Esp32IdfValueType.IDF);
 		}
 
 		// Ask the user for the ESP-IDF API register name.
-		if (assignName) {
+		if (response !== 'Remove') {
 			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the ESP-IDF API register" });
 			if (!introducedName || introducedName.trim().length === 0) {
 				vscode.window.showErrorMessage("Register name not introduced");
 				return;
 			}
-			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').replace(RegExp(utils.Esp32IdfValuesSeparator, 'gi'), '_').toUpperCase();
-			values.IDF_PATHs.push(introducedName + utils.Esp32IdfValuesSeparator + espidfLocation);
+			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toUpperCase();
+			await utils.addRegister(context, introducedName, espidfLocation, utils.Esp32IdfValueType.IDF);
 		}
-
-		// Store the register.
-		await utils.setEsp32IdfValues(context, values);
-
-		// Reload window
-		// vscode.commands.executeCommand('workbench.action.reloadWindow');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
