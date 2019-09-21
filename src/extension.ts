@@ -136,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
 
 		// Ask the user for the new project name.
-		var introducedName = await vscode.window.showInputBox({ prompt: "Name of the new project" });
+		var introducedName: string | undefined = await vscode.window.showInputBox({ prompt: "Name of the new project" });
 		if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Project name not introduced"); return; }
 		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '-').toLowerCase();
 
@@ -154,24 +154,20 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
 
 		// Set the new project path.
-		introducedName = join(projectLocation[0].fsPath, introducedName);
+		var projectPath: string = join(projectLocation[0].fsPath, introducedName);
 
 		// Copy the project template.
 		await vscode.workspace.fs.copy(
 			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate")),
-			vscode.Uri.file(introducedName),
+			vscode.Uri.file(projectPath),
 			{ overwrite: false }
 		);
 
-		// Rename the '_vscode' folder to '.vscode'.
-		await vscode.workspace.fs.rename(vscode.Uri.file(join(introducedName, "_vscode")), vscode.Uri.file(join(introducedName, ".vscode")));
-
-		// Remove the '_c_cpp_properties.json' and '_settings.json' files.
-		await vscode.workspace.fs.delete(vscode.Uri.file(join(introducedName, ".vscode/_c_cpp_properties.json")));
-		await vscode.workspace.fs.delete(vscode.Uri.file(join(introducedName, ".vscode/_settings.json")));
+		// Rename configuration elements.
+		await vscode.workspace.fs.rename(vscode.Uri.file(join(projectPath, "_vscode")), vscode.Uri.file(join(projectPath, ".vscode")));
 
 		// Launch the new project according to the user election.
-		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(introducedName), useNewWindow.includes("new"));
+		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.init-project', async () => {
