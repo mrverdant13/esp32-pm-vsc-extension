@@ -4,26 +4,6 @@ import { join } from 'path';
 import * as utils from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
-	context.subscriptions.push(vscode.commands.registerCommand('extension.install-esp-idf', async () => {
-
-		vscode.commands.executeCommand('extension.register-esp-idf');
-
-		// Update the VSC integrated terminal path.
-		// var documentContent = (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/projectTemplate/_vscode/_settings.json'))).getText();
-		// documentContent = documentContent.replace(/BASH_PATH/gi, join(msys32Location[0].fsPath, 'usr/bin/bash.exe').replace(/\\/gi, '/'));
-		// await vscode.workspace.fs.writeFile(
-		// 	vscode.Uri.file(join(context.extensionPath, 'assets/projectTemplate/_vscode/settings.json')),
-		// 	Buffer.from(documentContent)
-		// );
-
-		// Update the VSC C/C++ properties.
-		// documentContent = (await vscode.workspace.openTextDocument(join(context.extensionPath, 'assets/projectTemplate/_vscode/_c_cpp_properties.json'))).getText();
-		// documentContent = documentContent.replace(/MSYS32_PATH/gi, msys32Location[0].fsPath.replace(/\\/gi, '/'));
-		// await vscode.workspace.fs.writeFile(
-		// 	vscode.Uri.file(join(context.extensionPath, 'assets/projectTemplate/_vscode/c_cpp_properties.json')),
-		// 	Buffer.from(documentContent)
-		// );
-	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
 
