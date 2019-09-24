@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { join } from 'path';
 
 import * as utils from './utils';
+import { PathsManager, PathTypes, Paths } from './paths';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -16,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 
 		// If the location is 'undefined', it has not been selected.
-		if (!msys32Selection) {
+		if (msys32Selection === undefined) {
 			vscode.window.showErrorMessage("'msys32' location not selected");
 			return;
 		}
@@ -36,27 +37,22 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		// If the 'msys32' path is already registered, ask the user if it will be renamed or removed.
+		// If the 'msys32' path is already registered, ask the user if it will be removed.
 		var response: string | undefined = '';
-		if (await utils.pathIsRegistered(context, msys32Location, utils.Esp32IdfValueType.MSYS32)) {
-			response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered as '" + (await utils.getRegisterName(context, msys32Location, utils.Esp32IdfValueType.MSYS32)) + "'.", 'Rename', 'Remove');
-			if (response === undefined) {
-				vscode.window.showErrorMessage('Existing register kept.');
-				return;
+		if (await PathsManager.pathIsRegistered(context, msys32Location, PathTypes.MSYS32)) {
+			response = await vscode.window.showWarningMessage("The provided 'msys32' path was already registered.", 'Remove');
+			if (response === 'Remove') {
+				await PathsManager.removeRegister(context, msys32Location, PathTypes.MSYS32);
 			}
-			await utils.removeRegister(context, msys32Location, utils.Esp32IdfValueType.MSYS32);
+			vscode.window.showInformationMessage('Registered path ' + (response === undefined ? 'kept' : 'removed') + '.');
+			return;
 		}
 
-		// Ask the user for the 'msys32' register name.
-		if (response !== 'Remove') {
-			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the 'msys32' register" });
-			if (!introducedName || introducedName.trim().length === 0) {
-				vscode.window.showErrorMessage("Register name not introduced");
-				return;
-			}
-			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toUpperCase();
-			await utils.addRegister(context, introducedName, msys32Location, utils.Esp32IdfValueType.MSYS32);
-		}
+		// Register the selected path.
+		await PathsManager.addRegister(context, msys32Location, PathTypes.MSYS32);
+
+		// Notify the user.
+		await vscode.window.showInformationMessage('MinGW32 terminal registered.');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
@@ -70,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 
 		// If the location is 'undefined', it has not been selected.
-		if (!espidfSelection) {
+		if (espidfSelection === undefined) {
 			vscode.window.showErrorMessage("ESP-IDF API folder not selected");
 			return;
 		}
@@ -90,35 +86,30 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		// If the ESP-IDF API path is already registered, ask the user if it will be renamed or removed.
+		// If the ESP-IDF API path is already registered, ask the user if it will be removed.
 		var response: string | undefined = '';
-		if (await utils.pathIsRegistered(context, espidfLocation, utils.Esp32IdfValueType.IDF)) {
-			response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered as '" + (await utils.getRegisterName(context, espidfLocation, utils.Esp32IdfValueType.IDF)) + "'.", 'Rename', 'Remove');
-			if (response === undefined) {
-				vscode.window.showErrorMessage('Existing register kept.');
-				return;
+		if (await PathsManager.pathIsRegistered(context, espidfLocation, PathTypes.IDF)) {
+			response = await vscode.window.showWarningMessage("The provided ESP-IDF API path was already registered.", 'Remove');
+			if (response === 'Remove') {
+				await PathsManager.removeRegister(context, espidfLocation, PathTypes.IDF);
 			}
-			await utils.removeRegister(context, espidfLocation, utils.Esp32IdfValueType.IDF);
+			vscode.window.showInformationMessage('Registered path ' + (response === undefined ? 'kept' : 'removed') + '.');
+			return;
 		}
 
 		// Ask the user for the ESP-IDF API register name.
-		if (response !== 'Remove') {
-			var introducedName = await vscode.window.showInputBox({ prompt: "Name of the ESP-IDF API register" });
-			if (!introducedName || introducedName.trim().length === 0) {
-				vscode.window.showErrorMessage("Register name not introduced");
-				return;
-			}
-			introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toUpperCase();
-			await utils.addRegister(context, introducedName, espidfLocation, utils.Esp32IdfValueType.IDF);
-		}
+		await PathsManager.addRegister(context, espidfLocation, PathTypes.IDF);
+
+		// Notify the user.
+		await vscode.window.showInformationMessage('ESP-IDF API registered.');
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
 
 		// Ask the user for the new project name.
 		var introducedName: string | undefined = await vscode.window.showInputBox({ prompt: "Name of the new project" });
-		if (!introducedName || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Project name not introduced"); return; }
-		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '-').toLowerCase();
+		if (introducedName === undefined || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Project name not introduced"); return; }
+		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
 
 		// Ask the user for the new project location.
 		var projectLocation = await vscode.window.showOpenDialog({
@@ -127,11 +118,18 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectMany: false,
 			openLabel: "Select project location"
 		});
-		if (!projectLocation) { vscode.window.showErrorMessage("Project location not selected"); return; }
+		if (projectLocation === undefined) { vscode.window.showErrorMessage("Project location not selected."); return; }
 
 		// Ask the user if the new project should be launched in the current window or in a new one.
 		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
 		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
+
+		// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
+		const paths: Paths = await PathsManager.getValues(context);
+		var msys32Path = await showQuickPickFrom(paths.msys32Paths, "MinGW32 terminal to be used");
+		if (msys32Path === undefined) { vscode.window.showErrorMessage("MinGW32 terminal not selected."); return; }
+		var idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
+		if (idfPath === undefined) { vscode.window.showErrorMessage("ESP-IDF API not selected."); return; }
 
 		// Set the new project path.
 		var projectPath: string = join(projectLocation[0].fsPath, introducedName);
@@ -143,11 +141,31 @@ export function activate(context: vscode.ExtensionContext) {
 			{ overwrite: false }
 		);
 
+		// Use the selected MinGW32 terminal and ESP-IDF API
+		msys32Path = msys32Path.replace(/\\/gi, '/');
+		idfPath = idfPath.replace(/\\/gi, '/');
+		var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(projectPath, '_vscode/_settings.json')))).toString();
+		vscSettings = vscSettings.replace(/\:MSYS32_PATH\:/gi, msys32Path);
+		vscSettings = vscSettings.replace(/\:IDF_PATH\:/gi, idfPath);
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(projectPath, '_vscode/_settings.json')),
+			Buffer.from(vscSettings)
+		);
+		var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(projectPath, '_vscode/_c_cpp_properties.json')))).toString();
+		vscCCppProperties = vscCCppProperties.replace(/\:MSYS32_PATH\:/gi, msys32Path);
+		vscCCppProperties = vscCCppProperties.replace(/\:IDF_PATH\:/gi, idfPath);
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(projectPath, '_vscode/_c_cpp_properties.json')),
+			Buffer.from(vscCCppProperties)
+		);
+
 		// Rename configuration elements.
+		await vscode.workspace.fs.rename(vscode.Uri.file(join(projectPath, "_vscode/_settings.json")), vscode.Uri.file(join(projectPath, "_vscode/settings.json")));
+		await vscode.workspace.fs.rename(vscode.Uri.file(join(projectPath, "_vscode/_c_cpp_properties.json")), vscode.Uri.file(join(projectPath, "_vscode/c_cpp_properties.json")));
 		await vscode.workspace.fs.rename(vscode.Uri.file(join(projectPath, "_vscode")), vscode.Uri.file(join(projectPath, ".vscode")));
 
 		// Launch the new project according to the user election.
-		vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
+		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.init-project', async () => {
