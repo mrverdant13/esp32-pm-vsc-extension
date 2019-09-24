@@ -1,8 +1,9 @@
 {
-    "terminal.integrated.shell.windows": "BASH_PATH",
+    "terminal.integrated.shell.windows": ":MSYS32_PATH:/usr/bin/bash.exe",
     "terminal.integrated.env.windows": {
         "CHERE_INVOKING": "1",
-        "MSYSTEM": "MINGW32"
+        "MSYSTEM": "MINGW32",
+        "IDF_PATH": ":IDF_PATH:"
     },
     "terminal.integrated.shellArgs.windows": [
         "--login"
