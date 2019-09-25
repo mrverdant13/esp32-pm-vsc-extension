@@ -6,7 +6,7 @@ import { PathsManager, PathType, Paths } from './paths';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.register-mingw32-terminal', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('extension.register-espressif-toolchain', async () => {
 		PathsManager.registerPath(context, PathType.MSYS32);
 	}));
 
@@ -165,7 +165,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.build-test', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('extension.build-project', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
 		var testFolder: string = 'main/test/';
 		var entryPointPrefix: string = 'main';
