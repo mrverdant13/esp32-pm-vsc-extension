@@ -47,11 +47,6 @@
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Initialize existing project",
-				"command": "extension.init-project"
-			},
-			{
-				"category": "ESP32-PM",
 				"title": "Menuconfig",
 				"command": "extension.menuconfig"
 			},

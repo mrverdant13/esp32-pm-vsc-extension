@@ -78,60 +78,6 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.init-project', async () => {
-
-		// Ask the user for the existing project location.
-		var projectLocation = await vscode.window.showOpenDialog({
-			canSelectFiles: false,
-			canSelectFolders: true,
-			canSelectMany: false,
-			openLabel: "Select project folder"
-		});
-		if (projectLocation === undefined) { vscode.window.showErrorMessage("Project folder not selected"); return; }
-
-		// Check if the provided folder contains an ESP-IDF project.
-		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main")) || !await utils.fileExists(join(projectLocation[0].fsPath, "Makefile"))) { vscode.window.showErrorMessage("The folder does not contain an ESP-IDF project"); return; }
-
-		// Check if the provided folder contains an ESP32-IDF project.
-		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main/src"))) { vscode.window.showErrorMessage('The project must use a "src" directory inside the "main" folder.'); return; }
-
-		// Ask the user for confirmation to remove files.
-		var removeMain = await vscode.window.showWarningMessage("The following files will be removed or overwritten: 'main/main.c', 'main/main.cpp', 'settings.json', 'c_cpp_properties.json'", 'Continue', 'Cancel');
-		if (removeMain === undefined || removeMain === 'Cancel') { vscode.window.showErrorMessage("Project initialization cancelled."); return; }
-
-		// Ask the user if the project should be launched in the current window or in a new one.
-		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
-		if (useNewWindow === undefined) { vscode.window.showErrorMessage("Project opening cancelled"); return; }
-
-		// Remove 'main' files.
-		vscode.workspace.fs.delete(vscode.Uri.file(join(projectLocation[0].fsPath, "main/main.c")));
-		vscode.workspace.fs.delete(vscode.Uri.file(join(projectLocation[0].fsPath, "main/main.cpp")));
-
-		// Overwrite config files
-		await vscode.workspace.fs.copy(
-			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/_vscode/_settings.json")),
-			vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/settings.json")),
-			{ overwrite: true }
-		);
-		await vscode.workspace.fs.copy(
-			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/_vscode/_c_cpp_properties.json")),
-			vscode.Uri.file(join(projectLocation[0].fsPath, ".vscode/c_cpp_properties.json")),
-			{ overwrite: true }
-		);
-
-		// Create a new '.esp32-idf' file if it does not exist.
-		if (!await utils.fileExists(join(projectLocation[0].fsPath, ".esp32-idf"))) {
-			await vscode.workspace.fs.copy(
-				vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/.esp32-idf")),
-				vscode.Uri.file(join(projectLocation[0].fsPath, ".esp32-idf")),
-				{ overwrite: true }
-			);
-		}
-
-		// Launch the project according to the user election.
-		vscode.commands.executeCommand("vscode.openFolder", projectLocation[0], useNewWindow.includes("new"));
-	}));
-
 	context.subscriptions.push(vscode.commands.registerCommand('extension.defconfig', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
 		utils.executeShellCommands(
