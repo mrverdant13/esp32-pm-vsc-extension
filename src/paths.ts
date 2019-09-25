@@ -1,7 +1,7 @@
 import { join } from "path";
 import * as vscode from 'vscode';
 
-import { fileExists, filterExistingPaths } from "./utils";
+import { fileExists, filterExistingPaths, folderExists } from "./utils";
 
 const relativeValuesPath: string = 'assets/local-data/values.json';
 
@@ -10,7 +10,7 @@ export interface Paths {
     idfPaths: string[];
 }
 
-export enum PathTypes {
+export enum PathType {
     MSYS32 = 0,
     IDF = 1,
 }
@@ -28,7 +28,7 @@ export class PathsManager {
         return JSON.stringify(value);
     }
 
-    public static async setValues(context: vscode.ExtensionContext, values: Paths): Promise<void> {
+    private static async setValues(context: vscode.ExtensionContext, values: Paths): Promise<void> {
         await vscode.workspace.fs.writeFile(
             vscode.Uri.file(join(context.extensionPath, relativeValuesPath)),
             Buffer.from(this.pathsToJson(values))
@@ -46,15 +46,15 @@ export class PathsManager {
         return paths;
     }
 
-    public static async pathIsRegistered(context: vscode.ExtensionContext, path: string, type: PathTypes): Promise<boolean> {
+    private static async pathIsRegistered(context: vscode.ExtensionContext, path: string, type: PathType): Promise<boolean> {
         const paths = await this.getValues(context);
         var pathsArray: string[] = [];
         switch (type) {
-            case PathTypes.MSYS32: {
+            case PathType.MSYS32: {
                 pathsArray = paths.msys32Paths;
                 break;
             }
-            case PathTypes.IDF: {
+            case PathType.IDF: {
                 pathsArray = paths.idfPaths;
                 break;
             }
@@ -66,14 +66,14 @@ export class PathsManager {
         else { return true; }
     }
 
-    public static async removeRegister(context: vscode.ExtensionContext, path: string, type: PathTypes) {
+    private static async removeRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
         var values = await this.getValues(context);
         switch (type) {
-            case PathTypes.MSYS32: {
+            case PathType.MSYS32: {
                 values.msys32Paths.splice(values.msys32Paths.indexOf(path, type), 1);
                 break;
             }
-            case PathTypes.IDF: {
+            case PathType.IDF: {
                 values.idfPaths.splice(values.idfPaths.indexOf(path), 1);
                 break;
             }
@@ -81,18 +81,88 @@ export class PathsManager {
         await this.setValues(context, values);
     }
 
-    public static async addRegister(context: vscode.ExtensionContext, path: string, type: PathTypes) {
+    private static async addRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
         var values = await this.getValues(context);
         switch (type) {
-            case PathTypes.MSYS32: {
+            case PathType.MSYS32: {
                 values.msys32Paths.push(path);
                 break;
             }
-            case PathTypes.IDF: {
+            case PathType.IDF: {
                 values.idfPaths.push(path);
                 break;
             }
         }
         await this.setValues(context, values);
+    }
+
+    public static async registerPath(context: vscode.ExtensionContext, pathType: PathType) {
+
+        // Constants
+        const msys32NeededFolders: Array<string> = [
+            'home',
+            'etc/profile.d'
+        ];
+        const idfNeededFolders: Array<string> = [
+            'components',
+            'examples'
+        ];
+
+        // Variables
+        var referencialName: string = '';
+        var neededFolders: Array<string> = [];
+
+        // Set the referencial name of the path to be registered.
+        switch (pathType) {
+            case PathType.MSYS32: {
+                referencialName = "'msys32'";
+                neededFolders = msys32NeededFolders;
+                break;
+            }
+            case PathType.IDF: {
+                referencialName = "ESP-IDF API";
+                neededFolders = idfNeededFolders;
+                break;
+            }
+        }
+
+        // The user must select the location of the folder.
+        var selectedElement = await vscode.window.showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: "Select a " + referencialName + " folder"
+        });
+        if (selectedElement === undefined) { vscode.window.showErrorMessage("" + referencialName + " folder not selected"); return; }
+
+        // Get the path of the selected folder.
+        var elementApsolutePath: string = join(selectedElement[0].fsPath);
+
+        // Check if the folder is valid.
+        const folderIsValid: boolean = !neededFolders.some(async (neededFolder) => {
+            return (!await folderExists(join(elementApsolutePath, neededFolder)));
+        });
+        if (folderIsValid) {
+            vscode.window.showErrorMessage("Invalid " + referencialName + " folder.");
+            return;
+        }
+
+        // The folder path must not include empty spaces.
+        if (elementApsolutePath.includes(" ")) {
+            vscode.window.showErrorMessage("The " + referencialName + " path should not include spaces.");
+            return;
+        }
+
+        // If the path is already registered, notify the user.
+        if (await PathsManager.pathIsRegistered(context, elementApsolutePath, pathType)) {
+            vscode.window.showWarningMessage("The provided " + referencialName + " path was already registered.");
+            return;
+        }
+
+        // Register the selected path.
+        await PathsManager.addRegister(context, elementApsolutePath, pathType);
+
+        // Notify the user.
+        await vscode.window.showInformationMessage(referencialName + ' path registered.');
     }
 }
