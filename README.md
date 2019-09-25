@@ -49,6 +49,6 @@ None.
 
 ----------
 
-## Release Notes
+## Changelog
 
-Release notes registered within the [extension changelog](https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/master/CHANGELOG.md).
+[Changelog](https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/master/CHANGELOG.md).
