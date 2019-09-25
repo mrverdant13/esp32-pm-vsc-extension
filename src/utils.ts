@@ -87,7 +87,7 @@ export async function isEsp32PmProject(): Promise<boolean> {
     // Check if each folder exist.
     for (let index = 0; index < pmFolders.length; index++) {
         const pmFolderPath: string = join(workspacePath, pmFolders[index]);
-        if (!await fileExists(pmFolderPath)) { return false; }
+        if (!await folderExists(pmFolderPath)) { return false; }
     }
 
     // If this point is reached, the project is valid.
