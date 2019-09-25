@@ -113,16 +113,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.build-subproject', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		var subprojectFolder: string = 'main/src/';
+		var subprojectsFolder: string = 'main/src/';
 		var entryPointPrefix: string = 'main';
 		var entryPointSufixCpp: string = '.cpp';
 		var entryPointSufixC: string = '.c';
 		var workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders) { return; }
-		var selectedSubprojectFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, subprojectFolder)), 'Sub-project to be built');
+		var selectedSubprojectFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, subprojectsFolder)), 'Sub-project to be built');
 		if (!selectedSubprojectFolder) { vscode.window.showWarningMessage("Sub-project not selected."); return; }
 		var entryPoints: string[] = [];
-		utils.getFiles(join(workspaceFolders[0].uri.fsPath, subprojectFolder, selectedSubprojectFolder)).forEach((file) => {
+		utils.getFiles(join(workspaceFolders[0].uri.fsPath, subprojectsFolder, selectedSubprojectFolder)).forEach((file) => {
 			if (file.startsWith(entryPointPrefix) && (file.endsWith(entryPointSufixCpp) || file.endsWith(entryPointSufixC))) { entryPoints.push(file); }
 		});
 		var entryPoint: string | undefined;
