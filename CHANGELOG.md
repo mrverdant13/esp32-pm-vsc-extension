@@ -6,6 +6,7 @@ All notable changes to the "ESP32 project manager" extension will be documented 
 which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+<!-- ## [0.1.0] - YYYY-MM-DD -->
 
 [Repository](https://github.com/mrverdant13/esp32-idf-vsc-extension)
 
