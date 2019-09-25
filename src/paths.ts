@@ -165,4 +165,23 @@ export class PathsManager {
         // Notify the user.
         await vscode.window.showInformationMessage(referencialName + ' path registered.');
     }
+
+    public static async setConfiguration(context: vscode.ExtensionContext, msys32Path: string, idfPath: string, projectPath: string) {
+        msys32Path = msys32Path.replace(/\\/gi, '/');
+        idfPath = idfPath.replace(/\\/gi, '/');
+        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_settings.json')))).toString();
+        vscSettings = vscSettings.replace(/\:MSYS32_PATH\:/gi, msys32Path);
+        vscSettings = vscSettings.replace(/\:IDF_PATH\:/gi, idfPath);
+        await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(join(projectPath, '.vscode/settings.json')),
+            Buffer.from(vscSettings)
+        );
+        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_c_cpp_properties.json')))).toString();
+        vscCCppProperties = vscCCppProperties.replace(/\:MSYS32_PATH\:/gi, msys32Path);
+        vscCCppProperties = vscCCppProperties.replace(/\:IDF_PATH\:/gi, idfPath);
+        await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(join(projectPath, '.vscode/c_cpp_properties.json')),
+            Buffer.from(vscCCppProperties)
+        );
+    }
 }

@@ -52,22 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 
 		// Use the selected MinGW32 terminal and ESP-IDF API
-		msys32Path = msys32Path.replace(/\\/gi, '/');
-		idfPath = idfPath.replace(/\\/gi, '/');
-		var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_settings.json')))).toString();
-		vscSettings = vscSettings.replace(/\:MSYS32_PATH\:/gi, msys32Path);
-		vscSettings = vscSettings.replace(/\:IDF_PATH\:/gi, idfPath);
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(projectPath, '.vscode/settings.json')),
-			Buffer.from(vscSettings)
-		);
-		var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_c_cpp_properties.json')))).toString();
-		vscCCppProperties = vscCCppProperties.replace(/\:MSYS32_PATH\:/gi, msys32Path);
-		vscCCppProperties = vscCCppProperties.replace(/\:IDF_PATH\:/gi, idfPath);
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(projectPath, '.vscode/c_cpp_properties.json')),
-			Buffer.from(vscCCppProperties)
-		);
+		await PathsManager.setConfiguration(context, msys32Path, idfPath, projectPath);
 
 		// Launch the new project according to the user election.
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
