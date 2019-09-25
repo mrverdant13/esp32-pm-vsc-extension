@@ -38,7 +38,7 @@ export function getFiles(path: string): string[] {
 export async function isEsp32idfProject(): Promise<boolean> {
     var workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) { return false; }
-    if (!await folderExists(join(workspaceFolders[0].uri.fsPath, "main/test"))) { return false; }
+    if (!await folderExists(join(workspaceFolders[0].uri.fsPath, "main/src"))) { return false; }
     if (!await fileExists(join(workspaceFolders[0].uri.fsPath, ".vscode/settings.json"))) { return false; }
     if (!await fileExists(join(workspaceFolders[0].uri.fsPath, ".vscode/c_cpp_properties.json"))) { return false; }
     var filesContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, ".vscode/settings.json")))).toString() + (await vscode.workspace.fs.readFile(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, ".vscode/c_cpp_properties.json")))).toString();

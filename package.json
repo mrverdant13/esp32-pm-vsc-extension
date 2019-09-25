@@ -62,8 +62,8 @@
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Build project",
-				"command": "extension.build-project"
+				"title": "Build sub-project",
+				"command": "extension.build-subproject"
 			},
 			{
 				"category": "ESP32-PM",

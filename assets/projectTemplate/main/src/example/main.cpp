@@ -7,7 +7,7 @@ extern "C"
 	void app_main();
 }
 
-static const char *TAG = "BASE_TEST";
+static const char *TAG = "EXAMPLE_SUBPROJECT";
 
 void app_main(void)
 {

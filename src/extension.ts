@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main")) || !await utils.fileExists(join(projectLocation[0].fsPath, "Makefile"))) { vscode.window.showErrorMessage("The folder does not contain an ESP-IDF project"); return; }
 
 		// Check if the provided folder contains an ESP32-IDF project.
-		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main/test"))) { vscode.window.showErrorMessage('The project must use a "test" directory inside the "main" folder.'); return; }
+		if (!await utils.folderExists(join(projectLocation[0].fsPath, "main/src"))) { vscode.window.showErrorMessage('The project must use a "src" directory inside the "main" folder.'); return; }
 
 		// Ask the user for confirmation to remove files.
 		var removeMain = await vscode.window.showWarningMessage("The following files will be removed or overwritten: 'main/main.c', 'main/main.cpp', 'settings.json', 'c_cpp_properties.json'", 'Continue', 'Cancel');
@@ -165,34 +165,34 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.build-project', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('extension.build-subproject', async () => {
 		if (!await utils.isEsp32idfProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-IDF project or it has not been initialized."); return; }
-		var testFolder: string = 'main/test/';
+		var subprojectFolder: string = 'main/src/';
 		var entryPointPrefix: string = 'main';
 		var entryPointSufixCpp: string = '.cpp';
 		var entryPointSufixC: string = '.c';
 		var workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders) { return; }
-		var selectedTestFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, testFolder)), 'Test to be built');
-		if (!selectedTestFolder) { vscode.window.showWarningMessage("No test selected."); return; }
+		var selectedSubprojectFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, subprojectFolder)), 'Sub-project to be built');
+		if (!selectedSubprojectFolder) { vscode.window.showWarningMessage("Sub-project not selected."); return; }
 		var entryPoints: string[] = [];
-		utils.getFiles(join(workspaceFolders[0].uri.fsPath, testFolder, selectedTestFolder)).forEach((file) => {
+		utils.getFiles(join(workspaceFolders[0].uri.fsPath, subprojectFolder, selectedSubprojectFolder)).forEach((file) => {
 			if (file.startsWith(entryPointPrefix) && (file.endsWith(entryPointSufixCpp) || file.endsWith(entryPointSufixC))) { entryPoints.push(file); }
 		});
-		var testFile: string | undefined;
-		if (entryPoints.length === 0) { vscode.window.showErrorMessage("There is no entry point for the selected test."); return; }
-		else if (entryPoints.length === 1) { testFile = entryPoints[0]; }
+		var entryPoint: string | undefined;
+		if (entryPoints.length === 0) { vscode.window.showErrorMessage("There is no entry point for the selected sub-project."); return; }
+		else if (entryPoints.length === 1) { entryPoint = entryPoints[0]; }
 		else {
-			testFile = await showQuickPickFrom(entryPoints, "Entry point for the test.");
-			if (!testFile) { vscode.window.showErrorMessage("No entry point selected."); return; }
+			entryPoint = await showQuickPickFrom(entryPoints, "Entry point for the sub-project.");
+			if (!entryPoint) { vscode.window.showErrorMessage("No entry point selected."); return; }
 		}
 
 		utils.executeShellCommands(
-			"Build test",
+			"Build sub-project",
 			[
-				'echo "ESP32-IDF: Building test...\n"',
-				'export testFile="' + selectedTestFolder + '/' + testFile + '"',
-				"sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildTest.sh",
+				'echo "ESP32-IDF: Building sub-project...\n"',
+				'export entryPoint="' + selectedSubprojectFolder + '/' + entryPoint + '"',
+				"sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildSubproject.sh",
 			]
 		);
 	}));
