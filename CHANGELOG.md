@@ -7,6 +7,8 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 <!-- ## [0.1.0] - YYYY-MM-DD -->
+<!-- TODO: Define the "licence" field of the 'package.json' file. -->
+<!-- TODO: Change 'test' reference to 'project source' for the entire extension. -->
 
 [Repository](https://github.com/mrverdant13/esp32-idf-vsc-extension)
 
