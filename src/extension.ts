@@ -106,6 +106,15 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 
+		// Copy the sub-project examples if the sub-projects folder does not exist.
+		if (!await utils.folderExists(join(projectPath, 'main/src'))) {
+			await vscode.workspace.fs.copy(
+				vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/main/src")),
+				vscode.Uri.file(join(projectPath, 'main/src')),
+				{ overwrite: false }
+			);
+		}
+
 		// Use the selected MinGW32 terminal and ESP-IDF API
 		await PathsManager.setConfiguration(context, msys32Path, idfPath, projectPath);
 
