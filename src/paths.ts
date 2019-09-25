@@ -115,7 +115,7 @@ export class PathsManager {
         // Set the referencial name of the path to be registered.
         switch (pathType) {
             case PathType.MSYS32: {
-                referencialName = "'msys32'";
+                referencialName = "Espressif Toolchain";
                 neededFolders = msys32NeededFolders;
                 break;
             }
