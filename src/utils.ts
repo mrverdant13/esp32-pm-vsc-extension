@@ -38,7 +38,13 @@ export function getFiles(path: string): string[] {
 export async function isEsp32idfProject(): Promise<boolean> {
     var workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders) { return false; }
-    return await fileExists(join(workspaceFolders[0].uri.fsPath, "esp32idf-config.json"));
+    if (!await folderExists(join(workspaceFolders[0].uri.fsPath, "main/test"))) { return false; }
+    if (!await fileExists(join(workspaceFolders[0].uri.fsPath, ".vscode/settings.json"))) { return false; }
+    if (!await fileExists(join(workspaceFolders[0].uri.fsPath, ".vscode/c_cpp_properties.json"))) { return false; }
+    var filesContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, ".vscode/settings.json")))).toString() + (await vscode.workspace.fs.readFile(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, ".vscode/c_cpp_properties.json")))).toString();
+    if (filesContent.includes(':MSYS32_PATH:')) { return false; }
+    if (filesContent.includes(':IDF_PATH:')) { return false; }
+    return true;
 }
 
 export async function filterExistingPaths(paths: string[]): Promise<string[]> {
