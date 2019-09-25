@@ -21,7 +21,7 @@
 			},
 			{
 				"category": "ESP32-IDF",
-				"title": "Register MinGW32 terminal",
+				"title": "Register 'msys32' folder",
 				"command": "extension.register-mingw32-terminal"
 			},
 			{
@@ -31,7 +31,7 @@
 			},
 			{
 				"category": "ESP32-IDF",
-				"title": "Initialize project",
+				"title": "Initialize existing project",
 				"command": "extension.init-project"
 			},
 			{
