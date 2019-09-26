@@ -6,15 +6,15 @@ import { PathsManager, PathType, Paths } from './paths';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.register-espressif-toolchain', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-espressif-toolchain', async () => {
 		PathsManager.registerPath(context, PathType.MSYS32);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.register-esp-idf', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-esp-idf', async () => {
 		PathsManager.registerPath(context, PathType.IDF);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.create-project', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.create-project', async () => {
 
 		// Ask the user for the new project name.
 		var introducedName: string | undefined = await vscode.window.showInputBox({ prompt: "Name of the new project" });
@@ -58,7 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.init-project', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.init-project', async () => {
 
 		// Constants
 		const sufix: string = '_old';
@@ -122,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.defconfig', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		utils.executeShellCommands(
 			"Defconfig",
@@ -133,7 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.menuconfig', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.menuconfig', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		utils.executeShellCommands(
 			"Menuconfig",
@@ -155,7 +155,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.build-subproject', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-subproject', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		var subprojectsFolder: string = 'main/src/';
 		var entryPointPrefix: string = 'main';
@@ -215,7 +215,7 @@ export function activate(context: vscode.ExtensionContext) {
 		return serialPorts;
 	}
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.flash', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		var serialPorts: string[] = await getSerialPorts();
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
@@ -230,7 +230,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.monitor', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		var serialPorts: string[] = await getSerialPorts();
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
@@ -245,7 +245,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.flash-monitor', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash-monitor', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		var serialPorts: string[] = await getSerialPorts();
 		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
@@ -260,7 +260,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.clean', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.clean', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 		utils.executeShellCommands(
 			'Clean',
@@ -272,7 +272,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('extension.remove-auto-gen', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.remove-auto-gen', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
 
 		// Remove auto-generated files.
