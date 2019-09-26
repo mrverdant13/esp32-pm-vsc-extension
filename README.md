@@ -3,6 +3,7 @@
 <!-- STEP2: Update CHANGELOG.md -->
 
 <!-- TODO: Define the "licence" field of the "package.json" file. -->
+<!-- TODO: Define the icon of the extension. -->
 
 # ESP32 project manager for Visual Studio Code
 
