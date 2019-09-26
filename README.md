@@ -1,3 +1,9 @@
+<!-- ** DOCUMENTATION STEPS ** -->
+<!-- STEP1: Update README.md -->
+<!-- STEP2: Update CHANGELOG.md -->
+
+<!-- TODO: Define the "licence" field of the "package.json" file. -->
+
 # ESP32 project manager for Visual Studio Code
 
 Extension that allows its users to build, flash and monitor ESP32 projects based on the ESP-IDF.

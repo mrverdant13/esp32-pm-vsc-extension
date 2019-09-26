@@ -1,5 +1,3 @@
-<!-- STEP1: Update README.md -->
-<!-- STEP2: Update CHANGELOG.md -->
 # Changelog
 
 All notable changes to the "ESP32 project manager" extension will be documented in this file.
@@ -9,7 +7,6 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 <!-- ## [0.1.0] - YYYY-MM-DD -->
-<!-- TODO: Define the "licence" field of the "package.json" file. -->
 
 [Repository](https://github.com/mrverdant13/esp32-idf-vsc-extension)
 
