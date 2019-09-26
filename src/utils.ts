@@ -109,7 +109,7 @@ export function executeShellCommands(name: string, commandLines: string[]): void
         { type: "shell" },
         vscode.TaskScope.Workspace,
         name,
-        "ESP32-IDF",
+        "ESP32-PM",
         new vscode.ShellExecution(commandLines.join(" && "))
     );
     _task.presentationOptions.echo = false;
