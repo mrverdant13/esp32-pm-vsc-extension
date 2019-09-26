@@ -1,3 +1,5 @@
+<!-- STEP1: Update README.md -->
+<!-- STEP2: Update CHANGELOG.md -->
 # Changelog
 
 All notable changes to the "ESP32 project manager" extension will be documented in this file.
@@ -8,7 +10,6 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 <!-- ## [0.1.0] - YYYY-MM-DD -->
 <!-- TODO: Define the "licence" field of the "package.json" file. -->
-<!-- TODO: Create a "Initialize existing project" command. -->
 
 [Repository](https://github.com/mrverdant13/esp32-idf-vsc-extension)
 
@@ -17,6 +18,7 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `ESP32-PM: Register ESP-IDF API` command (register the path of a folder that contains an ESP-IDF API).
 - `ESP32-PM: Register Espressif Toolchain` command (register the path of a folder that contains an Espressif Toolchain).
 - `ESP32-PM: Create project` command (create a new ESP32 project).
+- `ESP32-PM: Initialize exisiting project` command (initialize an existing ESP32 project).
 - `ESP32-PM: Menuconfig` command (run the `make menuconfig` command, which shows the configuration interface for a ESP32 project).
 - `ESP32-PM: Defconfig` command (run the `make defconfig` command, which applies the default configuration values defined in the `sdkconfig.defaults` file).
 - `ESP32-PM: Build sub-project` command (run the `make -j all` command, which builds the previously selected sub-project source).

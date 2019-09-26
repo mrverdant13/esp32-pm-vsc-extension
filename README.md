@@ -15,6 +15,7 @@ Extension that allows its users to build, flash and monitor ESP32 projects based
 - `ESP32-PM: Register ESP-IDF API` : Register the path of a folder that contains an ESP-IDF API.
 - `ESP32-PM: Register Espressif Toolchain` : Register the path of a folder that contains an Espressif Toolchain.
 - `ESP32-PM: Create project` : Create a new ESP32 project.
+- `ESP32-PM: Initialize exisiting project` : Initialize an existing ESP32 project.
 - `ESP32-PM: Menuconfig` : Run the `make menuconfig` command, which shows the configuration interface for a ESP32 project.
 - `ESP32-PM: Defconfig` : Run the `make defconfig` command, which applies the default configuration values defined in the `sdkconfig.defaults` file.
 - `ESP32-PM: Build sub-project` : Run the `make -j all` command, which builds the previously selected sub-project source.
