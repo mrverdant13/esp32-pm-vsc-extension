@@ -29,6 +29,9 @@
 	"activationEvents": [
 		"*"
 	],
+	"os": [
+		"win32"
+	],
 	"contributes": {
 		"commands": [
 			{
