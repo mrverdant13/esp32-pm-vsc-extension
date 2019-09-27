@@ -32,6 +32,9 @@ import { PathsManager, PathType, Paths } from './paths';
 
 export function activate(context: vscode.ExtensionContext) {
 
+	if (process.platform !== 'win32') { vscode.window.showErrorMessage('The "ESP32-PM" extension supports Windows OS only.'); return; }
+	// if (vscode.extensions.getExtension('ms-vscode.cpptools') === undefined) { vscode.window.showErrorMessage('The "ESP32-PM" extension depends on the "C/C++" extension, which is not installed.'); return; }
+
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-espressif-toolchain', async () => {
 		PathsManager.registerPath(context, PathType.MSYS32);
 	}));
