@@ -51,6 +51,14 @@ export function activate(context: vscode.ExtensionContext) {
 			{ overwrite: false }
 		);
 
+		// Set the project name in the Makefile
+		var makefileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(projectPath, 'Makefile')))).toString();
+		makefileContent = makefileContent.replace(/\:PROJECT_NAME\:/gi, introducedName);
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(projectPath, 'Makefile')),
+			Buffer.from(makefileContent)
+		);
+
 		// Use the selected MinGW32 terminal and ESP-IDF API
 		await PathsManager.setConfiguration(context, msys32Path, idfPath, projectPath);
 
