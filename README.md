@@ -13,6 +13,42 @@ Extension that allows its users to build, flash and monitor ESP32 projects based
 
 ## Features
 
+- Standard project structure for the use of this extension.\
+This project structure allows the use of more than one application programs or 'sub-projects' that may have more than one entry point.\
+The project structure is as follows:
+
+>project (Project folder)
+>- .gitignore (Git file) [Tracked by Git]
+>- Makefile (ESP32 Makefile file) [Tracked by Git]
+>- sdkconfig.defaults (ESP32 default config values file) [Tracked by Git]
+>>.vscode (VSC config folder)
+>>- browse.c_cpp.db* (VSC database files) [Ignored by Git]
+>>- .gitignore (Git file) [Tracked by Git]
+>>- c_cpp_properties.json (VSC C/C++ config file) [Ignored by Git]
+>>- settings.json (VSC workspace config file) [Ignored by Git]
+>
+>>components (ESP32 user-defined components folder)
+>>- .gitignore (Git file) [Tracked by Git]
+>
+>>main (ESP32 application container)
+>>- .gitignore (Git file) [Tracked by Git]
+>>- component.mk (Main pseudo-component makefile) [Tracked by Git]
+>>>src (ESP32-PM sub-projects container)
+>>>>sub_project_1 (ESP32-PM sub-project application container)
+>>>>- main_1_sub_proj_1 (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_..._sub_proj_1 (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_n_sub_proj_1 (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>
+>>>>sub_project_... (ESP32-PM sub-project application container)
+>>>>- main_1_sub_proj_... (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_..._sub_proj_... (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_n_sub_proj_... (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>
+>>>>sub_project_2 (ESP32-PM sub-project application container)
+>>>>- main_1_sub_proj_2 (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_..._sub_proj_2 (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_n_sub_proj_2 (ESP32-PM sub-project entry point) [Tracked by Git]
+
 ### Supported OS
 
 - Windows
