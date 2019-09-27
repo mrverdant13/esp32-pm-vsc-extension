@@ -6,7 +6,7 @@
 
 # ESP32 project manager for Visual Studio Code
 
-Extension that allows its users to build, flash and monitor ESP32 projects based on the ESP-IDF.
+ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ESP32 applications.
 
 ----------
 
