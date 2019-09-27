@@ -209,5 +209,13 @@ export class PathsManager {
             vscode.Uri.file(join(projectPath, '.vscode/c_cpp_properties.json')),
             Buffer.from(vscCCppProperties)
         );
+        const menuconfigContent: string =
+            'echo "ESP32-PM: Launching graphical config menu..."' + '\n' +
+            'set CHERE_INVOKING=1' + '\n' +
+            'start ' + msys32Path + '/mingw32.exe make menuconfig';
+        await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(join(projectPath, '.vscode/Menuconfig.sh')),
+            Buffer.from(menuconfigContent)
+        );
     }
 }

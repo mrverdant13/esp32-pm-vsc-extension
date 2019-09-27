@@ -175,9 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			"Menuconfig",
 			[
-				'echo "ESP32-PM: Launching graphical config menu...\n"',
-				'set CHERE_INVOKING=1',
-				'start C:/msys32/mingw32.exe make menuconfig',
+				'sh .vscode/Menuconfig.sh'
 			]
 		);
 	}));
