@@ -102,6 +102,26 @@ The following elements are required to be previously installed:
 
 ----------
 
+## Usage
+
+After meeting the requirements and installing this extension, you could follow the steps below:
+
+### First of all:
+- Register a ESP-IDF folder with the `ESP32-PM: Register ESP-IDF API` command.
+- Register a Espressif Toolchain folder with the `ESP32-PM: Register Espressif Toolchain` command.
+
+### Create a new project:
+- Create a new project with the `ESP32-PM: Create project`.
+
+### Initialize an existing project:
+- Initialize the existent project with the `ESP32-PM: Initialize exisiting project`.
+**NOTE:** Keep in mind that this command will suffix some files listed in a warning.
+
+### Build, flash, monitor and clean regular `make` commands:
+These commands are often used with ESP32 projects based on GNU Make. They can be used with their corresponding extension command.
+
+----------
+
 ## Known Issues
 
 [Known issues](https://github.com/mrverdant13/esp32-pm-vsc-extension/issues).
