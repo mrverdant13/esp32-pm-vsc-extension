@@ -12,6 +12,7 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added:
 
+- License added.
 - Standard project structure for the use of this extension.
 - Support for more than one application/sub-program.
 - Support for more than one entry point per application/sub-program.
