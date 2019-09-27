@@ -13,8 +13,8 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added:
 
 - Standard project structure for the use of this extension.
-- Support for more than one application.
-- Support for more than one entry point per application.
+- Support for more than one application/sub-program.
+- Support for more than one entry point per application/sub-program.
 - `ESP32-PM: Register ESP-IDF API` command for Windows.
 - `ESP32-PM: Register Espressif Toolchain` command for Windows.
 - `ESP32-PM: Create project` command for Windows.
