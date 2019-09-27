@@ -41,7 +41,7 @@ The project structure is as follows:
 >>>
 >>>>sub_project_... (ESP32-PM sub-project application container)
 >>>>- main_1_sub_proj_... (ESP32-PM sub-project entry point) [Tracked by Git]
->>>>- main_..._sub_proj_... (ESP32-PM sub-project entry point) [Tracked by Git]
+>>>>- main_...\_sub_proj\_... (ESP32-PM sub-project entry point) [Tracked by Git]
 >>>>- main_n_sub_proj_... (ESP32-PM sub-project entry point) [Tracked by Git]
 >>>
 >>>>sub_project_2 (ESP32-PM sub-project application container)
