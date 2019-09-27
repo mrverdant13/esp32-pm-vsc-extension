@@ -3,6 +3,7 @@
 <!-- STEP2: Update CHANGELOG.md -->
 
 <!-- TODO: Isolate the MinGW32 terminal calling for the 'Menuconfig' command within a bash file. -->
+<!-- TODO: Add MSYS32_PATH and IDF_PATH existence checking for projects. -->
 <!-- TODO: Define the "licence" field of the "package.json" file. -->
 <!-- TODO: Define the icon of the extension. -->
 
