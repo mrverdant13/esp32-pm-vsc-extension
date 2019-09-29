@@ -34,7 +34,7 @@ export function delay(ms: number) {
 
 export async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
     try {
-        var fileStat: vscode.FileStat = await vscode.workspace.fs.stat(vscode.Uri.file(path));
+        const fileStat: vscode.FileStat = await vscode.workspace.fs.stat(vscode.Uri.file(path));
         return fileStat.type === type;
     } catch (error) {
         return false;
