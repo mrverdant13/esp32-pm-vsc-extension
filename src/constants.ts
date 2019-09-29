@@ -36,10 +36,21 @@ export const esp32PmFolders: Array<string> = [
     subprojectsFolder,
 ];
 
-// Colon-surrounded constant strings
+// Colon-surrounded constant strings.
 export const colonConstants: Array<string> = [
     'MSYS32_PATH',
     'IDF_PATH',
 ];
 
+// Characteristic folders of an Espressif Toolchain.
+export const toolchainFolders: Array<string> = [
+    'home',
+    'etc/profile.d'
+];
+
+// Characteristic folders of an ESP-IDF API.
+export const idfFolders: Array<string> = [
+    'components',
+    'examples'
+];
 

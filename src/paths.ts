@@ -28,6 +28,7 @@ import { join } from "path";
 import * as vscode from 'vscode';
 
 import { fileExists, filterExistingPaths, folderExists } from "./utils";
+import { toolchainFolders, idfFolders } from "./constants";
 
 const relativeValuesPath: string = 'assets/local-data/values.json';
 
@@ -124,16 +125,6 @@ export class PathsManager {
 
     public static async registerPath(context: vscode.ExtensionContext, pathType: PathType) {
 
-        // Constants
-        const msys32NeededFolders: Array<string> = [
-            'home',
-            'etc/profile.d'
-        ];
-        const idfNeededFolders: Array<string> = [
-            'components',
-            'examples'
-        ];
-
         // Variables
         var referencialName: string = '';
         var neededFolders: Array<string> = [];
@@ -142,12 +133,12 @@ export class PathsManager {
         switch (pathType) {
             case PathType.MSYS32: {
                 referencialName = "Espressif Toolchain";
-                neededFolders = msys32NeededFolders;
+                neededFolders = toolchainFolders;
                 break;
             }
             case PathType.IDF: {
                 referencialName = "ESP-IDF API";
-                neededFolders = idfNeededFolders;
+                neededFolders = idfFolders;
                 break;
             }
         }
