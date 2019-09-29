@@ -3,34 +3,7 @@ import { join } from "path";
 import * as vscode from 'vscode';
 
 import { fileExists, folderExists } from "./utils";
-
-// Characteristic files of an Espressif project.
-const espressifFiles: Array<string> = [
-    'Makefile',
-];
-
-// Characteristic folders of an Espressif project.
-const espressifFolders: Array<string> = [
-    'main',
-];
-
-// Characteristic files of an ESP32-PM project.
-const esp32PmFiles: Array<string> = [
-    '.vscode/settings.json',
-    '.vscode/c_cpp_properties.json'
-];
-
-// Characteristic files of an ESP32-PM project.
-const esp32PmFolders: Array<string> = [
-    'main/src'
-];
-
-// Colon-surrounded constant strings
-const colonConstants: Array<string> = [
-    'MSYS32_PATH',
-    'IDF_PATH'
-];
-
+import { espressifFolders, espressifFiles, esp32PmFiles, colonConstants, esp32PmFolders } from "./constants";
 
 function getProjectPath(): string {
 
@@ -40,7 +13,7 @@ function getProjectPath(): string {
         return '';
     }
     return workspaceFolders[0].uri.fsPath;
-    
+
 }
 
 export async function isEspressifProject(): Promise<boolean> {
