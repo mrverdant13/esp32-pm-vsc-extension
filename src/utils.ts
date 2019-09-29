@@ -51,17 +51,21 @@ export async function fileExists(path: string): Promise<boolean> {
 
 export function getFolders(path: string): string[] {
     return readdirSync(path).filter((element) => {
-        if (lstatSync(join(path, element)).isDirectory()) { return element; }
+        if (lstatSync(join(path, element)).isDirectory()) {
+            return element;
+        }
     });
 }
 
 export function getFiles(path: string): string[] {
     return readdirSync(path).filter((element) => {
-        if (lstatSync(join(path, element)).isFile()) { return element; }
+        if (lstatSync(join(path, element)).isFile()) {
+            return element;
+        }
     });
 }
 
-export async function filterExistingPaths(paths: string[]): Promise<string[]> {
+export async function filterExistingFolders(paths: string[]): Promise<string[]> {
     var existingPaths: string[] = [];
     for (var index: number = 0; index < paths.length; index++) {
         if (await folderExists(paths[index])) {
@@ -72,14 +76,14 @@ export async function filterExistingPaths(paths: string[]): Promise<string[]> {
 }
 
 export function executeShellCommands(name: string, commandLines: string[]): void {
-    var _task = new vscode.Task(
+    const task = new vscode.Task(
         { type: "shell" },
         vscode.TaskScope.Workspace,
         name,
         "ESP32-PM",
         new vscode.ShellExecution(commandLines.join(" && "))
     );
-    _task.presentationOptions.echo = false;
-    _task.presentationOptions.focus = true;
-    vscode.tasks.executeTask(_task);
+    task.presentationOptions.echo = false;
+    task.presentationOptions.focus = true;
+    vscode.tasks.executeTask(task);
 }

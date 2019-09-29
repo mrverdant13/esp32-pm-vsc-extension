@@ -27,7 +27,7 @@ SOFTWARE.
 import { join } from "path";
 import * as vscode from 'vscode';
 
-import { fileExists, filterExistingPaths, folderExists } from "./utils";
+import { fileExists, filterExistingFolders, folderExists } from "./utils";
 import { toolchainFolders, idfFolders } from "./constants";
 
 const relativeValuesPath: string = 'assets/local-data/values.json';
@@ -67,8 +67,8 @@ export class PathsManager {
             (await fileExists(join(context.extensionPath, relativeValuesPath)))
                 ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, relativeValuesPath)))).toString()
                 : '{}');
-        paths.msys32Paths = await filterExistingPaths(paths.msys32Paths);
-        paths.idfPaths = await filterExistingPaths(paths.idfPaths);
+        paths.msys32Paths = await filterExistingFolders(paths.msys32Paths);
+        paths.idfPaths = await filterExistingFolders(paths.idfPaths);
         await this.setValues(context, paths);
         return paths;
     }
