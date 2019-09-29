@@ -1,9 +1,20 @@
-import { join } from "path";
+import {
+    join
+} from "path";
 
 import * as vscode from 'vscode';
 
-import { espressifFolders, espressifFiles, esp32PmFiles, colonConstants, esp32PmFolders } from "./constants";
-import { fileExists, folderExists } from "./utils";
+import {
+    espressifFolders,
+    espressifFiles,
+    esp32PmFiles,
+    colonConstants,
+    esp32PmFolders
+} from "./constants";
+import {
+    fileExists,
+    folderExists
+} from "./utils";
 
 function getProjectPath(): string {
 
@@ -12,6 +23,8 @@ function getProjectPath(): string {
     if (workspaceFolders === undefined) {
         return '';
     }
+
+    // If this point is reached, the project exists and its path is returned.
     return workspaceFolders[0].uri.fsPath;
 
 }
