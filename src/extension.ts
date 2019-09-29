@@ -28,7 +28,7 @@ import { join } from 'path';
 
 import * as vscode from 'vscode';
 
-import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs } from './constants';
+import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs, overwritingSuffix, overwritingFiles } from './constants';
 import { isEspressifProject, isEsp32PmProject } from './esp32project';
 import { PathsManager, PathType, Paths } from './paths';
 import * as utils from './utils';
@@ -127,15 +127,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.init-project', async () => {
 
-		// Constants
-		const sufix: string = '_old';
-		const replaceFiles: Array<string> = [
-			'main/main.c',
-			'main/main.cpp',
-			'.vscode/settings.json',
-			'.vscode/c_cpp_properties.json'
-		];
-
 		// Ask the user for an existing project location.
 		var projectLocation = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
@@ -152,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!await isEspressifProject()) { vscode.window.showErrorMessage("The selected folder does not contain an Espressif project."); return; }
 
 		// Warn the user about files renaming.
-		if (undefined === await vscode.window.showWarningMessage("The " + sufix + " sufix will be used for the folloging files if they exist: " + replaceFiles.join(', ') + ".", "Continue")) { return; }
+		if (undefined === await vscode.window.showWarningMessage("The " + overwritingSuffix + " sufix will be used for the folloging files if they exist: '" + overwritingFiles.join("', '") + "'.", "Continue")) { return; }
 
 		// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
 		const paths: Paths = await PathsManager.getValues(context);
@@ -166,10 +157,10 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!useNewWindow) { vscode.window.showErrorMessage("Project initialization cancelled"); return; }
 
 		// Apply sufix.
-		for (let index = 0; index < replaceFiles.length; index++) {
-			const filePath: string = join(projectPath, replaceFiles[index]);
+		for (let index = 0; index < overwritingFiles.length; index++) {
+			const filePath: string = join(projectPath, overwritingFiles[index]);
 			if (await utils.fileExists(filePath)) {
-				await vscode.workspace.fs.rename(vscode.Uri.file(filePath), vscode.Uri.file(filePath + sufix), { overwrite: true });
+				await vscode.workspace.fs.rename(vscode.Uri.file(filePath), vscode.Uri.file(filePath + overwritingSuffix), { overwrite: true });
 			}
 		}
 
