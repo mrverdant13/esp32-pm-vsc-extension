@@ -28,7 +28,7 @@ import { join } from "path";
 
 import * as vscode from 'vscode';
 
-import { toolchainFolders, idfFolders, extensionValuesFile } from "./constants";
+import { toolchainFolders, idfFolders, extensionValuesFile, colonToolchainPath, colonIdfPath, vscSettingsTemplateFile, vscCCppPropsTemplateFile, vscSettingsFile } from "./constants";
 import { fileExists, filterExistingFolders, folderExists } from "./utils";
 
 export interface Paths {
@@ -45,8 +45,12 @@ export class PathsManager {
 
     private static toPaths(json: string): Paths {
         var tempPaths: Paths = JSON.parse(json);
-        if (tempPaths.toolchainPaths === undefined) { tempPaths.toolchainPaths = []; }
-        if (tempPaths.idfPaths === undefined) { tempPaths.idfPaths = []; }
+        if (tempPaths.toolchainPaths === undefined) {
+            tempPaths.toolchainPaths = [];
+        }
+        if (tempPaths.idfPaths === undefined) {
+            tempPaths.idfPaths = [];
+        }
         return tempPaths;
     }
 
@@ -185,18 +189,18 @@ export class PathsManager {
     public static async setConfiguration(context: vscode.ExtensionContext, toolchainPath: string, idfPath: string, projectPath: string) {
         toolchainPath = toolchainPath.replace(/\\/gi, '/');
         idfPath = idfPath.replace(/\\/gi, '/');
-        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_settings.json')))).toString();
-        vscSettings = vscSettings.replace(/\:TOOLCHAIN_PATH\:/gi, toolchainPath);
-        vscSettings = vscSettings.replace(/\:IDF_PATH\:/gi, idfPath);
+        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, vscSettingsTemplateFile)))).toString();
+        vscSettings = vscSettings.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
+        vscSettings = vscSettings.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(projectPath, '.vscode/settings.json')),
+            vscode.Uri.file(join(projectPath, vscSettingsFile)),
             Buffer.from(vscSettings)
         );
-        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_c_cpp_properties.json')))).toString();
-        vscCCppProperties = vscCCppProperties.replace(/\:TOOLCHAIN_PATH\:/gi, toolchainPath);
-        vscCCppProperties = vscCCppProperties.replace(/\:IDF_PATH\:/gi, idfPath);
+        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, vscCCppPropsTemplateFile)))).toString();
+        vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
+        vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(projectPath, '.vscode/c_cpp_properties.json')),
+            vscode.Uri.file(join(projectPath, vscSettingsFile)),
             Buffer.from(vscCCppProperties)
         );
         const menuconfigContent: string =

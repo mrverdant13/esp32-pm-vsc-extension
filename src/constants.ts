@@ -7,14 +7,29 @@ export const entryPointPrefix: string = 'main';
 // File to store extension values.
 export const extensionValuesFile: string = 'assets/local-data/values.json';
 
-// Suffix to be used for files that will be overwrited.
-export const overwritingSuffix: string = '.old';
+// VSCode settings template file.
+export const vscSettingsTemplateFile: string = '.assets/configTemplate/_settings.json';
+
+// VSCode C/C++ properties template file.
+export const vscCCppPropsTemplateFile: string = 'assets/configTemplate/_c_cpp_properties.json';
 
 // VSCode settings file.
 export const vscSettingsFile: string = '.vscode/settings.json';
 
 // VSCode C/C++ properties file.
 export const vscCCppPropsFile: string = '.vscode/c_cpp_properties.json';
+
+// Suffix to be used for files that will be overwrited.
+export const overwritingSuffix: string = '.old';
+
+// Colon-surrounded constant string for the project name.
+export const colonProjectName: string = 'PROJECT_NAME';
+
+// Colon-surrounded constant string for the Espressif Toolchain path.
+export const colonToolchainPath: string = 'TOOLCHAIN_PATH';
+
+// Colon-surrounded constant string for the ESP-IDF API path.
+export const colonIdfPath: string = 'IDF_PATH';
 
 // Characteristic files of an ESP32-PM project.
 export const supportedOSs: Array<string> = [
@@ -50,8 +65,9 @@ export const esp32PmFolders: Array<string> = [
 
 // Colon-surrounded constant strings.
 export const colonConstants: Array<string> = [
-    'TOOLCHAIN_PATH',
-    'IDF_PATH',
+    colonToolchainPath,
+    colonIdfPath,
+    colonProjectName,
 ];
 
 // Characteristic folders of an Espressif Toolchain.

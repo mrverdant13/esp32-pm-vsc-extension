@@ -28,7 +28,7 @@ import { join } from 'path';
 
 import * as vscode from 'vscode';
 
-import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs, overwritingSuffix, overwritingFiles } from './constants';
+import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs, overwritingSuffix, overwritingFiles, colonProjectName } from './constants';
 import { isEspressifProject, isEsp32PmProject } from './esp32project';
 import { PathsManager, PathType, Paths } from './paths';
 import * as utils from './utils';
@@ -114,7 +114,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const makefileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(projectPath, 'Makefile')))).toString();
 		await vscode.workspace.fs.writeFile(
 			vscode.Uri.file(join(projectPath, 'Makefile')),
-			Buffer.from(makefileContent.replace(/\:PROJECT_NAME\:/gi, introducedName))
+			Buffer.from(makefileContent.replace(RegExp(':' + colonProjectName + ':', 'gi'), introducedName))
 		);
 
 		// Use the selected MinGW32 terminal and ESP-IDF API
