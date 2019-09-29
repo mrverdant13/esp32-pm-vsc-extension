@@ -34,6 +34,7 @@ export function delay(ms: number) {
 }
 
 export async function showQuickPickFrom(elements: Array<string>, hint: string, canPickMany: boolean = false) {
+    // Show a custom pick menu.
     return await vscode.window.showQuickPick(
         elements,
         {
