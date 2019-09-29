@@ -60,11 +60,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.create-project', async () => {
 
-		// Ask the user for the new project name.
-		var introducedName: string | undefined = await vscode.window.showInputBox({ prompt: "Name of the new project" });
-		if (introducedName === undefined || introducedName.trim().length === 0) { vscode.window.showErrorMessage("Project name not introduced"); return; }
-		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
-
 		// Ask the user for the new project location.
 		var projectLocation = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
@@ -72,18 +67,38 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectMany: false,
 			openLabel: "Select project location"
 		});
-		if (projectLocation === undefined) { vscode.window.showErrorMessage("Project location not selected."); return; }
+		if (projectLocation === undefined) {
+			vscode.window.showErrorMessage("Project location not selected.");
+			return;
+		}
+
+		// Ask the user for the new project name.
+		var introducedName: string | undefined = await vscode.window.showInputBox({ prompt: "Name of the new project" });
+		if (introducedName === undefined || introducedName.trim().length === 0) {
+			vscode.window.showErrorMessage("Project name not introduced");
+			return;
+		}
+		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
 
 		// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
 		const paths: Paths = await PathsManager.getValues(context);
 		var msys32Path = await showQuickPickFrom(paths.msys32Paths, "MinGW32 terminal to be used");
-		if (msys32Path === undefined) { vscode.window.showErrorMessage("MinGW32 terminal not selected."); return; }
+		if (msys32Path === undefined) {
+			vscode.window.showErrorMessage("MinGW32 terminal not selected.");
+			return;
+		}
 		var idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
-		if (idfPath === undefined) { vscode.window.showErrorMessage("ESP-IDF API not selected."); return; }
+		if (idfPath === undefined) {
+			vscode.window.showErrorMessage("ESP-IDF API not selected.");
+			return;
+		}
 
 		// Ask the user if the new project should be launched in the current window or in a new one.
 		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
-		if (!useNewWindow) { vscode.window.showErrorMessage("Project creation cancelled"); return; }
+		if (!useNewWindow) {
+			vscode.window.showErrorMessage("Project creation cancelled");
+			return;
+		}
 
 		// Set the new project path.
 		var projectPath: string = join(projectLocation[0].fsPath, introducedName);
