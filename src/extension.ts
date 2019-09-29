@@ -28,7 +28,7 @@ import { join } from 'path';
 
 import * as vscode from 'vscode';
 
-import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs, overwritingSuffix, overwritingFiles, colonProjectName } from './constants';
+import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs, overwritingSuffix, overwritingFiles, colonProjectName, menuconfigBashPath } from './constants';
 import { isEspressifProject, isEsp32PmProject } from './esp32project';
 import { PathsManager, PathType, Paths } from './paths';
 import * as utils from './utils';
@@ -164,10 +164,10 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		// Copy the sub-project examples if the sub-projects folder does not exist.
-		if (!await utils.folderExists(join(projectPath, 'main/src'))) {
+		if (!await utils.folderExists(join(projectPath, subprojectsFolder))) {
 			await vscode.workspace.fs.copy(
 				vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/main/src")),
-				vscode.Uri.file(join(projectPath, 'main/src')),
+				vscode.Uri.file(join(projectPath, subprojectsFolder)),
 				{ overwrite: false }
 			);
 		}
@@ -195,7 +195,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			"Menuconfig",
 			[
-				'sh .vscode/Menuconfig.sh'
+				'sh ' + menuconfigBashPath
 			]
 		);
 	}));

@@ -28,12 +28,27 @@ import { join } from "path";
 
 import * as vscode from 'vscode';
 
-import { toolchainFolders, idfFolders, extensionValuesFile, colonToolchainPath, colonIdfPath, vscSettingsTemplateFile, vscCCppPropsTemplateFile, vscSettingsFile } from "./constants";
-import { fileExists, filterExistingFolders, folderExists } from "./utils";
+import {
+    toolchainFolders,
+    idfFolders,
+    extensionValuesFile,
+    colonToolchainPath,
+    colonIdfPath,
+    vscSettingsTemplateFile,
+    vscCCppPropsTemplateFile,
+    vscSettingsFile,
+    menuconfigBashPath,
+    vscCCppPropsFile
+} from "./constants";
+import {
+    fileExists,
+    filterExistingFolders,
+    folderExists
+} from "./utils";
 
 export interface Paths {
-    toolchainPaths: string[];
-    idfPaths: string[];
+    toolchainPaths: Array<string>;
+    idfPaths: Array<string>;
 }
 
 export enum PathType {
@@ -44,7 +59,7 @@ export enum PathType {
 export class PathsManager {
 
     private static toPaths(json: string): Paths {
-        var tempPaths: Paths = JSON.parse(json);
+        const tempPaths: Paths = JSON.parse(json);
         if (tempPaths.toolchainPaths === undefined) {
             tempPaths.toolchainPaths = [];
         }
@@ -66,7 +81,7 @@ export class PathsManager {
     }
 
     public static async getValues(context: vscode.ExtensionContext): Promise<Paths> {
-        var paths: Paths = this.toPaths(
+        const paths: Paths = this.toPaths(
             (await fileExists(join(context.extensionPath, extensionValuesFile)))
                 ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, extensionValuesFile)))).toString()
                 : '{}');
@@ -89,15 +104,19 @@ export class PathsManager {
                 break;
             }
         }
-        var value = pathsArray.find((pathElement) => {
+        const value = pathsArray.find((pathElement) => {
             return (pathElement === path);
         });
-        if (value === undefined) { return false; }
-        else { return true; }
+        if (value === undefined) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
     private static async removeRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
-        var values = await this.getValues(context);
+        const values = await this.getValues(context);
         switch (type) {
             case PathType.TOOLCHAIN: {
                 values.toolchainPaths.splice(values.toolchainPaths.indexOf(path, type), 1);
@@ -112,7 +131,7 @@ export class PathsManager {
     }
 
     private static async addRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
-        var values = await this.getValues(context);
+        const values = await this.getValues(context);
         switch (type) {
             case PathType.TOOLCHAIN: {
                 values.toolchainPaths.push(path);
@@ -147,16 +166,19 @@ export class PathsManager {
         }
 
         // The user must select the location of the folder.
-        var selectedElement = await vscode.window.showOpenDialog({
+        const selectedElement = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: false,
             openLabel: "Select a " + referencialName + " folder"
         });
-        if (selectedElement === undefined) { vscode.window.showErrorMessage("" + referencialName + " folder not selected"); return; }
+        if (selectedElement === undefined) {
+            vscode.window.showErrorMessage("" + referencialName + " folder not selected");
+            return;
+        }
 
         // Get the path of the selected folder.
-        var elementApsolutePath: string = join(selectedElement[0].fsPath);
+        const elementApsolutePath: string = join(selectedElement[0].fsPath);
 
         // Check if the folder is valid.
         const folderIsValid: boolean = !neededFolders.some(async (neededFolder) => {
@@ -200,7 +222,7 @@ export class PathsManager {
         vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
         vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(projectPath, vscSettingsFile)),
+            vscode.Uri.file(join(projectPath, vscCCppPropsFile)),
             Buffer.from(vscCCppProperties)
         );
         const menuconfigContent: string =
@@ -208,7 +230,7 @@ export class PathsManager {
             'set CHERE_INVOKING=1' + '\n' +
             'start ' + toolchainPath + '/mingw32.exe make menuconfig';
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(projectPath, '.vscode/Menuconfig.sh')),
+            vscode.Uri.file(join(projectPath, menuconfigBashPath)),
             Buffer.from(menuconfigContent)
         );
     }
