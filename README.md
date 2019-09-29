@@ -3,7 +3,7 @@
 <!-- STEP2: Update CHANGELOG.md -->
 
 <!-- TODO: Isolate the use of the 'component.mk' file for each sub-project entry point. -->
-<!-- TODO: Add MSYS32_PATH and IDF_PATH existence checking for projects. -->
+<!-- TODO: Add TOOLCHAIN_PATH and IDF_PATH existence checking for projects. -->
 
 # ESP32 project manager for Visual Studio Code
 

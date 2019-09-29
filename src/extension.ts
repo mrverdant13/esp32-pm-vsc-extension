@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-espressif-toolchain', async () => {
 
 		// Register an Espressif Toolchain folder path.
-		PathsManager.registerPath(context, PathType.MSYS32);
+		PathsManager.registerPath(context, PathType.TOOLCHAIN);
 
 	}));
 
@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.create-project', async () => {
 
 		// Ask the user for the new project location.
-		var projectLocation = await vscode.window.showOpenDialog({
+		const projectLocation = await vscode.window.showOpenDialog({
 			canSelectFiles: false,
 			canSelectFolders: true,
 			canSelectMany: false,
@@ -80,28 +80,28 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		introducedName = introducedName.trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
 
-		// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
+		// Ask the user which Espressif Toolchain and ESP-IDF API are going to be used with the project.
 		const paths: Paths = await PathsManager.getValues(context);
-		var msys32Path = await showQuickPickFrom(paths.msys32Paths, "MinGW32 terminal to be used");
-		if (msys32Path === undefined) {
-			vscode.window.showErrorMessage("MinGW32 terminal not selected.");
+		const toolchainPath = await showQuickPickFrom(paths.toolchainPaths, "Esfressif Toolchain to be used");
+		if (toolchainPath === undefined) {
+			vscode.window.showErrorMessage("Espressif Toolchain not selected.");
 			return;
 		}
-		var idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
+		const idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
 		if (idfPath === undefined) {
 			vscode.window.showErrorMessage("ESP-IDF API not selected.");
 			return;
 		}
 
 		// Ask the user if the new project should be launched in the current window or in a new one.
-		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
+		const useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
 		if (!useNewWindow) {
 			vscode.window.showErrorMessage("Project creation cancelled");
 			return;
 		}
 
 		// Set the new project path.
-		var projectPath: string = join(projectLocation[0].fsPath, introducedName);
+		const projectPath: string = join(projectLocation[0].fsPath, introducedName);
 
 		// Copy the project template.
 		await vscode.workspace.fs.copy(
@@ -111,15 +111,14 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 
 		// Set the project name in the Makefile
-		var makefileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(projectPath, 'Makefile')))).toString();
-		makefileContent = makefileContent.replace(/\:PROJECT_NAME\:/gi, introducedName);
+		const makefileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(projectPath, 'Makefile')))).toString();
 		await vscode.workspace.fs.writeFile(
 			vscode.Uri.file(join(projectPath, 'Makefile')),
-			Buffer.from(makefileContent)
+			Buffer.from(makefileContent.replace(/\:PROJECT_NAME\:/gi, introducedName))
 		);
 
 		// Use the selected MinGW32 terminal and ESP-IDF API
-		await PathsManager.setConfiguration(context, msys32Path, idfPath, projectPath);
+		await PathsManager.setConfiguration(context, toolchainPath, idfPath, projectPath);
 
 		// Launch the new project according to the user election.
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));
@@ -147,8 +146,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
 		const paths: Paths = await PathsManager.getValues(context);
-		var msys32Path = await showQuickPickFrom(paths.msys32Paths, "MinGW32 terminal to be used");
-		if (msys32Path === undefined) { vscode.window.showErrorMessage("MinGW32 terminal not selected."); return; }
+		var toolchainPath = await showQuickPickFrom(paths.toolchainPaths, "MinGW32 terminal to be used");
+		if (toolchainPath === undefined) { vscode.window.showErrorMessage("MinGW32 terminal not selected."); return; }
 		var idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
 		if (idfPath === undefined) { vscode.window.showErrorMessage("ESP-IDF API not selected."); return; }
 
@@ -174,7 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		// Use the selected MinGW32 terminal and ESP-IDF API
-		await PathsManager.setConfiguration(context, msys32Path, idfPath, projectPath);
+		await PathsManager.setConfiguration(context, toolchainPath, idfPath, projectPath);
 
 		// Launch the new project according to the user election.
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectPath), useNewWindow.includes("new"));

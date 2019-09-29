@@ -50,7 +50,7 @@ export const esp32PmFolders: Array<string> = [
 
 // Colon-surrounded constant strings.
 export const colonConstants: Array<string> = [
-    'MSYS32_PATH',
+    'TOOLCHAIN_PATH',
     'IDF_PATH',
 ];
 
