@@ -54,3 +54,5 @@ export const idfFolders: Array<string> = [
     'examples'
 ];
 
+// File to store extension values.
+export const extensionValuesFile: string = 'assets/local-data/values.json';

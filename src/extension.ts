@@ -28,10 +28,10 @@ import { join } from 'path';
 
 import * as vscode from 'vscode';
 
+import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs } from './constants';
 import { isEspressifProject, isEsp32PmProject } from './esp32project';
 import { PathsManager, PathType, Paths } from './paths';
 import * as utils from './utils';
-import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs } from './constants';
 
 export function activate(context: vscode.ExtensionContext) {
 

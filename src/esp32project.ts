@@ -2,8 +2,8 @@ import { join } from "path";
 
 import * as vscode from 'vscode';
 
-import { fileExists, folderExists } from "./utils";
 import { espressifFolders, espressifFiles, esp32PmFiles, colonConstants, esp32PmFolders } from "./constants";
+import { fileExists, folderExists } from "./utils";
 
 function getProjectPath(): string {
 

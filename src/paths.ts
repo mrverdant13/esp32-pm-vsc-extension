@@ -25,12 +25,11 @@ SOFTWARE.
 */
 
 import { join } from "path";
+
 import * as vscode from 'vscode';
 
+import { toolchainFolders, idfFolders, extensionValuesFile } from "./constants";
 import { fileExists, filterExistingFolders, folderExists } from "./utils";
-import { toolchainFolders, idfFolders } from "./constants";
-
-const relativeValuesPath: string = 'assets/local-data/values.json';
 
 export interface Paths {
     msys32Paths: string[];
@@ -57,15 +56,15 @@ export class PathsManager {
 
     private static async setValues(context: vscode.ExtensionContext, values: Paths): Promise<void> {
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(context.extensionPath, relativeValuesPath)),
+            vscode.Uri.file(join(context.extensionPath, extensionValuesFile)),
             Buffer.from(this.pathsToJson(values))
         );
     }
 
     public static async getValues(context: vscode.ExtensionContext): Promise<Paths> {
         var paths: Paths = this.toPaths(
-            (await fileExists(join(context.extensionPath, relativeValuesPath)))
-                ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, relativeValuesPath)))).toString()
+            (await fileExists(join(context.extensionPath, extensionValuesFile)))
+                ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, extensionValuesFile)))).toString()
                 : '{}');
         paths.msys32Paths = await filterExistingFolders(paths.msys32Paths);
         paths.idfPaths = await filterExistingFolders(paths.idfPaths);
