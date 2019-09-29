@@ -31,13 +31,16 @@ import * as vscode from 'vscode';
 import { isEspressifProject, isEsp32PmProject } from './esp32project';
 import { PathsManager, PathType, Paths } from './paths';
 import * as utils from './utils';
-import { subprojectsFolder, entryPointPrefix, entryPointExtensions } from './constants';
+import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs } from './constants';
 
 export function activate(context: vscode.ExtensionContext) {
 
 	// This extension will register its commands only for Windows.
-	if (process.platform !== 'win32') {
-		vscode.window.showErrorMessage('The "ESP32-PM" extension supports Windows OS only.');
+	const isSupported: boolean = supportedOSs.some((os) => {
+		return (process.platform === os);
+	});
+	if (!isSupported) {
+		vscode.window.showErrorMessage('The "ESP32-PM" extension does not support this OS.');
 		return;
 	}
 

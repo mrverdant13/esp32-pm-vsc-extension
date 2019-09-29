@@ -1,3 +1,8 @@
+// Characteristic files of an ESP32-PM project.
+export const supportedOSs: Array<string> = [
+    'win32',
+];
+
 // Sub-projects folder.
 export const subprojectsFolder: string = 'main/src/';
 
