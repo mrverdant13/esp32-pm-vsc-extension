@@ -119,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Copy the project template.
 		await vscode.workspace.fs.copy(
-			vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate")),
+			vscode.Uri.file(context.asAbsolutePath('/assets/projectTemplate')),
 			vscode.Uri.file(projectPath),
 			{ overwrite: false }
 		);
@@ -201,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// Copy the sub-project examples if the sub-projects folder does not exist.
 		if (!await utils.folderExists(join(projectPath, subprojectsFolder))) {
 			await vscode.workspace.fs.copy(
-				vscode.Uri.file(join(context.extensionPath, "/assets/projectTemplate/main/src")),
+				vscode.Uri.file(context.asAbsolutePath('/assets/projectTemplate/main/src')),
 				vscode.Uri.file(join(projectPath, subprojectsFolder)),
 				{ overwrite: false }
 			);

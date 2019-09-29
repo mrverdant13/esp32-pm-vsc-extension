@@ -86,7 +86,7 @@ export class PathsManager {
     private static async setValues(context: vscode.ExtensionContext, values: Paths): Promise<void> {
         // Write the Paths to the extension values file.
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(context.extensionPath, extensionValuesFile)),
+            vscode.Uri.file(context.asAbsolutePath(extensionValuesFile)),
             Buffer.from(this.pathsToJson(values))
         );
     }
@@ -94,8 +94,8 @@ export class PathsManager {
     public static async getValues(context: vscode.ExtensionContext): Promise<Paths> {
         // Get the registered paths from the extension values file.
         const paths: Paths = this.toPaths(
-            (await fileExists(join(context.extensionPath, extensionValuesFile)))
-                ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, extensionValuesFile)))).toString()
+            (await fileExists(context.asAbsolutePath(extensionValuesFile)))
+                ? (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(extensionValuesFile)))).toString()
                 : '{}');
 
         // Filter only the existing toolchain folders.
@@ -248,7 +248,7 @@ export class PathsManager {
         // idfPath = idfPath.replace(/\\/gi, '/');
 
         // Get the VSC settings template content.
-        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, vscSettingsTemplateFile)))).toString();
+        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscSettingsTemplateFile)))).toString();
 
         // Replace the :<CONSTANTS>: values in the template.
         vscSettings = vscSettings.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
@@ -261,7 +261,7 @@ export class PathsManager {
         );
 
         // Get the VSC C/C++ properties template content.
-        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, vscCCppPropsTemplateFile)))).toString();
+        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscCCppPropsTemplateFile)))).toString();
 
         // Replace the :<CONSTANTS>: values in the template.
         vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
