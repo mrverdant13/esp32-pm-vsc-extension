@@ -29,27 +29,35 @@ import { join } from 'path';
 import { readdirSync, lstatSync } from 'fs';
 
 export function delay(ms: number) {
+    // Create a promise with specific duration.
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
+async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
     try {
+        // Get the info regarding the passed file path.
         const fileStat: vscode.FileStat = await vscode.workspace.fs.stat(vscode.Uri.file(path));
+
+        // Return the validation of the file type.
         return fileStat.type === type;
     } catch (error) {
+        // If this point is reached, an exception was thrown and, thus, the file does not exist.
         return false;
     }
 }
 
 export async function folderExists(path: string): Promise<boolean> {
+    // Return the revision of the folder existence.
     return await elementExists(path, vscode.FileType.Directory);
 }
 
 export async function fileExists(path: string): Promise<boolean> {
+    // Return the revision of the file existence.
     return await elementExists(path, vscode.FileType.File);
 }
 
 export function getFolders(path: string): string[] {
+    // Get the elements inside the passed folder and filter the directories.
     return readdirSync(path).filter((element) => {
         if (lstatSync(join(path, element)).isDirectory()) {
             return element;
@@ -58,6 +66,7 @@ export function getFolders(path: string): string[] {
 }
 
 export function getFiles(path: string): string[] {
+    // Get the elements inside the passed folder and filter the files.
     return readdirSync(path).filter((element) => {
         if (lstatSync(join(path, element)).isFile()) {
             return element;
@@ -65,17 +74,23 @@ export function getFiles(path: string): string[] {
     });
 }
 
-export async function filterExistingFolders(paths: string[]): Promise<string[]> {
+export async function filterExistingFolders(folders: string[]): Promise<string[]> {
     var existingPaths: string[] = [];
-    for (var index: number = 0; index < paths.length; index++) {
-        if (await folderExists(paths[index])) {
-            existingPaths.push(paths[index]);
+
+    // Check if each of the passed folders exist and, if so, append them to a final array.
+    for (var index: number = 0; index < folders.length; index++) {
+        if (await folderExists(folders[index])) {
+            existingPaths.push(folders[index]);
         }
     }
+
+    // Return the resulting array.
     return existingPaths;
 }
 
 export function executeShellCommands(name: string, commandLines: string[]): void {
+
+    // Create a task related to a terminal which will execute the passed commands.
     const task = new vscode.Task(
         { type: "shell" },
         vscode.TaskScope.Workspace,
@@ -83,7 +98,13 @@ export function executeShellCommands(name: string, commandLines: string[]): void
         "ESP32-PM",
         new vscode.ShellExecution(commandLines.join(" && "))
     );
+
+    // The executed commands will not be printed.
     task.presentationOptions.echo = false;
+
+    // The generated terminal will take focus.
     task.presentationOptions.focus = true;
+
+    // Execute the task.
     vscode.tasks.executeTask(task);
 }
