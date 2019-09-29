@@ -7,11 +7,7 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-----------
-
-## [0.1.0] - YYYY-MM-DD
-
-[Repository](https://github.com/mrverdant13/esp32-pm-vsc-extension/tree/v0.1.0)
+[Repository](https://github.com/mrverdant13/esp32-pm-vsc-extension/tree/develop)
 
 ### Added:
 
