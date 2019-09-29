@@ -32,6 +32,11 @@ import { PathsManager, PathType, Paths } from './paths';
 
 export function activate(context: vscode.ExtensionContext) {
 
+	// Constants
+	const subprojectsFolder: string = 'main/src/';
+	const entryPointPrefix: string = 'main';
+	const entryPointExtensions: Array<string> = ['.c', '.cpp'];
+
 	if (process.platform !== 'win32') { vscode.window.showErrorMessage('The "ESP32-PM" extension supports Windows OS only.'); return; }
 	// if (vscode.extensions.getExtension('ms-vscode.cpptools') === undefined) { vscode.window.showErrorMessage('The "ESP32-PM" extension depends on the "C/C++" extension, which is not installed.'); return; }
 
@@ -164,7 +169,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			"Defconfig",
 			[
-				'echo "ESP32-PM: Applying default config values...\n"',
+				'echo -e "ESP32-PM: Applying default config values...\n"',
 				'make defconfig',
 			]
 		);
@@ -192,17 +197,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-subproject', async () => {
 		if (!await utils.isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
-		var subprojectsFolder: string = 'main/src/';
-		var entryPointPrefix: string = 'main';
-		var entryPointSufixCpp: string = '.cpp';
-		var entryPointSufixC: string = '.c';
 		var workspaceFolders = vscode.workspace.workspaceFolders;
 		if (!workspaceFolders) { return; }
 		var selectedSubprojectFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, subprojectsFolder)), 'Sub-project to be built');
 		if (!selectedSubprojectFolder) { vscode.window.showWarningMessage("Sub-project not selected."); return; }
 		var entryPoints: string[] = [];
 		utils.getFiles(join(workspaceFolders[0].uri.fsPath, subprojectsFolder, selectedSubprojectFolder)).forEach((file) => {
-			if (file.startsWith(entryPointPrefix) && (file.endsWith(entryPointSufixCpp) || file.endsWith(entryPointSufixC))) { entryPoints.push(file); }
+			if (!file.startsWith(entryPointPrefix)) { return; }
+			entryPointExtensions.forEach((suffix) => {
+				if (file.endsWith(suffix)) { entryPoints.push(file); }
+			});
 		});
 		var entryPoint: string | undefined;
 		if (entryPoints.length === 0) { vscode.window.showErrorMessage("There is no entry point for the selected sub-project."); return; }
@@ -212,12 +216,35 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!entryPoint) { vscode.window.showErrorMessage("No entry point selected."); return; }
 		}
 
+		vscode.workspace.fs.delete(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, "build/main")));
+
+		const mainFileContent: Array<string> = [
+			'#include "src/' + selectedSubprojectFolder + '/' + entryPoint + '"',
+			'extern "C"',
+			'{',
+			'\tvoid app_main();',
+			'}'
+		];
+
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, 'main/main.cpp')),
+			Buffer.from(mainFileContent.join('\n'))
+		);
+
+		const mainComponentFileContent: Array<string> = [
+			'include $(PROJECT_PATH)/' + subprojectsFolder + selectedSubprojectFolder + '/component.mk',
+		];
+
+		await vscode.workspace.fs.writeFile(
+			vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, 'main/component.mk')),
+			Buffer.from(mainComponentFileContent.join('\n'))
+		);
+
 		utils.executeShellCommands(
 			"Build sub-project",
 			[
-				'echo "ESP32-PM: Building sub-project...\n"',
-				'export entryPoint="' + selectedSubprojectFolder + '/' + entryPoint + '"',
-				"sh " + context.extensionPath.replace(/\\/gi, '/') + "/assets/scripts/BuildSubproject.sh",
+				'echo -e "ESP32-PM: Building sub-project...\n"',
+				'make -j all',
 			]
 		);
 	}));
@@ -227,7 +254,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			'Generate serial ports',
 			[
-				'echo "ESP32-PM: Generating serial ports list...\n"',
+				'echo -e "ESP32-PM: Generating serial ports list...\n"',
 				'export comPortsFile="' + comPortsFile + '"',
 				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateComList.sh',
 			]
@@ -259,7 +286,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			'Flash',
 			[
-				'echo "ESP32-PM: Flashing project...\n"',
+				'echo -e "ESP32-PM: Flashing project...\n"',
 				'make flash ESPPORT=' + selectedSerialPort,
 			]
 		);
@@ -274,7 +301,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			'Monitor',
 			[
-				'echo "ESP32-PM: Opening serial port...\n"',
+				'echo -e "ESP32-PM: Opening serial port...\n"',
 				'make monitor ESPPORT=' + selectedSerialPort,
 			]
 		);
@@ -289,7 +316,7 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			'Flash & Monitor',
 			[
-				'echo "ESP32-PM: Flashing project and opening serial port...\n"',
+				'echo -e "ESP32-PM: Flashing project and opening serial port...\n"',
 				'make flash monitor ESPPORT=' + selectedSerialPort,
 			]
 		);
@@ -300,9 +327,9 @@ export function activate(context: vscode.ExtensionContext) {
 		utils.executeShellCommands(
 			'Clean',
 			[
-				'echo "ESP32-PM: Deleting build output files...\n"',
+				'echo -e "ESP32-PM: Deleting build output files...\n"',
 				'make clean',
-				'echo "\nESP32-PM: Build output files deleted.\n"',
+				'echo -e "\nESP32-PM: Build output files deleted.\n"',
 			]
 		);
 	}));
