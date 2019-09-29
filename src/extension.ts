@@ -35,7 +35,7 @@ import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// This extension will register its commands only for Windows.
+	// Check if the OS is supported.
 	const isSupported: boolean = supportedOSs.some((os) => {
 		return (process.platform === os);
 	});
