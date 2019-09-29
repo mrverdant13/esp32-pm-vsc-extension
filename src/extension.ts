@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
 		var projectPath: string = join(projectLocation[0].fsPath);
 
 		// Check if the project is an Espressif one.
-		if (!await isEspressifProject(projectPath)) { vscode.window.showErrorMessage("The selected folder does not contain an Espressif project."); return; }
+		if (!await isEspressifProject()) { vscode.window.showErrorMessage("The selected folder does not contain an Espressif project."); return; }
 
 		// Warn the user about files renaming.
 		if (undefined === await vscode.window.showWarningMessage("The " + sufix + " sufix will be used for the folloging files if they exist: " + replaceFiles.join(', ') + ".", "Continue")) { return; }
