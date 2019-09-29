@@ -4,16 +4,54 @@ import * as vscode from 'vscode';
 
 import { fileExists, folderExists } from "./utils";
 
-export async function isEspressifProject(projectPath: string): Promise<boolean> {
-    // Constants
-    const espressifFiles: Array<string> = [
-        'Makefile',
-    ];
-    const espressifFolders: Array<string> = [
-        'main',
-    ];
+// Characteristic files of an Espressif project.
+const espressifFiles: Array<string> = [
+    'Makefile',
+];
 
-    // Check if each file exist.
+// Characteristic folders of an Espressif project.
+const espressifFolders: Array<string> = [
+    'main',
+];
+
+// Characteristic files of an ESP32-PM project.
+const esp32PmFiles: Array<string> = [
+    '.vscode/settings.json',
+    '.vscode/c_cpp_properties.json'
+];
+
+// Characteristic files of an ESP32-PM project.
+const esp32PmFolders: Array<string> = [
+    'main/src'
+];
+
+// Colon-surrounded constant strings
+const colonConstants: Array<string> = [
+    'MSYS32_PATH',
+    'IDF_PATH'
+];
+
+
+function getProjectPath(): string {
+
+    // Check if there are no workspace folders.
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders === undefined) {
+        return '';
+    }
+    return workspaceFolders[0].uri.fsPath;
+    
+}
+
+export async function isEspressifProject(): Promise<boolean> {
+
+    // Get the project path.
+    const projectPath = getProjectPath();
+    if (projectPath === '') {
+        return false;
+    }
+
+    // Check if each characteristic file exists.
     for (let index = 0; index < espressifFiles.length; index++) {
         const espressifFilePath: string = join(projectPath, espressifFiles[index]);
         if (!await fileExists(espressifFilePath)) {
@@ -21,7 +59,7 @@ export async function isEspressifProject(projectPath: string): Promise<boolean> 
         }
     }
 
-    // Check if each folder exist.
+    // Check if each characteristic folder exists.
     for (let index = 0; index < espressifFolders.length; index++) {
         const espressifFolderPath: string = join(projectPath, espressifFolders[index]);
         if (!await folderExists(espressifFolderPath)) {
@@ -35,40 +73,30 @@ export async function isEspressifProject(projectPath: string): Promise<boolean> 
 
 export async function isEsp32PmProject(): Promise<boolean> {
 
-    // Constants
-    const pmFiles: Array<string> = [
-        '.vscode/settings.json',
-        '.vscode/c_cpp_properties.json'
-    ];
-    const pmFolders: Array<string> = [
-        'main/src'
-    ];
-
-    // Get the workspace path.
-    var workspaceFolders = vscode.workspace.workspaceFolders;
-    if (workspaceFolders === undefined) {
+    // Get the project path.
+    const projectPath = getProjectPath();
+    if (projectPath === '') {
         return false;
     }
-    const workspacePath = workspaceFolders[0].uri.fsPath;
 
-    // Check if each file exist and its :CONSTANTS: values has been replaced.
-    for (let index = 0; index < pmFiles.length; index++) {
-        const pmFilePath: string = join(workspacePath, pmFiles[index]);
-        if (!await fileExists(pmFilePath)) {
+    // Check if each characteristic file exists.
+    // and it their :<CONSTANTS>: values has been replaced.
+    for (let index = 0; index < esp32PmFiles.length; index++) {
+        const esp32PmFilePath: string = join(projectPath, esp32PmFiles[index]);
+        if (!await fileExists(esp32PmFilePath)) {
             return false;
         }
-        if ((await vscode.workspace.fs.readFile(vscode.Uri.file(pmFilePath))).toString().includes(':MSYS32_PATH:')) {
-            return false;
-        }
-        if ((await vscode.workspace.fs.readFile(vscode.Uri.file(pmFilePath))).toString().includes(':IDF_PATH:')) {
-            return false;
+        for (let ind = 0; ind < colonConstants.length; ind++) {
+            if ((await vscode.workspace.fs.readFile(vscode.Uri.file(esp32PmFilePath))).toString().includes(':' + colonConstants[ind] + ':')) {
+                return false;
+            }
         }
     }
 
-    // Check if each folder exist.
-    for (let index = 0; index < pmFolders.length; index++) {
-        const pmFolderPath: string = join(workspacePath, pmFolders[index]);
-        if (!await folderExists(pmFolderPath)) {
+    // Check if each characteristic folder exists.
+    for (let index = 0; index < esp32PmFolders.length; index++) {
+        const esp32PmFolderPath: string = join(projectPath, esp32PmFolders[index]);
+        if (!await folderExists(esp32PmFolderPath)) {
             return false;
         }
     }
