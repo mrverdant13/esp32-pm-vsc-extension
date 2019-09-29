@@ -24,13 +24,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { join } from 'path';
+import {
+	join
+} from 'path';
 
 import * as vscode from 'vscode';
 
-import { subprojectsFolder, entryPointPrefix, entryPointExtensions, supportedOSs, overwritingSuffix, overwritingFiles, colonProjectName, menuconfigBashPath } from './constants';
-import { isEspressifProject, isEsp32PmProject } from './esp32project';
-import { PathsManager, PathType, Paths } from './paths';
+import {
+	subprojectsFolder,
+	entryPointPrefix,
+	entryPointExtensions,
+	supportedOSs,
+	overwritingSuffix,
+	overwritingFiles,
+	colonProjectName,
+	menuconfigBashPath
+} from './constants';
+import {
+	isEspressifProject,
+	isEsp32PmProject
+} from './esp32project';
+import {
+	PathsManager,
+	PathType,
+	Paths
+} from './paths';
 import * as utils from './utils';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -45,17 +63,13 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-espressif-toolchain', async () => {
-
 		// Register an Espressif Toolchain folder path.
 		PathsManager.registerPath(context, PathType.TOOLCHAIN);
-
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-esp-idf', async () => {
-
 		// Register an ESP-IDF API folder path.
 		PathsManager.registerPath(context, PathType.IDF);
-
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.create-project', async () => {
@@ -82,19 +96,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Ask the user which Espressif Toolchain and ESP-IDF API are going to be used with the project.
 		const paths: Paths = await PathsManager.getValues(context);
-		const toolchainPath = await showQuickPickFrom(paths.toolchainPaths, "Esfressif Toolchain to be used");
+		const toolchainPath = await utils.showQuickPickFrom(paths.toolchainPaths, "Esfressif Toolchain to be used");
 		if (toolchainPath === undefined) {
 			vscode.window.showErrorMessage("Espressif Toolchain not selected.");
 			return;
 		}
-		const idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
+		const idfPath = await utils.showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
 		if (idfPath === undefined) {
 			vscode.window.showErrorMessage("ESP-IDF API not selected.");
 			return;
 		}
 
 		// Ask the user if the new project should be launched in the current window or in a new one.
-		const useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
+		const useNewWindow = await utils.showQuickPickFrom(["Open in new window", "Open in current window"], "");
 		if (!useNewWindow) {
 			vscode.window.showErrorMessage("Project creation cancelled");
 			return;
@@ -133,27 +147,48 @@ export function activate(context: vscode.ExtensionContext) {
 			canSelectMany: false,
 			openLabel: "Select existing project location"
 		});
-		if (projectLocation === undefined) { vscode.window.showErrorMessage("Existing project location not selected."); return; }
+		if (projectLocation === undefined) {
+			vscode.window.showErrorMessage("Existing project location not selected.");
+			return;
+		}
 
 		// Set the existing project path.
 		var projectPath: string = join(projectLocation[0].fsPath);
 
 		// Check if the project is an Espressif one.
-		if (!await isEspressifProject()) { vscode.window.showErrorMessage("The selected folder does not contain an Espressif project."); return; }
+		if (!await isEspressifProject()) {
+			vscode.window.showErrorMessage("The selected folder does not contain an Espressif project.");
+			return;
+		}
 
 		// Warn the user about files renaming.
-		if (undefined === await vscode.window.showWarningMessage("The " + overwritingSuffix + " sufix will be used for the folloging files if they exist: '" + overwritingFiles.join("', '") + "'.", "Continue")) { return; }
+		if (undefined === await vscode.window.showWarningMessage("The " + overwritingSuffix + " sufix will be used for the folloging files if they exist: '" + overwritingFiles.join("', '") + "'.", "Continue")) {
+			return;
+		}
 
 		// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
 		const paths: Paths = await PathsManager.getValues(context);
-		var toolchainPath = await showQuickPickFrom(paths.toolchainPaths, "MinGW32 terminal to be used");
-		if (toolchainPath === undefined) { vscode.window.showErrorMessage("MinGW32 terminal not selected."); return; }
-		var idfPath = await showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
-		if (idfPath === undefined) { vscode.window.showErrorMessage("ESP-IDF API not selected."); return; }
+		var toolchainPath = await utils.showQuickPickFrom(paths.toolchainPaths, "MinGW32 terminal to be used");
+		if (toolchainPath === undefined) {
+			vscode.window.showErrorMessage("MinGW32 terminal not selected.");
+			return;
+		}
+		var idfPath = await utils.showQuickPickFrom(paths.idfPaths, "ESP-IDF API to be used");
+		if (idfPath === undefined) {
+			vscode.window.showErrorMessage("ESP-IDF API not selected.");
+			return;
+		}
 
 		// Ask the user if the existing project should be launched in the current window or in a new one.
-		var useNewWindow = await showQuickPickFrom(["Open in new window", "Open in current window"], "");
-		if (!useNewWindow) { vscode.window.showErrorMessage("Project initialization cancelled"); return; }
+		var useNewWindow = await utils.showQuickPickFrom(
+			[
+				"Open in new window",
+				"Open in current window",
+			], "");
+		if (!useNewWindow) {
+			vscode.window.showErrorMessage("Project initialization cancelled");
+			return;
+		}
 
 		// Apply sufix.
 		for (let index = 0; index < overwritingFiles.length; index++) {
@@ -180,7 +215,13 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Execute the shell commands related to the make defconfing command.
 		utils.executeShellCommands(
 			"Defconfig",
 			[
@@ -191,7 +232,13 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.menuconfig', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Execute the Menuconfig bash.
 		utils.executeShellCommands(
 			"Menuconfig",
 			[
@@ -200,22 +247,28 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 	}));
 
-	async function showQuickPickFrom(elements: string[], hint: string, canPickMany: boolean = false) {
-		return await vscode.window.showQuickPick(
-			elements,
-			{
-				placeHolder: hint,
-				canPickMany: canPickMany
-			}
-		);
-	}
-
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-subproject', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Check if the workspace exists.
 		var workspaceFolders = vscode.workspace.workspaceFolders;
-		if (!workspaceFolders) { return; }
-		var selectedSubprojectFolder = await showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, subprojectsFolder)), 'Sub-project to be built');
-		if (!selectedSubprojectFolder) { vscode.window.showWarningMessage("Sub-project not selected."); return; }
+		if (!workspaceFolders) {
+			return;
+		}
+
+		// Ask the user for a sub-project to build.
+		var selectedSubprojectFolder = await utils.showQuickPickFrom(utils.getFolders(join(workspaceFolders[0].uri.fsPath, subprojectsFolder)), 'Sub-project to be built');
+		if (!selectedSubprojectFolder) {
+			vscode.window.showWarningMessage("Sub-project not selected.");
+			return;
+		}
+
+		// Get an array of entry point candidates to be built.
+		// The candidates are defined by specific prefix and extensions.
 		var entryPoints: string[] = [];
 		utils.getFiles(join(workspaceFolders[0].uri.fsPath, subprojectsFolder, selectedSubprojectFolder)).forEach((file) => {
 			if (!file.startsWith(entryPointPrefix)) { return; }
@@ -223,16 +276,30 @@ export function activate(context: vscode.ExtensionContext) {
 				if (file.endsWith(suffix)) { entryPoints.push(file); }
 			});
 		});
+
 		var entryPoint: string | undefined;
-		if (entryPoints.length === 0) { vscode.window.showErrorMessage("There is no entry point for the selected sub-project."); return; }
-		else if (entryPoints.length === 1) { entryPoint = entryPoints[0]; }
+		// If there is not entry point, notify the user.
+		if (entryPoints.length === 0) {
+			vscode.window.showErrorMessage("There is no entry point for the selected sub-project.");
+			return;
+		}
+		// Else, if there is only one entry point, use it.
+		else if (entryPoints.length === 1) {
+			entryPoint = entryPoints[0];
+		}
+		// Else, ask the user which entry point will be used.
 		else {
-			entryPoint = await showQuickPickFrom(entryPoints, "Entry point for the sub-project.");
-			if (!entryPoint) { vscode.window.showErrorMessage("No entry point selected."); return; }
+			entryPoint = await utils.showQuickPickFrom(entryPoints, "Entry point for the sub-project.");
+			if (!entryPoint) {
+				vscode.window.showErrorMessage("No entry point selected.");
+				return;
+			}
 		}
 
+		// Delete the built files regarding the main application.
 		vscode.workspace.fs.delete(vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, "build/main")));
 
+		// Construct the final main file content.
 		const mainFileContent: Array<string> = [
 			'#include "src/' + selectedSubprojectFolder + '/' + entryPoint + '"',
 			'extern "C"',
@@ -241,20 +308,24 @@ export function activate(context: vscode.ExtensionContext) {
 			'}'
 		];
 
+		// Write the final content to the main file.
 		await vscode.workspace.fs.writeFile(
 			vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, 'main/main.cpp')),
 			Buffer.from(mainFileContent.join('\n'))
 		);
 
+		// Construct the final main pseudo-component make file.
 		const mainComponentFileContent: Array<string> = [
 			'include $(PROJECT_PATH)/' + subprojectsFolder + selectedSubprojectFolder + '/component.mk',
 		];
 
+		// Write the final content to the main component make file.
 		await vscode.workspace.fs.writeFile(
 			vscode.Uri.file(join(workspaceFolders[0].uri.fsPath, 'main/component.mk')),
 			Buffer.from(mainComponentFileContent.join('\n'))
 		);
 
+		// Execute the shell commands related to the make all command using the selected sub-project and entry point.
 		utils.executeShellCommands(
 			"Build sub-project",
 			[
@@ -266,6 +337,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	async function getSerialPorts() {
 		const comPortsFile: string = "comPortsFile";
+
+		// Execute the Windows commands to list the available COM ports.
 		utils.executeShellCommands(
 			'Generate serial ports',
 			[
@@ -274,30 +347,62 @@ export function activate(context: vscode.ExtensionContext) {
 				'sh ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateComList.sh',
 			]
 		);
+
+		// Create a watcher for the serial ports file deletion.
 		var fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher('**/build/' + comPortsFile, true, true, false);
 		var serialPorts: string[] = [];
 		var serialPortsChecked: boolean = false;
+
+		// When the serial ports file is deleted, get the found serial ports.
 		fsw.onDidDelete(
 			async () => {
 				var workspaceFolders = vscode.workspace.workspaceFolders;
 				if (workspaceFolders) {
 					var fileContent = (await vscode.workspace.fs.readFile(vscode.Uri.file(workspaceFolders[0].uri.fsPath + "/build/" + comPortsFile + ".txt"))).toString().trim();
-					if (fileContent.length > 0) { serialPorts = fileContent.split("\n"); }
+					if (fileContent.length > 0) {
+						serialPorts = fileContent.split("\n");
+					}
 				}
 				serialPortsChecked = true;
 			}
 		);
-		while (!serialPortsChecked) { await utils.delay(100); }
+
+		// Wait until all serial ports are checked.
+		while (!serialPortsChecked) {
+			await utils.delay(100);
+		}
+
+		// Delete the watcher.
 		fsw.dispose();
+
+		// Return the found serial ports.
 		return serialPorts;
 	}
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Get the available serial ports.
 		var serialPorts: string[] = await getSerialPorts();
-		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
-		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
-		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
+
+		// If there is no available serial port, stop command execution.
+		if (serialPorts.length === 0) {
+			vscode.window.showErrorMessage('No serial port available.');
+			return;
+		}
+
+		// Ask the user which serial port will be used.
+		var selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
+		if (!selectedSerialPort) {
+			vscode.window.showErrorMessage("No serial port selected.");
+			return;
+		}
+
+		// Execute the shell commands related to the make flash command using the selected serial port.
 		utils.executeShellCommands(
 			'Flash',
 			[
@@ -308,11 +413,29 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Get the available serial ports.
 		var serialPorts: string[] = await getSerialPorts();
-		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
-		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
-		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
+
+		// If there is no available serial port, stop command execution.
+		if (serialPorts.length === 0) {
+			vscode.window.showErrorMessage('No serial port available.');
+			return;
+		}
+
+		// Ask the user which serial port will be used.
+		var selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
+		if (!selectedSerialPort) {
+			vscode.window.showErrorMessage("No serial port selected.");
+			return;
+		}
+
+		// Execute the shell commands related to the make monitor command using the selected serial port.
 		utils.executeShellCommands(
 			'Monitor',
 			[
@@ -323,11 +446,29 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash-monitor', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Get the available serial ports.
 		var serialPorts: string[] = await getSerialPorts();
-		if (serialPorts.length === 0) { vscode.window.showErrorMessage('No serial port available.'); return; }
-		var selectedSerialPort = await showQuickPickFrom(serialPorts, 'Serial port to be used');
-		if (!selectedSerialPort) { vscode.window.showErrorMessage("No serial port selected."); return; }
+
+		// If there is no available serial port, stop command execution.
+		if (serialPorts.length === 0) {
+			vscode.window.showErrorMessage('No serial port available.');
+			return;
+		}
+
+		// Ask the user which serial port will be used.
+		var selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
+		if (!selectedSerialPort) {
+			vscode.window.showErrorMessage("No serial port selected.");
+			return;
+		}
+
+		// Execute the shell commands related to the make flash monitor command using the selected serial port.
 		utils.executeShellCommands(
 			'Flash & Monitor',
 			[
@@ -338,7 +479,13 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.clean', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
+
+		// Execute the shell commands related to the make clean command.
 		utils.executeShellCommands(
 			'Clean',
 			[
@@ -350,7 +497,11 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.remove-auto-gen', async () => {
-		if (!await isEsp32PmProject()) { vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized."); return; }
+		// Execute this command only if the project is an ESP32-PM one.
+		if (!await isEsp32PmProject()) {
+			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
+			return;
+		}
 
 		// Remove auto-generated files.
 		var workspaceFolders = vscode.workspace.workspaceFolders;
