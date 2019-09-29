@@ -33,6 +33,16 @@ export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export async function showQuickPickFrom(elements: Array<string>, hint: string, canPickMany: boolean = false) {
+    return await vscode.window.showQuickPick(
+        elements,
+        {
+            placeHolder: hint,
+            canPickMany: canPickMany
+        }
+    );
+}
+
 async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
     try {
         // Get the info regarding the passed file path.
