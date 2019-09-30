@@ -2,6 +2,13 @@
 <!-- STEP1: Update README.md -->
 <!-- STEP2: Update CHANGELOG.md -->
 
+<!-- ** PUBLISHING STEPS ** -->
+<!-- STEP1: Update version in the Features section of the README.md file -->
+<!-- STEP2: Change the [Unreleased] section by the version section of the CHANGELOG.md file and update its repository link -->
+<!-- STEP3: Add a version comparisson link to the CHANGELOG.md file -->
+<!-- STEP4: Update version in the "version" field of the package.json file -->
+<!-- STEP5:  -->
+
 <!-- TODO: Add TOOLCHAIN_PATH and IDF_PATH existence checking for projects. -->
 
 # ESP32 project manager for Visual Studio Code
