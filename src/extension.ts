@@ -65,14 +65,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}
 
-	// Check if there are no workspace folders.
-	if (vscode.workspace.workspaceFolders === undefined) {
-		return;
-	}
-
-	// If this point is reached, the project exists and its path is returned.
-	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-espressif-toolchain', async () => {
 		// Register an Espressif Toolchain folder path.
 		PathsManager.registerPath(context, PathType.TOOLCHAIN);
@@ -224,6 +216,14 @@ export function activate(context: vscode.ExtensionContext) {
 		// Launch the new project according to the user election.
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(existingProjectPath), windowAction.includes("new"));
 	}));
+
+	// Check if there are no workspace folders.
+	if (vscode.workspace.workspaceFolders === undefined) {
+		return;
+	}
+
+	// If this point is reached, the project exists and its path is returned.
+	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
 		// Execute this command only if the project is an ESP32-PM one.
