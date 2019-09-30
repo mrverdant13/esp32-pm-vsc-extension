@@ -2,7 +2,8 @@
 	"preview": true,
 	"name": "esp32-pm",
 	"displayName": "ESP32 project manager",
-	"description": "ESP32 project manager for Visual Studio Code.",
+	"description": "ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ESP32 applications.",
+	"icon": "assets/local-data/icon.png",
 	"version": "0.1.0",
 	"publisher": "mrverdant13",
 	"author": {
@@ -28,62 +29,78 @@
 	"activationEvents": [
 		"*"
 	],
+	"os": [
+		"win32"
+	],
 	"contributes": {
 		"commands": [
 			{
 				"category": "ESP32-PM",
 				"title": "Register ESP-IDF API",
-				"command": "extension.register-esp-idf"
+				"command": "esp32-pm.register-esp-idf"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Register Espressif Toolchain",
-				"command": "extension.register-espressif-toolchain"
+				"command": "esp32-pm.register-espressif-toolchain"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Create project",
-				"command": "extension.create-project"
+				"command": "esp32-pm.create-project"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Initialize exisiting project",
+				"command": "esp32-pm.init-project"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Menuconfig",
-				"command": "extension.menuconfig"
+				"command": "esp32-pm.menuconfig",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Defconfig",
-				"command": "extension.defconfig"
+				"command": "esp32-pm.defconfig",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Build sub-project",
-				"command": "extension.build-subproject"
+				"command": "esp32-pm.build-subproject",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Flash",
-				"command": "extension.flash"
+				"command": "esp32-pm.flash",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Monitor",
-				"command": "extension.monitor"
+				"command": "esp32-pm.monitor",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Flash & Monitor",
-				"command": "extension.flash-monitor"
+				"command": "esp32-pm.flash-monitor",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Clean",
-				"command": "extension.clean"
+				"command": "esp32-pm.clean",
+				"enablement": "workspaceFolderCount != 0"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Remove auto-generated files",
-				"command": "extension.remove-auto-gen"
+				"command": "esp32-pm.remove-auto-gen",
+				"enablement": "workspaceFolderCount != 0"
 			}
 		]
 	},
@@ -111,5 +128,6 @@
 	},
 	"categories": [
 		"Other"
-	]
+	],
+	"license": "SEE LICENSE IN LICENSE.txt"
 }

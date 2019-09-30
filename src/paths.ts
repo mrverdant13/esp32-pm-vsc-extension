@@ -1,57 +1,126 @@
-import { join } from "path";
+/*
+Copyright (c) 2019 Karlo Fabio Verde Salvatierra
+
+All rights reserved.
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+import {
+    join,
+} from "path";
+
 import * as vscode from 'vscode';
 
-import { fileExists, filterExistingPaths, folderExists } from "./utils";
-
-const relativeValuesPath: string = 'assets/local-data/values.json';
+import {
+    toolchainFolders,
+    idfFolders,
+    extensionValuesFile,
+    colonToolchainPath,
+    colonIdfPath,
+    vscSettingsTemplateFile,
+    vscCCppPropsTemplateFile,
+    vscSettingsFile,
+    menuconfigBashPath,
+    vscCCppPropsFile,
+} from "./constants";
+import {
+    fileExists,
+    filterExistingFolders,
+    folderExists,
+} from "./utils";
 
 export interface Paths {
-    msys32Paths: string[];
-    idfPaths: string[];
+    toolchainPaths: Array<string>;
+    idfPaths: Array<string>;
 }
 
 export enum PathType {
-    MSYS32 = 0,
+    TOOLCHAIN = 0,
     IDF = 1,
 }
 
 export class PathsManager {
 
     private static toPaths(json: string): Paths {
-        var tempPaths: Paths = JSON.parse(json);
-        if (tempPaths.msys32Paths === undefined) { tempPaths.msys32Paths = []; }
-        if (tempPaths.idfPaths === undefined) { tempPaths.idfPaths = []; }
+        // Parse string to Paths.
+        const tempPaths: Paths = JSON.parse(json);
+
+        // If the toolchainPaths is not defined, assign an emptyarray.
+        if (tempPaths.toolchainPaths === undefined) {
+            tempPaths.toolchainPaths = [];
+        }
+
+        // If the idfPaths is not defined, assign an emptyarray.
+        if (tempPaths.idfPaths === undefined) {
+            tempPaths.idfPaths = [];
+        }
+
+        // return the parsed Paths.
         return tempPaths;
     }
 
     private static pathsToJson(value: Paths): string {
+        // Convert Paths to string.
         return JSON.stringify(value);
     }
 
     private static async setValues(context: vscode.ExtensionContext, values: Paths): Promise<void> {
+        // Write the Paths to the extension values file.
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(context.extensionPath, relativeValuesPath)),
+            vscode.Uri.file(context.asAbsolutePath(extensionValuesFile)),
             Buffer.from(this.pathsToJson(values))
         );
     }
 
     public static async getValues(context: vscode.ExtensionContext): Promise<Paths> {
-        var paths: Paths = this.toPaths(
-            (await fileExists(join(context.extensionPath, relativeValuesPath)))
-                ? (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, relativeValuesPath)))).toString()
+        // Get the registered paths from the extension values file.
+        const paths: Paths = this.toPaths(
+            (await fileExists(context.asAbsolutePath(extensionValuesFile)))
+                ? (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(extensionValuesFile)))).toString()
                 : '{}');
-        paths.msys32Paths = await filterExistingPaths(paths.msys32Paths);
-        paths.idfPaths = await filterExistingPaths(paths.idfPaths);
+
+        // Filter only the existing toolchain folders.
+        paths.toolchainPaths = await filterExistingFolders(paths.toolchainPaths);
+
+        // Filter only the existing ESP-IDF folders.
+        paths.idfPaths = await filterExistingFolders(paths.idfPaths);
+
+        // Update the paths stored in the extension values file.
         await this.setValues(context, paths);
+
+        // Return the resulting existing paths.
         return paths;
     }
 
     private static async pathIsRegistered(context: vscode.ExtensionContext, path: string, type: PathType): Promise<boolean> {
+
+        // Get the existing paths.
         const paths = await this.getValues(context);
+
+        // Select the paths of interest.
         var pathsArray: string[] = [];
         switch (type) {
-            case PathType.MSYS32: {
-                pathsArray = paths.msys32Paths;
+            case PathType.TOOLCHAIN: {
+                pathsArray = paths.toolchainPaths;
                 break;
             }
             case PathType.IDF: {
@@ -59,33 +128,45 @@ export class PathsManager {
                 break;
             }
         }
-        var value = pathsArray.find((pathElement) => {
+
+        // Check if the passed path is already registered.
+        const value = pathsArray.find((pathElement) => {
             return (pathElement === path);
         });
-        if (value === undefined) { return false; }
-        else { return true; }
+
+        // If the value is undefined, the path is not registered.
+        if (value === undefined) {
+            return false;
+        }
+        // Else, the path is already registered.
+        else {
+            return true;
+        }
     }
 
-    private static async removeRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
-        var values = await this.getValues(context);
-        switch (type) {
-            case PathType.MSYS32: {
-                values.msys32Paths.splice(values.msys32Paths.indexOf(path, type), 1);
-                break;
-            }
-            case PathType.IDF: {
-                values.idfPaths.splice(values.idfPaths.indexOf(path), 1);
-                break;
-            }
-        }
-        await this.setValues(context, values);
-    }
+    // private static async removeRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
+    //     const values = await this.getValues(context);
+    //     switch (type) {
+    //         case PathType.TOOLCHAIN: {
+    //             values.toolchainPaths.splice(values.toolchainPaths.indexOf(path, type), 1);
+    //             break;
+    //         }
+    //         case PathType.IDF: {
+    //             values.idfPaths.splice(values.idfPaths.indexOf(path), 1);
+    //             break;
+    //         }
+    //     }
+    //     await this.setValues(context, values);
+    // }
 
     private static async addRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
-        var values = await this.getValues(context);
+        // Get the existing paths.
+        const values = await this.getValues(context);
+
+        // Add the passed path to the paths of interest.
         switch (type) {
-            case PathType.MSYS32: {
-                values.msys32Paths.push(path);
+            case PathType.TOOLCHAIN: {
+                values.toolchainPaths.push(path);
                 break;
             }
             case PathType.IDF: {
@@ -93,50 +174,46 @@ export class PathsManager {
                 break;
             }
         }
+
+        // Update the paths stored in the extension values file.
         await this.setValues(context, values);
     }
 
     public static async registerPath(context: vscode.ExtensionContext, pathType: PathType) {
-
-        // Constants
-        const msys32NeededFolders: Array<string> = [
-            'home',
-            'etc/profile.d'
-        ];
-        const idfNeededFolders: Array<string> = [
-            'components',
-            'examples'
-        ];
 
         // Variables
         var referencialName: string = '';
         var neededFolders: Array<string> = [];
 
         // Set the referencial name of the path to be registered.
+        // Set the characteristic folders contained for the path type of interest.
         switch (pathType) {
-            case PathType.MSYS32: {
+            case PathType.TOOLCHAIN: {
                 referencialName = "Espressif Toolchain";
-                neededFolders = msys32NeededFolders;
+                neededFolders = toolchainFolders;
                 break;
             }
             case PathType.IDF: {
                 referencialName = "ESP-IDF API";
-                neededFolders = idfNeededFolders;
+                neededFolders = idfFolders;
                 break;
             }
         }
 
         // The user must select the location of the folder.
-        var selectedElement = await vscode.window.showOpenDialog({
+        const selectedElement = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: false,
             openLabel: "Select a " + referencialName + " folder"
         });
-        if (selectedElement === undefined) { vscode.window.showErrorMessage("" + referencialName + " folder not selected"); return; }
+        if (selectedElement === undefined) {
+            vscode.window.showErrorMessage("" + referencialName + " folder not selected");
+            return;
+        }
 
         // Get the path of the selected folder.
-        var elementApsolutePath: string = join(selectedElement[0].fsPath);
+        const elementApsolutePath: string = join(selectedElement[0].fsPath).replace(/\\/gi, '/');
 
         // Check if the folder is valid.
         const folderIsValid: boolean = !neededFolders.some(async (neededFolder) => {
@@ -166,22 +243,43 @@ export class PathsManager {
         await vscode.window.showInformationMessage(referencialName + ' path registered.');
     }
 
-    public static async setConfiguration(context: vscode.ExtensionContext, msys32Path: string, idfPath: string, projectPath: string) {
-        msys32Path = msys32Path.replace(/\\/gi, '/');
-        idfPath = idfPath.replace(/\\/gi, '/');
-        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_settings.json')))).toString();
-        vscSettings = vscSettings.replace(/\:MSYS32_PATH\:/gi, msys32Path);
-        vscSettings = vscSettings.replace(/\:IDF_PATH\:/gi, idfPath);
+    public static async setConfiguration(context: vscode.ExtensionContext, toolchainPath: string, idfPath: string, projectPath: string) {
+        // Get the VSC settings template content.
+        var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscSettingsTemplateFile)))).toString();
+
+        // Replace the :<CONSTANTS>: values in the template.
+        vscSettings = vscSettings.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
+        vscSettings = vscSettings.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
+
+        // Write the refactored content in a final VSC settings file.
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(projectPath, '.vscode/settings.json')),
+            vscode.Uri.file(join(projectPath, vscSettingsFile)),
             Buffer.from(vscSettings)
         );
-        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(context.extensionPath, 'assets/configTemplate/_c_cpp_properties.json')))).toString();
-        vscCCppProperties = vscCCppProperties.replace(/\:MSYS32_PATH\:/gi, msys32Path);
-        vscCCppProperties = vscCCppProperties.replace(/\:IDF_PATH\:/gi, idfPath);
+
+        // Get the VSC C/C++ properties template content.
+        var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscCCppPropsTemplateFile)))).toString();
+
+        // Replace the :<CONSTANTS>: values in the template.
+        vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
+        vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
+
+        // Write the refactored content in a final VSC settings file.
         await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(join(projectPath, '.vscode/c_cpp_properties.json')),
+            vscode.Uri.file(join(projectPath, vscCCppPropsFile)),
             Buffer.from(vscCCppProperties)
+        );
+
+        // Content of the Menuconfig bash.
+        const menuconfigContent: string =
+            'echo "ESP32-PM: Launching graphical config menu..."' + '\n' +
+            'set CHERE_INVOKING=1' + '\n' +
+            'start ' + toolchainPath + '/mingw32.exe make menuconfig';
+
+        // Write the content of the Menuconfig file in its file.
+        await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(join(projectPath, menuconfigBashPath)),
+            Buffer.from(menuconfigContent)
         );
     }
 }

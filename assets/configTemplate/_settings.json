@@ -1,5 +1,5 @@
 {
-    "terminal.integrated.shell.windows": ":MSYS32_PATH:/usr/bin/bash.exe",
+    "terminal.integrated.shell.windows": ":TOOLCHAIN_PATH:/usr/bin/bash.exe",
     "terminal.integrated.env.windows": {
         "CHERE_INVOKING": "1",
         "MSYSTEM": "MINGW32",

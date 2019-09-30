@@ -7,7 +7,7 @@
             "name": "ESP32-Windows",
             "intelliSenseMode": "clang-x64",
             "includePath": [
-                ":MSYS32_PATH:/opt/xtensa-esp32-elf/**",
+                ":TOOLCHAIN_PATH:/opt/xtensa-esp32-elf/**",
                 "${workspaceFolder}/components/**",
                 "${workspaceFolder}/build/**",
                 "${workspaceFolder}/main",
@@ -15,7 +15,7 @@
             ],
             "browse": {
                 "path": [
-                    ":MSYS32_PATH:/opt/xtensa-esp32-elf/**",
+                    ":TOOLCHAIN_PATH:/opt/xtensa-esp32-elf/**",
                     "${workspaceFolder}/components/**",
                     "${workspaceFolder}/build/**",
                     "${workspaceFolder}/main",
