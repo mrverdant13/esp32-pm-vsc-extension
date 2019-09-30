@@ -159,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const existingProjectPath: string = join(existingProjectLocation[0].fsPath);
 
 		// Check if the project is an Espressif one.
-		if (!await isEspressifProject(currentProjectPath)) {
+		if (!await isEspressifProject(existingProjectPath)) {
 			vscode.window.showErrorMessage("The selected folder does not contain an Espressif project.");
 			return;
 		}
