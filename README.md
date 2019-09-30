@@ -2,7 +2,6 @@
 <!-- STEP1: Update README.md -->
 <!-- STEP2: Update CHANGELOG.md -->
 
-<!-- TODO: Isolate the use of the 'component.mk' file for each sub-project entry point. -->
 <!-- TODO: Add TOOLCHAIN_PATH and IDF_PATH existence checking for projects. -->
 
 # ESP32 project manager for Visual Studio Code
@@ -102,7 +101,7 @@ After meeting the requirements and installing this extension, you could follow t
 **NOTE:** Keep in mind that this command will suffix some files listed in a warning.
 
 ### Build, flash, monitor and clean regular `make` commands:
-These commands are often used with ESP32 projects based on GNU Make. They can be used with their corresponding extension command.
+These commands are often used with ESP32 projects based on GNU Make. They can be used with their corresponding extension command as long as the current workspace is an ESP32-PM project.
 
 ----------
 
