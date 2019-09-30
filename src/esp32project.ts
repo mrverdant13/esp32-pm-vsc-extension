@@ -1,5 +1,5 @@
 import {
-    join
+    join,
 } from "path";
 
 import * as vscode from 'vscode';
@@ -9,33 +9,14 @@ import {
     espressifFiles,
     esp32PmFiles,
     colonConstants,
-    esp32PmFolders
+    esp32PmFolders,
 } from "./constants";
 import {
     fileExists,
-    folderExists
+    folderExists,
 } from "./utils";
 
-function getProjectPath(): string {
-
-    // Check if there are no workspace folders.
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (workspaceFolders === undefined) {
-        return '';
-    }
-
-    // If this point is reached, the project exists and its path is returned.
-    return workspaceFolders[0].uri.fsPath;
-
-}
-
-export async function isEspressifProject(): Promise<boolean> {
-
-    // Get the project path.
-    const projectPath = getProjectPath();
-    if (projectPath === '') {
-        return false;
-    }
+export async function isEspressifProject(projectPath: string): Promise<boolean> {
 
     // Check if each characteristic file exists.
     for (let index = 0; index < espressifFiles.length; index++) {
@@ -57,13 +38,7 @@ export async function isEspressifProject(): Promise<boolean> {
     return true;
 }
 
-export async function isEsp32PmProject(): Promise<boolean> {
-
-    // Get the project path.
-    const projectPath = getProjectPath();
-    if (projectPath === '') {
-        return false;
-    }
+export async function isEsp32PmProject(projectPath: string): Promise<boolean> {
 
     // Check if each characteristic file exists.
     // and it their :<CONSTANTS>: values has been replaced.
