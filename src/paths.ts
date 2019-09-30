@@ -25,7 +25,7 @@ SOFTWARE.
 */
 
 import {
-    join
+    join,
 } from "path";
 
 import * as vscode from 'vscode';
@@ -40,12 +40,12 @@ import {
     vscCCppPropsTemplateFile,
     vscSettingsFile,
     menuconfigBashPath,
-    vscCCppPropsFile
+    vscCCppPropsFile,
 } from "./constants";
 import {
     fileExists,
     filterExistingFolders,
-    folderExists
+    folderExists,
 } from "./utils";
 
 export interface Paths {

@@ -25,7 +25,7 @@ SOFTWARE.
 */
 
 import {
-	join
+	join,
 } from 'path';
 
 import * as vscode from 'vscode';
@@ -39,16 +39,16 @@ import {
 	overwritingFiles,
 	colonProjectName,
 	menuconfigBashPath,
-	projectTemplatePath
+	projectTemplatePath,
 } from './constants';
 import {
 	isEspressifProject,
-	isEsp32PmProject
+	isEsp32PmProject,
 } from './esp32project';
 import {
 	PathsManager,
 	PathType,
-	Paths
+	Paths,
 } from './paths';
 import * as utils from './utils';
 

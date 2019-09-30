@@ -25,8 +25,13 @@ SOFTWARE.
 */
 
 import * as vscode from 'vscode';
-import { join } from 'path';
-import { readdirSync, lstatSync } from 'fs';
+import {
+    join,
+} from 'path';
+import {
+    readdirSync,
+    lstatSync,
+} from 'fs';
 
 export function delay(ms: number) {
     // Create a promise with specific duration.
