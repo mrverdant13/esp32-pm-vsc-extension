@@ -113,4 +113,4 @@ These commands are often used with ESP32 projects based on GNU Make. They can be
 
 ## Changelog
 
-[Changelog](https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/master/CHANGELOG.md).
+[Changelog](https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/develop/CHANGELOG.md).
