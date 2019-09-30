@@ -8,6 +8,9 @@ export const entryPointPrefix: string = 'main';
 export const extensionValuesFile: string = 'assets/local-data/values.json';
 
 // VSCode settings template file.
+export const projectTemplatePath: string = 'assets/projectTemplate/';
+
+// VSCode settings template file.
 export const vscSettingsTemplateFile: string = 'assets/configTemplate/_settings.json';
 
 // VSCode C/C++ properties template file.
