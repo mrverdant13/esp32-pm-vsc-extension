@@ -14,7 +14,7 @@
 		"type": "git",
 		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension"
 	},
-	"homepage": "https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/master/README.md",
+	"homepage": "https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/develop/README.md",
 	"bugs": {
 		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension/issues"
 	},
