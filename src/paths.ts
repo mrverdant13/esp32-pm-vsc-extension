@@ -244,9 +244,6 @@ export class PathsManager {
     }
 
     public static async setConfiguration(context: vscode.ExtensionContext, toolchainPath: string, idfPath: string, projectPath: string) {
-        // toolchainPath = toolchainPath.replace(/\\/gi, '/');
-        // idfPath = idfPath.replace(/\\/gi, '/');
-
         // Get the VSC settings template content.
         var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscSettingsTemplateFile)))).toString();
 
