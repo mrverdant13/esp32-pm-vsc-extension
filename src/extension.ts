@@ -258,8 +258,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-subproject', async () => {
 		try {
-			// Validate the current project.
-			var currentProjectPath: string = await getProjectPath();
+			// Get the project path.
+			const currentProjectPath: string = await getProjectPath();
 
 			// Ask the user for a sub-project to build.
 			const selectedSubprojectFolder = await utils.showQuickPickFrom_(
@@ -340,14 +340,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	// Check if there are no workspace folders.
-	if (vscode.workspace.workspaceFolders === undefined) {
-		return;
-	}
-
-	// If this point is reached, the project exists and its path is returned.
-	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
 	async function getSerialPorts(): Promise<Array<string>> {
 		const comPortsFile: string = "comPortsFile";
 
@@ -390,37 +382,48 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
-		// Execute this command only if the project is an ESP32-PM one.
-		if (!await isEsp32PmProject(currentProjectPath)) {
-			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
-			return;
+		try {
+			// Validate the current project.
+			await validateProject();
+
+			// Get the available serial ports.
+			const serialPorts: Array<string> = await getSerialPorts();
+
+			// If there is no available serial port, stop command execution.
+			if (serialPorts.length === 0) {
+				vscode.window.showErrorMessage('No serial port available.');
+				return;
+			}
+
+			// Ask the user which serial port will be used.
+			const selectedSerialPort = await utils.showQuickPickFrom_(
+				serialPorts,
+				'Serial port to be used',
+				'No serial port selected.'
+			);
+
+			// Execute the shell commands related to the make flash command using the selected serial port.
+			utils.executeShellCommands(
+				'Flash',
+				[
+					'echo -e "ESP32-PM: Flashing project...\n"',
+					'make flash ESPPORT=' + selectedSerialPort,
+				]
+			);
+		} catch (error) {
+			vscode.window.showErrorMessage(error.message);
 		}
-
-		// Get the available serial ports.
-		const serialPorts: Array<string> = await getSerialPorts();
-
-		// If there is no available serial port, stop command execution.
-		if (serialPorts.length === 0) {
-			vscode.window.showErrorMessage('No serial port available.');
-			return;
-		}
-
-		// Ask the user which serial port will be used.
-		const selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
-		if (selectedSerialPort === undefined) {
-			vscode.window.showErrorMessage("No serial port selected.");
-			return;
-		}
-
-		// Execute the shell commands related to the make flash command using the selected serial port.
-		utils.executeShellCommands(
-			'Flash',
-			[
-				'echo -e "ESP32-PM: Flashing project...\n"',
-				'make flash ESPPORT=' + selectedSerialPort,
-			]
-		);
 	}));
+
+	// Mina modelo club centromin.
+	// Mina modelo parque leyendas.
+	// Check if there are no workspace folders.
+	if (vscode.workspace.workspaceFolders === undefined) {
+		return;
+	}
+
+	// If this point is reached, the project exists and its path is returned.
+	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
 		// Execute this command only if the project is an ESP32-PM one.
