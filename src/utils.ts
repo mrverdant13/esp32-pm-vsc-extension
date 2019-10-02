@@ -49,6 +49,25 @@ export async function showQuickPickFrom(elements: Array<string>, hint: string, c
     );
 }
 
+export async function showQuickPickFrom_(elements: Array<string>, hint: string, errorMessage: string, canPickMany: boolean = false): Promise<string> {
+    // Show a custom pick menu.
+    const selectedElement = await vscode.window.showQuickPick(
+        elements,
+        {
+            placeHolder: hint,
+            canPickMany: canPickMany
+        }
+    );
+
+    // If no element was selected, throw an error.
+    if (selectedElement === undefined) {
+        throw Error(errorMessage);
+    }
+
+    // Return the selected element.
+    return selectedElement;
+}
+
 async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
     try {
         // Get the info regarding the passed file path.
@@ -117,6 +136,9 @@ export function executeShellCommands(name: string, commandLines: string[]): void
 
     // The executed commands will not be printed.
     task.presentationOptions.echo = false;
+
+    // The terminal will be first cleared.
+    task.presentationOptions.clear = true;
 
     // The generated terminal will take focus.
     task.presentationOptions.focus = true;
