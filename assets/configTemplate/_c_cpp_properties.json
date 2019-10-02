@@ -24,9 +24,6 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.c_cpp.db"
             }
-        },
-        {
-            "name": "!!! WARNING !!! AUTO-GENERATED FILE !!!"
         }
     ],
     "version": 4
