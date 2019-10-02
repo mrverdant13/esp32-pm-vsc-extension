@@ -60,141 +60,126 @@ export enum ValueType {
 
 export class ValuesManager {
 
-    private static toPaths(json: string): Values {
-        // Parse string to Paths.
-        const tempPaths: Values = JSON.parse(json);
+    private static toValues(jsonString: string): Values {
+        // Parse string to Values.
+        const tempValues: Values = JSON.parse(jsonString);
 
         // If the toolchainPaths is not defined, assign an emptyarray.
-        if (tempPaths.toolchainPaths === undefined) {
-            tempPaths.toolchainPaths = [];
+        if (tempValues.toolchainPaths === undefined) {
+            tempValues.toolchainPaths = [];
         }
 
         // If the idfPaths is not defined, assign an emptyarray.
-        if (tempPaths.idfPaths === undefined) {
-            tempPaths.idfPaths = [];
+        if (tempValues.idfPaths === undefined) {
+            tempValues.idfPaths = [];
         }
 
-        // return the parsed Paths.
-        return tempPaths;
+        // return the parsed Values.
+        return tempValues;
     }
 
-    private static pathsToJson(value: Values): string {
-        // Convert Paths to string.
-        return JSON.stringify(value);
+    private static valuesToJson(values: Values): string {
+        // Convert Values to string.
+        return JSON.stringify(values);
     }
 
     private static async setValues(context: vscode.ExtensionContext, values: Values): Promise<void> {
-        // Write the Paths to the extension values file.
+        // Write the values to the extension values file.
         await vscode.workspace.fs.writeFile(
             vscode.Uri.file(context.asAbsolutePath(extensionValuesFile)),
-            Buffer.from(this.pathsToJson(values))
+            Buffer.from(this.valuesToJson(values))
         );
     }
 
     public static async getValues(context: vscode.ExtensionContext): Promise<Values> {
-        // Get the registered paths from the extension values file.
-        const paths: Values = this.toPaths(
+        // Get the registered values from the extension values file.
+        const values: Values = this.toValues(
             (await fileExists(context.asAbsolutePath(extensionValuesFile)))
                 ? (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(extensionValuesFile)))).toString()
                 : '{}');
 
         // Filter only the existing toolchain folders.
-        paths.toolchainPaths = await filterExistingFolders(paths.toolchainPaths);
+        values.toolchainPaths = await filterExistingFolders(values.toolchainPaths);
 
         // Filter only the existing ESP-IDF folders.
-        paths.idfPaths = await filterExistingFolders(paths.idfPaths);
+        values.idfPaths = await filterExistingFolders(values.idfPaths);
 
-        // Update the paths stored in the extension values file.
-        await this.setValues(context, paths);
+        // Update the values stored in the extension values file.
+        await this.setValues(context, values);
 
-        // Return the resulting existing paths.
-        return paths;
+        // Return the resulting existing values.
+        return values;
     }
 
-    private static async pathIsRegistered(context: vscode.ExtensionContext, path: string, type: ValueType): Promise<boolean> {
+    private static async valueIsRegistered(context: vscode.ExtensionContext, value: string, valueType: ValueType): Promise<boolean> {
 
-        // Get the existing paths.
-        const paths = await this.getValues(context);
+        // Get the existing values.
+        const values = await this.getValues(context);
 
-        // Select the paths of interest.
-        var pathsArray: string[] = [];
-        switch (type) {
+        // Select the values of interest.
+        var valuesArray: string[] = [];
+        switch (valueType) {
             case ValueType.TOOLCHAIN_PATH: {
-                pathsArray = paths.toolchainPaths;
+                valuesArray = values.toolchainPaths;
                 break;
             }
             case ValueType.IDF_PATH: {
-                pathsArray = paths.idfPaths;
+                valuesArray = values.idfPaths;
                 break;
             }
         }
 
-        // Check if the passed path is already registered.
-        const value = pathsArray.find((pathElement) => {
-            return (pathElement === path);
+        // Check if the passed value is already registered.
+        const foundValue = valuesArray.find((registeredValue) => {
+            return (registeredValue === value);
         });
 
-        // If the value is undefined, the path is not registered.
-        if (value === undefined) {
+        // If the found value is undefined, the passed value is not registered.
+        if (foundValue === undefined) {
             return false;
         }
-        // Else, the path is already registered.
+        // Else, the passed value is already registered.
         else {
             return true;
         }
     }
 
-    // private static async removeRegister(context: vscode.ExtensionContext, path: string, type: PathType) {
-    //     const values = await this.getValues(context);
-    //     switch (type) {
-    //         case PathType.TOOLCHAIN: {
-    //             values.toolchainPaths.splice(values.toolchainPaths.indexOf(path, type), 1);
-    //             break;
-    //         }
-    //         case PathType.IDF: {
-    //             values.idfPaths.splice(values.idfPaths.indexOf(path), 1);
-    //             break;
-    //         }
-    //     }
-    //     await this.setValues(context, values);
-    // }
-
-    private static async addRegister(context: vscode.ExtensionContext, path: string, type: ValueType) {
-        // Get the existing paths.
+    private static async addRegister(context: vscode.ExtensionContext, value: string, valueType: ValueType) {
+        // Get the existing values.
         const values = await this.getValues(context);
 
-        // Add the passed path to the paths of interest.
-        switch (type) {
+        // Add the passed value to the values of interest.
+        switch (valueType) {
             case ValueType.TOOLCHAIN_PATH: {
-                values.toolchainPaths.push(path);
+                values.toolchainPaths.push(value);
                 break;
             }
             case ValueType.IDF_PATH: {
-                values.idfPaths.push(path);
+                values.idfPaths.push(value);
                 break;
             }
         }
 
-        // Update the paths stored in the extension values file.
+        // Update the values stored in the extension values file.
         await this.setValues(context, values);
     }
 
-    public static async registerPath(context: vscode.ExtensionContext, pathType: ValueType) {
+    public static async registerValue(context: vscode.ExtensionContext, valueType: ValueType) {
 
         // Variables
-        var referencialName: string = '';
+        var valueLabel: string = '';
         var neededFolders: Array<string> = [];
 
-        // Set the referencial name of the path to be registered.
-        // Set the characteristic folders contained for the path type of interest.
-        switch (pathType) {
+        // Set the label of the value to be registered.
+        // Set the characteristic folders for the value type of interest.
+        switch (valueType) {
             case ValueType.TOOLCHAIN_PATH: {
-                referencialName = "Espressif Toolchain";
+                valueLabel = "Espressif Toolchain";
                 neededFolders = toolchainFolders;
                 break;
             }
             case ValueType.IDF_PATH: {
-                referencialName = "ESP-IDF API";
+                valueLabel = "ESP-IDF API";
                 neededFolders = idfFolders;
                 break;
             }
@@ -205,42 +190,42 @@ export class ValuesManager {
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: false,
-            openLabel: "Select a " + referencialName + " folder"
+            openLabel: "Select a " + valueLabel + " folder"
         });
         if (selectedElement === undefined) {
-            vscode.window.showErrorMessage("" + referencialName + " folder not selected");
+            vscode.window.showErrorMessage("" + valueLabel + " folder not selected");
             return;
         }
 
         // Get the path of the selected folder.
-        const elementApsolutePath: string = join(selectedElement[0].fsPath).replace(/\\/gi, '/');
+        const selectedElementAbsolutePath: string = join(selectedElement[0].fsPath).replace(/\\/gi, '/');
 
         // Check if the folder is valid.
         const folderIsValid: boolean = !neededFolders.some(async (neededFolder) => {
-            return (!await folderExists(join(elementApsolutePath, neededFolder)));
+            return (!await folderExists(join(selectedElementAbsolutePath, neededFolder)));
         });
         if (folderIsValid) {
-            vscode.window.showErrorMessage("Invalid " + referencialName + " folder.");
+            vscode.window.showErrorMessage("Invalid " + valueLabel + " folder.");
             return;
         }
 
         // The folder path must not include empty spaces.
-        if (elementApsolutePath.includes(" ")) {
-            vscode.window.showErrorMessage("The " + referencialName + " path should not include spaces.");
+        if (selectedElementAbsolutePath.includes(" ")) {
+            vscode.window.showErrorMessage("The " + valueLabel + " path should not include spaces.");
             return;
         }
 
-        // If the path is already registered, notify the user.
-        if (await ValuesManager.pathIsRegistered(context, elementApsolutePath, pathType)) {
-            vscode.window.showWarningMessage("The provided " + referencialName + " path was already registered.");
+        // If the value is already registered, notify the user.
+        if (await ValuesManager.valueIsRegistered(context, selectedElementAbsolutePath, valueType)) {
+            vscode.window.showWarningMessage("The provided " + valueLabel + " path was already registered.");
             return;
         }
 
-        // Register the selected path.
-        await ValuesManager.addRegister(context, elementApsolutePath, pathType);
+        // Register the selected value.
+        await ValuesManager.addRegister(context, selectedElementAbsolutePath, valueType);
 
         // Notify the user.
-        await vscode.window.showInformationMessage(referencialName + ' path registered.');
+        await vscode.window.showInformationMessage(valueLabel + ' path registered.');
     }
 
     public static async setConfiguration(context: vscode.ExtensionContext, toolchainPath: string, idfPath: string, projectPath: string) {
