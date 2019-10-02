@@ -45,6 +45,7 @@ import {
 	isEspressifProject,
 	isEsp32PmProject,
 	validateProject,
+	getProjectPath,
 } from './esp32-pm-project';
 import {
 	ValuesManager,
@@ -255,6 +256,90 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-subproject', async () => {
+		try {
+			// Validate the current project.
+			var currentProjectPath: string = await getProjectPath();
+
+			// Ask the user for a sub-project to build.
+			const selectedSubprojectFolder = await utils.showQuickPickFrom_(
+				utils.getFolders(join(currentProjectPath, subprojectsFolder)),
+				'Sub-project to be built',
+				'Sub-project not selected.'
+			);
+
+			// Get an array of entry point candidates to be built.
+			// The candidates are defined by specific prefix and extensions.
+			var entryPoints: Array<string> = [];
+			utils.getFiles(join(currentProjectPath, subprojectsFolder, selectedSubprojectFolder)).forEach((file) => {
+				if (!file.startsWith(entryPointPrefix)) {
+					return;
+				}
+				entryPointExtensions.forEach((suffix) => {
+					if (file.endsWith(suffix)) {
+						entryPoints.push(file);
+					}
+				});
+			});
+
+			var entryPoint: string;
+			// If there is not entry point, notify the user.
+			if (entryPoints.length === 0) {
+				vscode.window.showErrorMessage('There is no entry point for the selected sub-project.');
+				return;
+			}
+			// Else, if there is only one entry point, use it.
+			else if (entryPoints.length === 1) {
+				entryPoint = entryPoints[0];
+			}
+			// Else, ask the user which entry point will be used.
+			else {
+				entryPoint = await utils.showQuickPickFrom_(
+					entryPoints,
+					'Entry point for the sub-project.',
+					'No entry point selected.'
+				);
+			}
+
+			// Construct the final main file content.
+			const mainFileContent: Array<string> = [
+				'#include "src/' + selectedSubprojectFolder + '/' + entryPoint + '"',
+				'extern "C"',
+				'{',
+				'\tvoid app_main();',
+				'}'
+			];
+
+			// Write the final content to the main file.
+			await vscode.workspace.fs.writeFile(
+				vscode.Uri.file(join(currentProjectPath, 'main/main.cpp')),
+				Buffer.from(mainFileContent.join('\n'))
+			);
+
+			// Construct the final main pseudo-component make file.
+			const mainComponentFileContent: Array<string> = [
+				'include $(PROJECT_PATH)/' + subprojectsFolder + selectedSubprojectFolder + '/component.mk',
+			];
+
+			// Write the final content to the main component make file.
+			await vscode.workspace.fs.writeFile(
+				vscode.Uri.file(join(currentProjectPath, 'main/component.mk')),
+				Buffer.from(mainComponentFileContent.join('\n'))
+			);
+
+			// Execute the shell commands related to the make all command using the selected sub-project and entry point.
+			utils.executeShellCommands(
+				'Build sub-project',
+				[
+					'echo -e "ESP32-PM: Building sub-project...\n"',
+					'make -j all',
+				]
+			);
+		} catch (error) {
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
 	// Check if there are no workspace folders.
 	if (vscode.workspace.workspaceFolders === undefined) {
 		return;
@@ -262,87 +347,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// If this point is reached, the project exists and its path is returned.
 	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-subproject', async () => {
-		// Execute this command only if the project is an ESP32-PM one.
-		if (!await isEsp32PmProject(currentProjectPath)) {
-			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
-			return;
-		}
-
-		// Ask the user for a sub-project to build.
-		const selectedSubprojectFolder = await utils.showQuickPickFrom(utils.getFolders(join(currentProjectPath, subprojectsFolder)), 'Sub-project to be built');
-		if (selectedSubprojectFolder === undefined) {
-			vscode.window.showWarningMessage("Sub-project not selected.");
-			return;
-		}
-
-		// Get an array of entry point candidates to be built.
-		// The candidates are defined by specific prefix and extensions.
-		var entryPoints: string[] = [];
-		utils.getFiles(join(currentProjectPath, subprojectsFolder, selectedSubprojectFolder)).forEach((file) => {
-			if (!file.startsWith(entryPointPrefix)) {
-				return;
-			}
-			entryPointExtensions.forEach((suffix) => {
-				if (file.endsWith(suffix)) { entryPoints.push(file); }
-			});
-		});
-
-		var entryPoint: string | undefined;
-		// If there is not entry point, notify the user.
-		if (entryPoints.length === 0) {
-			vscode.window.showErrorMessage("There is no entry point for the selected sub-project.");
-			return;
-		}
-		// Else, if there is only one entry point, use it.
-		else if (entryPoints.length === 1) {
-			entryPoint = entryPoints[0];
-		}
-		// Else, ask the user which entry point will be used.
-		else {
-			entryPoint = await utils.showQuickPickFrom(entryPoints, "Entry point for the sub-project.");
-			if (entryPoint === undefined) {
-				vscode.window.showErrorMessage("No entry point selected.");
-				return;
-			}
-		}
-
-		// Construct the final main file content.
-		const mainFileContent: Array<string> = [
-			'#include "src/' + selectedSubprojectFolder + '/' + entryPoint + '"',
-			'extern "C"',
-			'{',
-			'\tvoid app_main();',
-			'}'
-		];
-
-		// Write the final content to the main file.
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(currentProjectPath, 'main/main.cpp')),
-			Buffer.from(mainFileContent.join('\n'))
-		);
-
-		// Construct the final main pseudo-component make file.
-		const mainComponentFileContent: Array<string> = [
-			'include $(PROJECT_PATH)/' + subprojectsFolder + selectedSubprojectFolder + '/component.mk',
-		];
-
-		// Write the final content to the main component make file.
-		await vscode.workspace.fs.writeFile(
-			vscode.Uri.file(join(currentProjectPath, 'main/component.mk')),
-			Buffer.from(mainComponentFileContent.join('\n'))
-		);
-
-		// Execute the shell commands related to the make all command using the selected sub-project and entry point.
-		utils.executeShellCommands(
-			"Build sub-project",
-			[
-				'echo -e "ESP32-PM: Building sub-project...\n"',
-				'make -j all',
-			]
-		);
-	}));
 
 	async function getSerialPorts(): Promise<Array<string>> {
 		const comPortsFile: string = "comPortsFile";
