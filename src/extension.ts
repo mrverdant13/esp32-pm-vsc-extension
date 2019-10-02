@@ -377,6 +377,11 @@ export function activate(context: vscode.ExtensionContext) {
 		// Delete the watcher.
 		fsw.dispose();
 
+		// If there is no available serial port, throw error.
+		if (serialPorts.length === 0) {
+			throw Error('No serial port available.');
+		}
+
 		// Return the found serial ports.
 		return serialPorts;
 	}
@@ -388,12 +393,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Get the available serial ports.
 			const serialPorts: Array<string> = await getSerialPorts();
-
-			// If there is no available serial port, stop command execution.
-			if (serialPorts.length === 0) {
-				vscode.window.showErrorMessage('No serial port available.');
-				return;
-			}
 
 			// Ask the user which serial port will be used.
 			const selectedSerialPort = await utils.showQuickPickFrom_(
@@ -415,6 +414,34 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
+		try {
+			// Validate the current project.
+			await validateProject();
+
+			// Get the available serial ports.
+			const serialPorts: Array<string> = await getSerialPorts();
+
+			// Ask the user which serial port will be used.
+			const selectedSerialPort = await utils.showQuickPickFrom_(
+				serialPorts,
+				'Serial port to be used',
+				'No serial port selected.'
+			);
+
+			// Execute the shell commands related to the make monitor command using the selected serial port.
+			utils.executeShellCommands(
+				'Monitor',
+				[
+					'echo -e "ESP32-PM: Opening serial port...\n"',
+					'make monitor ESPPORT=' + selectedSerialPort,
+				]
+			);
+		} catch (error) {
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
 	// Mina modelo club centromin.
 	// Mina modelo parque leyendas.
 	// Check if there are no workspace folders.
@@ -424,39 +451,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// If this point is reached, the project exists and its path is returned.
 	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
-		// Execute this command only if the project is an ESP32-PM one.
-		if (!await isEsp32PmProject(currentProjectPath)) {
-			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
-			return;
-		}
-
-		// Get the available serial ports.
-		const serialPorts: Array<string> = await getSerialPorts();
-
-		// If there is no available serial port, stop command execution.
-		if (serialPorts.length === 0) {
-			vscode.window.showErrorMessage('No serial port available.');
-			return;
-		}
-
-		// Ask the user which serial port will be used.
-		const selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
-		if (selectedSerialPort === undefined) {
-			vscode.window.showErrorMessage("No serial port selected.");
-			return;
-		}
-
-		// Execute the shell commands related to the make monitor command using the selected serial port.
-		utils.executeShellCommands(
-			'Monitor',
-			[
-				'echo -e "ESP32-PM: Opening serial port...\n"',
-				'make monitor ESPPORT=' + selectedSerialPort,
-			]
-		);
-	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash-monitor', async () => {
 		// Execute this command only if the project is an ESP32-PM one.
