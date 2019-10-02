@@ -57,8 +57,7 @@
 			{
 				"category": "ESP32-PM",
 				"title": "Menuconfig",
-				"command": "esp32-pm.menuconfig",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.menuconfig"
 			},
 			{
 				"category": "ESP32-PM",
