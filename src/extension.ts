@@ -44,6 +44,7 @@ import {
 import {
 	isEspressifProject,
 	isEsp32PmProject,
+	validateProject,
 } from './esp32-pm-project';
 import {
 	ValuesManager,
@@ -217,6 +218,25 @@ export function activate(context: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(existingProjectPath), windowAction.includes("new"));
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
+		try {
+			// Validate the current project.
+			await validateProject();
+
+			// Execute the shell commands related to the make defconfing command.
+			utils.executeShellCommands(
+				"Defconfig",
+				[
+					'echo -e "ESP32-PM: Applying default config values...\n"',
+					'make defconfig',
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
 	// Check if there are no workspace folders.
 	if (vscode.workspace.workspaceFolders === undefined) {
 		return;
@@ -224,23 +244,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// If this point is reached, the project exists and its path is returned.
 	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
-		// Execute this command only if the project is an ESP32-PM one.
-		if (!await isEsp32PmProject(currentProjectPath)) {
-			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
-			return;
-		}
-
-		// Execute the shell commands related to the make defconfing command.
-		utils.executeShellCommands(
-			"Defconfig",
-			[
-				'echo -e "ESP32-PM: Applying default config values...\n"',
-				'make defconfig',
-			]
-		);
-	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.menuconfig', async () => {
 		// Execute this command only if the project is an ESP32-PM one.
