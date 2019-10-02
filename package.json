@@ -63,8 +63,7 @@
 			{
 				"category": "ESP32-PM",
 				"title": "Defconfig",
-				"command": "esp32-pm.defconfig",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.defconfig"
 			},
 			{
 				"category": "ESP32-PM",
