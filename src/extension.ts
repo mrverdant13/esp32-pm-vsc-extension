@@ -67,12 +67,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-espressif-toolchain', async () => {
 		// Register an Espressif Toolchain folder path.
-		ValuesManager.registerPath(context, ValueType.TOOLCHAIN_PATH);
+		ValuesManager.registerValue(context, ValueType.TOOLCHAIN_PATH);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.register-esp-idf', async () => {
 		// Register an ESP-IDF API folder path.
-		ValuesManager.registerPath(context, ValueType.IDF_PATH);
+		ValuesManager.registerValue(context, ValueType.IDF_PATH);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.create-project', async () => {
