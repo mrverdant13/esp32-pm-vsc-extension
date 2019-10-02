@@ -462,12 +462,6 @@ export function activate(context: vscode.ExtensionContext) {
 		// Get the available serial ports.
 		const serialPorts: Array<string> = await getSerialPorts();
 
-		// If there is no available serial port, stop command execution.
-		if (serialPorts.length === 0) {
-			vscode.window.showErrorMessage('No serial port available.');
-			return;
-		}
-
 		// Ask the user which serial port will be used.
 		const selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
 		if (selectedSerialPort === undefined) {
