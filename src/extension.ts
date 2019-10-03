@@ -442,8 +442,25 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	// Mina modelo club centromin.
-	// Mina modelo parque leyendas.
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.clean', async () => {
+		try {
+			// Validate the current project.
+			await validateProject();
+
+			// Execute the shell commands related to the make clean command.
+			utils.executeShellCommands(
+				'Clean',
+				[
+					'echo -e "ESP32-PM: Deleting build output files...\n"',
+					'make clean',
+					'echo -e "\nESP32-PM: Build output files deleted.\n"',
+				]
+			);
+		} catch (error) {
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
 	// Check if there are no workspace folders.
 	if (vscode.workspace.workspaceFolders === undefined) {
 		return;
@@ -475,24 +492,6 @@ export function activate(context: vscode.ExtensionContext) {
 			[
 				'echo -e "ESP32-PM: Flashing project and opening serial port...\n"',
 				'make flash monitor ESPPORT=' + selectedSerialPort,
-			]
-		);
-	}));
-
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.clean', async () => {
-		// Execute this command only if the project is an ESP32-PM one.
-		if (!await isEsp32PmProject(currentProjectPath)) {
-			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
-			return;
-		}
-
-		// Execute the shell commands related to the make clean command.
-		utils.executeShellCommands(
-			'Clean',
-			[
-				'echo -e "ESP32-PM: Deleting build output files...\n"',
-				'make clean',
-				'echo -e "\nESP32-PM: Build output files deleted.\n"',
 			]
 		);
 	}));
