@@ -336,6 +336,7 @@ export function activate(context: vscode.ExtensionContext) {
 				]
 			);
 		} catch (error) {
+			// Show error message.
 			vscode.window.showErrorMessage(error.message);
 		}
 	}));
@@ -386,7 +387,7 @@ export function activate(context: vscode.ExtensionContext) {
 		return serialPorts;
 	}
 
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async (executeMonitor: boolean = false) => {
 		try {
 			// Validate the current project.
 			await validateProject();
@@ -401,15 +402,16 @@ export function activate(context: vscode.ExtensionContext) {
 				'No serial port selected.'
 			);
 
-			// Execute the shell commands related to the make flash command using the selected serial port.
+			// Execute the shell commands related to the make flash or make flash monitor command using the selected serial port.
 			utils.executeShellCommands(
-				'Flash',
+				'Flash' + (executeMonitor ? ' & Monitor' : ''),
 				[
-					'echo -e "ESP32-PM: Flashing project...\n"',
-					'make flash ESPPORT=' + selectedSerialPort,
+					'echo -e "ESP32-PM: Flashing project' + (executeMonitor ? ' and opening serial port' : '') + '...\n"',
+					'make flash' + (executeMonitor ? ' monitor' : '') + ' ESPPORT=' + selectedSerialPort,
 				]
 			);
 		} catch (error) {
+			// Show error message.
 			vscode.window.showErrorMessage(error.message);
 		}
 	}));
@@ -438,6 +440,7 @@ export function activate(context: vscode.ExtensionContext) {
 				]
 			);
 		} catch (error) {
+			// Show error message.
 			vscode.window.showErrorMessage(error.message);
 		}
 	}));
@@ -457,6 +460,7 @@ export function activate(context: vscode.ExtensionContext) {
 				]
 			);
 		} catch (error) {
+			// Show error message.
 			vscode.window.showErrorMessage(error.message);
 		}
 	}));
@@ -470,30 +474,8 @@ export function activate(context: vscode.ExtensionContext) {
 	const currentProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash-monitor', async () => {
-		// Execute this command only if the project is an ESP32-PM one.
-		if (!await isEsp32PmProject(currentProjectPath)) {
-			vscode.window.showErrorMessage("The current workspace is not an ESP32-PM project or it has not been initialized.");
-			return;
-		}
-
-		// Get the available serial ports.
-		const serialPorts: Array<string> = await getSerialPorts();
-
-		// Ask the user which serial port will be used.
-		const selectedSerialPort = await utils.showQuickPickFrom(serialPorts, 'Serial port to be used');
-		if (selectedSerialPort === undefined) {
-			vscode.window.showErrorMessage("No serial port selected.");
-			return;
-		}
-
-		// Execute the shell commands related to the make flash monitor command using the selected serial port.
-		utils.executeShellCommands(
-			'Flash & Monitor',
-			[
-				'echo -e "ESP32-PM: Flashing project and opening serial port...\n"',
-				'make flash monitor ESPPORT=' + selectedSerialPort,
-			]
-		);
+		// Execute the make flash command including the monitor target.
+		await vscode.commands.executeCommand('esp32-pm.flash', true);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.remove-auto-gen', async () => {
