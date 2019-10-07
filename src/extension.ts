@@ -37,9 +37,10 @@ import {
 	supportedOSs,
 	overwritingSuffix,
 	overwritingFiles,
-	colonProjectName,
+	boundedProjectName,
 	menuconfigBashPath,
 	projectTemplatePath,
+	constantBounder,
 } from './constants';
 import {
 	getWorkspacePath,
@@ -91,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			// Ask the user for the new project location.
 			const newProjectLocation: string = await utils.pickFolder(
-				'Select project location.',
+				'Select new project location.',
 				'Project location not selected.',
 			);
 
@@ -135,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const makefileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(newProjectPath, 'Makefile')))).toString();
 			await vscode.workspace.fs.writeFile(
 				vscode.Uri.file(join(newProjectPath, 'Makefile')),
-				Buffer.from(makefileContent.replace(RegExp(':' + colonProjectName + ':', 'gi'), newProjectName))
+				Buffer.from(makefileContent.replace(RegExp(constantBounder + boundedProjectName + constantBounder, 'gi'), newProjectName))
 			);
 
 			// Use the selected MinGW32 terminal and ESP-IDF API

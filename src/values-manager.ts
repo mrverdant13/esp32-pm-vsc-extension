@@ -34,13 +34,14 @@ import {
     toolchainFolders,
     idfFolders,
     extensionValuesFile,
-    colonToolchainPath,
-    colonIdfPath,
+    boundedToolchainPath,
+    boundedIdfPath,
     vscSettingsTemplateFile,
     vscCCppPropsTemplateFile,
     vscSettingsFile,
     menuconfigBashPath,
     vscCCppPropsFile,
+    constantBounder,
 } from "./constants";
 import {
     fileExists,
@@ -193,7 +194,7 @@ export class ValuesManager {
             openLabel: "Select a " + valueLabel + " folder"
         });
         if (selectedElement === undefined) {
-            vscode.window.showErrorMessage("" + valueLabel + " folder not selected");
+            vscode.window.showErrorMessage(valueLabel + " folder not selected");
             return;
         }
 
@@ -233,8 +234,8 @@ export class ValuesManager {
         var vscSettings: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscSettingsTemplateFile)))).toString();
 
         // Replace the :<CONSTANTS>: values in the template.
-        vscSettings = vscSettings.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
-        vscSettings = vscSettings.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
+        vscSettings = vscSettings.replace(RegExp(constantBounder + boundedToolchainPath + constantBounder, 'gi'), toolchainPath);
+        vscSettings = vscSettings.replace(RegExp(constantBounder + boundedIdfPath + constantBounder, 'gi'), idfPath);
 
         // Write the refactored content in a final VSC settings file.
         await vscode.workspace.fs.writeFile(
@@ -246,8 +247,8 @@ export class ValuesManager {
         var vscCCppProperties: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(context.asAbsolutePath(vscCCppPropsTemplateFile)))).toString();
 
         // Replace the :<CONSTANTS>: values in the template.
-        vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonToolchainPath + ':', 'gi'), toolchainPath);
-        vscCCppProperties = vscCCppProperties.replace(RegExp(':' + colonIdfPath + ':', 'gi'), idfPath);
+        vscCCppProperties = vscCCppProperties.replace(RegExp(constantBounder + boundedToolchainPath + constantBounder, 'gi'), toolchainPath);
+        vscCCppProperties = vscCCppProperties.replace(RegExp(constantBounder + boundedIdfPath + constantBounder, 'gi'), idfPath);
 
         // Write the refactored content in a final VSC settings file.
         await vscode.workspace.fs.writeFile(

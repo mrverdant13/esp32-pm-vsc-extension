@@ -8,8 +8,9 @@ import {
     espressifFolders,
     espressifFiles,
     esp32PmFiles,
-    colonConstants,
+    boundedConstants,
     esp32PmFolders,
+    constantBounder,
 } from "./constants";
 import {
     fileExists,
@@ -67,8 +68,8 @@ export async function validateEsp32PmProject(projectPath: string = ''): Promise<
             if (!await fileExists(esp32PmFilePath)) {
                 throw Error(isNotEsp32PmProjectMessage);
             }
-            for (let ind = 0; ind < colonConstants.length; ind++) {
-                if ((await vscode.workspace.fs.readFile(vscode.Uri.file(esp32PmFilePath))).toString().includes(':' + colonConstants[ind] + ':')) {
+            for (let ind = 0; ind < boundedConstants.length; ind++) {
+                if ((await vscode.workspace.fs.readFile(vscode.Uri.file(esp32PmFilePath))).toString().includes(constantBounder + boundedConstants[ind] + constantBounder)) {
                     throw Error(constantValuesUnsolved);
                 }
             }

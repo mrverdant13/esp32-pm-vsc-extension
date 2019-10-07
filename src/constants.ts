@@ -28,14 +28,17 @@ export const menuconfigBashPath: string = '.vscode/Menuconfig.sh';
 // Suffix to be used for files that will be overwrited.
 export const overwritingSuffix: string = '.old';
 
-// Colon-surrounded constant string for the project name.
-export const colonProjectName: string = 'PROJECT_NAME';
+// Constant bounder.
+export const constantBounder: string = ':';
 
-// Colon-surrounded constant string for the Espressif Toolchain path.
-export const colonToolchainPath: string = 'TOOLCHAIN_PATH';
+// Bounded constant string for the project name.
+export const boundedProjectName: string = 'PROJECT_NAME';
 
-// Colon-surrounded constant string for the ESP-IDF API path.
-export const colonIdfPath: string = 'IDF_PATH';
+// Bounded constant string for the Espressif Toolchain path.
+export const boundedToolchainPath: string = 'TOOLCHAIN_PATH';
+
+// Bounded constant string for the ESP-IDF API path.
+export const boundedIdfPath: string = 'IDF_PATH';
 
 // Characteristic files of an ESP32-PM project.
 export const supportedOSs: Array<string> = [
@@ -69,11 +72,11 @@ export const esp32PmFolders: Array<string> = [
     subprojectsFolder,
 ];
 
-// Colon-surrounded constant strings.
-export const colonConstants: Array<string> = [
-    colonToolchainPath,
-    colonIdfPath,
-    colonProjectName,
+// Bounded constant strings.
+export const boundedConstants: Array<string> = [
+    boundedToolchainPath,
+    boundedIdfPath,
+    boundedProjectName,
 ];
 
 // Characteristic folders of an Espressif Toolchain.
