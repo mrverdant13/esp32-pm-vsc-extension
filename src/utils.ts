@@ -38,18 +38,7 @@ export function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function showQuickPickFrom(elements: Array<string>, hint: string, canPickMany: boolean = false) {
-    // Show a custom pick menu.
-    return await vscode.window.showQuickPick(
-        elements,
-        {
-            placeHolder: hint,
-            canPickMany: canPickMany
-        }
-    );
-}
-
-export async function showQuickPickFrom_(elements: Array<string>, hint: string, errorMessage: string, canPickMany: boolean = false): Promise<string> {
+export async function pickElement(elements: Array<string>, hint: string, errorMessage: string, canPickMany: boolean = false): Promise<string> {
     // Show a custom pick menu.
     const selectedElement = await vscode.window.showQuickPick(
         elements,
@@ -66,6 +55,37 @@ export async function showQuickPickFrom_(elements: Array<string>, hint: string, 
 
     // Return the selected element.
     return selectedElement;
+}
+
+export async function pickFolder(prompt: string, errorMessage: string): Promise<string> {
+    // Show a custom folder selection folder.
+    const selectedFolder: Array<vscode.Uri> | undefined = await vscode.window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        openLabel: prompt
+    });
+
+    // If no folder was selected, throw an error.
+    if (selectedFolder === undefined) {
+        throw Error(errorMessage);
+    }
+
+    // Return the selected folder.
+    return selectedFolder[0].fsPath;
+}
+
+export async function introduceString(prompt: string, errorMessage: string) {
+    // Show a custom text input.
+    const newProjectName: string | undefined = await vscode.window.showInputBox({ prompt: prompt });
+
+    // If no text was introduced, throw an error.
+    if (newProjectName === undefined || newProjectName.trim().length === 0) {
+        throw Error(errorMessage);
+    }
+
+    // Return the introduced string.
+    return newProjectName;
 }
 
 async function elementExists(path: string, type: vscode.FileType): Promise<boolean> {
