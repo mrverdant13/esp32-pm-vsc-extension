@@ -98,3 +98,8 @@ export const overwritingFiles: Array<string> = [
     vscSettingsFile,
     vscCCppPropsFile,
 ];
+
+// Bounder function.
+export function boundedConstant(constant: string) {
+    return (constantBounder + constant + constantBounder);
+}
