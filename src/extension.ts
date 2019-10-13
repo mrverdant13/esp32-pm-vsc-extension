@@ -40,7 +40,7 @@ import {
 	boundedProjectName,
 	menuconfigBashPath,
 	projectTemplatePath,
-	constantBounder,
+	boundedConstant,
 } from './constants';
 import {
 	getWorkspacePath,
@@ -102,16 +102,19 @@ export function activate(context: vscode.ExtensionContext) {
 				'Project name not introduced.',
 			)).trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
 
+			// Set the new project path.
+			const newProjectPath: string = join(newProjectLocation, newProjectName);
+
 			// Ask the user which Espressif Toolchain and ESP-IDF API are going to be used with the project.
 			const paths: Values = await ValuesManager.getValues(context);
 			const toolchainPath: string = await utils.pickElement(
 				paths.toolchainPaths,
-				'Select an Espressif Toolchain to be used with the new project.',
+				'Select an Espressif Toolchain to be used with the project.',
 				'Espressif Toolchain not selected.',
 			);
 			const idfPath: string = await utils.pickElement(
 				paths.idfPaths,
-				'Select an ESP-IDF API to be used with the new project.',
+				'Select an ESP-IDF API to be used with the project.',
 				'ESP-IDF API not selected.',
 			);
 
@@ -119,24 +122,20 @@ export function activate(context: vscode.ExtensionContext) {
 			const windowAction: string = await utils.pickElement(
 				['Open in new window', 'Open in current window'],
 				'Select the window to be used with the new project.',
-				'Project creation cancelled.',
+				'Process cancelled.',
 			);
 
-			// Set the new project path.
-			const newProjectPath: string = join(newProjectLocation, newProjectName);
-
 			// Copy the project template.
-			await vscode.workspace.fs.copy(
-				vscode.Uri.file(context.asAbsolutePath(projectTemplatePath)),
-				vscode.Uri.file(newProjectPath),
-				{ overwrite: false }
+			await utils.copyFile(
+				context.asAbsolutePath(projectTemplatePath),
+				newProjectPath,
 			);
 
 			// Set the project name in the Makefile
-			const makefileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(join(newProjectPath, 'Makefile')))).toString();
-			await vscode.workspace.fs.writeFile(
-				vscode.Uri.file(join(newProjectPath, 'Makefile')),
-				Buffer.from(makefileContent.replace(RegExp(constantBounder + boundedProjectName + constantBounder, 'gi'), newProjectName))
+			await utils.replaceInFile(
+				join(newProjectPath, 'Makefile'),
+				RegExp(boundedConstant(boundedProjectName), 'gi'),
+				newProjectName,
 			);
 
 			// Use the selected MinGW32 terminal and ESP-IDF API
@@ -166,16 +165,16 @@ export function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 
-			// Ask the user which MinGW32 terminal and ESP-IDF API are going to be used with the project.
+			// Ask the user which Espressif Toolchain and ESP-IDF API are going to be used with the project.
 			const paths: Values = await ValuesManager.getValues(context);
 			const toolchainPath = await utils.pickElement(
 				paths.toolchainPaths,
-				'Select an Espressif Toolchain to be used with the existing project.',
+				'Select an Espressif Toolchain to be used with the project.',
 				'Espressif Toolchain not selected.',
 			);
 			const idfPath = await utils.pickElement(
 				paths.idfPaths,
-				'Select an ESP-IDF API to be used with the existing project.',
+				'Select an ESP-IDF API to be used with the project.',
 				'ESP-IDF API not selected.',
 			);
 
@@ -183,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const windowAction = await utils.pickElement(
 				["Open in new window", "Open in current window"],
 				'Select the window to be used with the new project.',
-				'Project initialization cancelled.',
+				'Process cancelled.',
 			);
 
 			// Apply sufix.
