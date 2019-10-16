@@ -1,7 +1,22 @@
-import { validateEspressifProject, getWorkspacePath, ValidationType } from "../esp32-pm-project";
-import { writeFile, fileExists, readFile, filterExistingFolders, folderExists } from "../utils";
-import { join } from "path";
-import { projectValuesFilePath } from "../constants";
+import {
+    join,
+} from "path";
+
+import {
+    projectValuesFilePath,
+} from "../constants";
+
+import {
+    getWorkspacePath,
+    ValidationType,
+} from "../esp32-pm-project";
+
+import {
+    writeFile,
+    fileExists,
+    readFile,
+    folderExists,
+} from "../utils";
 
 /*
 Copyright (c) 2019 Karlo Fabio Verde Salvatierra
@@ -35,12 +50,12 @@ export interface Esp32PmProjectValues {
 }
 
 export enum ProjectValueType {
-    TOOLCHAIN_PATH = 0,
-    IDF_PATH = 1,
+    IDF_PATH = 0,
+    TOOLCHAIN_PATH = 1,
 }
 
 export class Esp32PmProject {
-    public static jsonToValues(jsonString: string): Esp32PmProjectValues {
+    private static jsonToValues(jsonString: string): Esp32PmProjectValues {
         try {
             // Parse string to Esp32PmProjectValues.
             const values: Esp32PmProjectValues = JSON.parse(jsonString);
@@ -62,7 +77,7 @@ export class Esp32PmProject {
         }
     }
 
-    public static valuesToJsonString(value: Esp32PmProjectValues): string {
+    private static valuesToJsonString(value: Esp32PmProjectValues): string {
         try {
             // Convert Esp32PmProjectValues to string.
             return JSON.stringify(value);
