@@ -40,6 +40,9 @@ export const boundedToolchainPath: string = 'TOOLCHAIN_PATH';
 // Bounded constant string for the ESP-IDF API path.
 export const boundedIdfPath: string = 'IDF_PATH';
 
+// ESP32-PM project values file relative path.
+export const projectValuesFilePath: string = '.vscode/esp32-pm.json';
+
 // Characteristic files of an ESP32-PM project.
 export const supportedOSs: Array<string> = [
     'win32',
