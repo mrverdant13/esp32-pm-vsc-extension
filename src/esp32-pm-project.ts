@@ -11,16 +11,103 @@ import {
     boundedConstants,
     esp32PmFolders,
     constantBounder,
+    overwritingFiles,
+    overwritingSuffix,
+    subprojectsFolder,
+    projectTemplatePath,
+    boundedProjectName,
+    boundedConstant,
 } from "./constants";
 import {
     fileExists,
     folderExists,
+    pickElement,
+    copyFile,
+    replaceInFile,
 } from "./utils";
+import {
+    Values,
+    ValuesManager,
+} from "./values-manager";
 
 export enum ValidationType {
     NONE = 0,
     ESPRESSIF_PROJ = 1,
     ESP32_PM_PROJ = 2,
+}
+
+export enum SetupType {
+    CREATION = 0,
+    INITIALIZATION = 1,
+}
+
+export async function setupProject(projectPath: string, context: vscode.ExtensionContext, setupType: SetupType, opts: undefined | { projectName: undefined | string }): Promise<void> {
+    try {
+        // Ask the user which Espressif Toolchain and ESP-IDF API are going to be used with the project.
+        const paths: Values = await ValuesManager.getValues(context);
+        const toolchainPath = await pickElement(
+            paths.toolchainPaths,
+            'Select an Espressif Toolchain to be used with the project.',
+            'Espressif Toolchain not selected.',
+        );
+        const idfPath = await pickElement(
+            paths.idfPaths,
+            'Select an ESP-IDF API to be used with the project.',
+            'ESP-IDF API not selected.',
+        );
+
+        // Ask the user if the existing project should be launched in the current window or in a new one.
+        const windowAction = await pickElement(
+            ["Open in new window", "Open in current window"],
+            'Select the window to be used with the new project.',
+            'Process cancelled.',
+        );
+
+        switch (setupType) {
+            case SetupType.CREATION:
+                // Copy the project template.
+                await copyFile(
+                    context.asAbsolutePath(projectTemplatePath),
+                    projectPath,
+                );
+
+                // Set the project name in the Makefile
+                await replaceInFile(
+                    join(projectPath, 'Makefile'),
+                    RegExp(boundedConstant(boundedProjectName), 'gi'),
+                    opts['projectName'],
+                );
+
+
+                break;
+            case SetupType.INITIALIZATION:
+                // Apply sufix.
+                for (let index = 0; index < overwritingFiles.length; index++) {
+                    const filePath: string = join(projectPath, overwritingFiles[index]);
+                    if (await fileExists(filePath)) {
+                        await vscode.workspace.fs.rename(vscode.Uri.file(filePath), vscode.Uri.file(filePath + overwritingSuffix), { overwrite: true });
+                    }
+                }
+
+                // Copy the sub-project examples if the sub-projects folder does not exist.
+                if (!await folderExists(join(projectPath, subprojectsFolder))) {
+                    await copyFile(
+                        context.asAbsolutePath(projectTemplatePath + subprojectsFolder),
+                        join(projectPath, subprojectsFolder),
+                    );
+                }
+                break;
+        }
+
+
+        // Use the selected MinGW32 terminal and ESP-IDF API
+        await ValuesManager.setConfiguration(context, toolchainPath, idfPath, existingProjectPath);
+
+        // Launch the new project according to the user election.
+        await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(existingProjectPath), windowAction.includes("new"));
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function validateEspressifProject(projectPath: string = ''): Promise<void> {
