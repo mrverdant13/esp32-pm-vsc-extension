@@ -171,6 +171,17 @@ export async function filterExistingFolders(folders: Array<string>): Promise<Arr
     }
 }
 
+export async function readFile(filePath: string): Promise<string> {
+    return (await vscode.workspace.fs.readFile(vscode.Uri.file(filePath))).toString();
+}
+
+export async function writeFile(filePath: string, content: string): Promise<void> {
+    await vscode.workspace.fs.writeFile(
+        vscode.Uri.file(filePath),
+        Buffer.from(content)
+    );
+}
+
 export async function copyFile(originFilePath: string, destinationFilePath: string): Promise<void> {
     try {
         await vscode.workspace.fs.copy(
@@ -185,10 +196,10 @@ export async function copyFile(originFilePath: string, destinationFilePath: stri
 
 export async function replaceInFile(filePath: string, find: RegExp, replace: string): Promise<void> {
     try {
-        const fileContent: string = (await vscode.workspace.fs.readFile(vscode.Uri.file(filePath))).toString();
-        await vscode.workspace.fs.writeFile(
-            vscode.Uri.file(filePath),
-            Buffer.from(fileContent.replace(find, replace))
+        const fileContent: string = await readFile(filePath);
+        await writeFile(
+            filePath,
+            fileContent.replace(find, replace)
         );
     } catch (error) {
         throw error;
