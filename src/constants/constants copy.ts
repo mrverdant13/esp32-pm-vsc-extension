@@ -4,18 +4,6 @@ export const entryPointPrefix: string = 'main';
 // Suffix to be used for files that will be overwrited.
 export const overwritingSuffix: string = '.old';
 
-// Constant bounder.
-export const constantBounder: string = ':';
-
-// Bounded constant string for the project name.
-export const boundedProjectName: string = 'PROJECT_NAME';
-
-// Bounded constant string for the Espressif Toolchain path.
-export const boundedToolchainPath: string = 'TOOLCHAIN_PATH';
-
-// Bounded constant string for the ESP-IDF API path.
-export const boundedIdfPath: string = 'IDF_PATH';
-
 // Characteristic files of an ESP32-PM project.
 export const supportedOSs: Array<string> = [
     'win32',
@@ -35,13 +23,6 @@ export const espressifFiles: Array<string> = [
 // Characteristic folders of an Espressif project.
 export const espressifFolders: Array<string> = [
     'main/',
-];
-
-// Bounded constant strings.
-export const boundedConstants: Array<string> = [
-    boundedToolchainPath,
-    boundedIdfPath,
-    boundedProjectName,
 ];
 
 // Characteristic folders of an Espressif Toolchain.
