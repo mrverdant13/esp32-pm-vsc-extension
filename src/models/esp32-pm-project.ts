@@ -73,7 +73,9 @@ export class Project {
             // Validate if necessary.
             switch (validationType) {
                 case ProjectValidationType.ESP32PM_PROJ:
+                    await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ, workspacePath);
                     await Project.validateProject(ProjectValidationType.ESP32PM_PROJ, workspacePath);
+                    break;
                 case ProjectValidationType.ESPRESSIF_PROJ:
                     await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ, workspacePath);
                     break;
@@ -245,7 +247,7 @@ export class Project {
         }
     }
 
-    public static async setProjectPath(pathType: ProjectPathType): Promise<void> {
+    public static async setProjectResourcePath(pathType: ProjectPathType): Promise<void> {
         try {
             // Variables
             var pathLabel: string = '';

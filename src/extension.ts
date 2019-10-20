@@ -81,7 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Copy the project template.
 			await utils.copyFile(
-				context.asAbsolutePath(Paths.projectTemplate),
+				context.asAbsolutePath(Paths.ProjectTemplate),
 				newProjectPath,
 			);
 
@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the Espressif Toolchain to be used with the project.
-			await Project.setProjectPath(ProjectPathType.TOOLCHAIN_PATH);
+			await Project.setProjectResourcePath(ProjectPathType.TOOLCHAIN_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -119,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the Espressif Toolchain to be used with the project.
-			await Project.setProjectPath(ProjectPathType.IDF_PATH);
+			await Project.setProjectResourcePath(ProjectPathType.IDF_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);

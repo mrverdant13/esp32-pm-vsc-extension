@@ -11,5 +11,9 @@
     "C_Cpp.intelliSenseEngine": "Tag Parser",
     "files.associations": {
         "*.cpp": "cpp"
+    },
+    "files.exclude": {
+        "settings.json": true,
+        "c_cpp_properties.json": true
     }
 }

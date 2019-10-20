@@ -5,10 +5,10 @@ export const SupportedOSs: Array<string> = [
 
 export namespace Paths {
     // VSCode settings template file.
-    export const projectTemplate: string = 'assets/templates/project/';
+    export const ProjectTemplate: string = 'assets/templates/project/';
 
     // VSCode settings template file.
-    export const vscConfigTemplate: string = 'assets/templates/.vscode/';
+    export const VscConfigTemplate: string = 'assets/templates/.vscode/';
 }
 
 export namespace Replaceables {
@@ -21,16 +21,18 @@ export namespace Replaceables {
     // Bounded constant string for the Espressif Toolchain path.
     export const ToolchainPath: string = 'TOOLCHAIN_PATH';
 
-    // Bounded constant strings.
+    // Unbounded constant strings.
     export const UnboundedList: Array<string> = [
         IdfPath,
         ToolchainPath,
     ];
 
+    // Bounded constant strings generator.
     export function boundedReplaceable(constant: string) {
         return (Bounder + constant + Bounder);
     }
 
+    // Bounded constant strings.
     export const BoundedList: Array<string> = [
         ...UnboundedList.map((unboundedReplaceable) => boundedReplaceable(unboundedReplaceable))
     ];
