@@ -1,23 +1,3 @@
-import {
-    join,
-} from "path";
-
-import {
-    projectValuesFilePath,
-} from "../constants";
-
-import {
-    getWorkspacePath,
-    ValidationType,
-} from "../esp32-pm-project";
-
-import {
-    writeFile,
-    fileExists,
-    readFile,
-    folderExists,
-} from "../utils";
-
 /*
 Copyright (c) 2019 Karlo Fabio Verde Salvatierra
 
@@ -44,21 +24,124 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export interface Esp32PmProjectValues {
+import {
+    join,
+} from "path";
+
+import * as vscode from 'vscode';
+
+import * as Esp32PmProjectConsts from "../constants/esp32pm-project";
+import * as EspressifProjectConsts from "../constants/espressif-project";
+import * as IdfConsts from "../constants/idf";
+import * as ToolchainConsts from "../constants/toolchain";
+import {
+    writeFile,
+    fileExists,
+    readFile,
+    folderExists,
+    pickFolder,
+} from "../utils";
+
+export interface ProjectPaths {
     idfPath: string;
     toolchainPath: string;
 }
 
-export enum ProjectValueType {
+export enum ProjectPathType {
     IDF_PATH = 0,
     TOOLCHAIN_PATH = 1,
 }
 
-export class Esp32PmProject {
-    private static jsonToValues(jsonString: string): Esp32PmProjectValues {
+export enum ProjectValidationType {
+    NONE = 0,
+    ESP32PM_PROJ = 1,
+    ESPRESSIF_PROJ = 2,
+}
+
+export class Project {
+
+    public static async getWorkspacePath(validationType: ProjectValidationType): Promise<string> {
+        try {
+            // Check if there are no workspace folders.
+            if (vscode.workspace.workspaceFolders === undefined) {
+                throw Error('There is no available workspace.');
+            }
+
+            // Get the workspace path.
+            const workspacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+
+            // Validate if necessary.
+            switch (validationType) {
+                case ProjectValidationType.ESP32PM_PROJ:
+                    await Project.validateProject(ProjectValidationType.ESP32PM_PROJ, workspacePath);
+                case ProjectValidationType.ESPRESSIF_PROJ:
+                    await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ, workspacePath);
+                    break;
+                default:
+                    break;
+            }
+
+            // Return the workspace path.
+            return workspacePath;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    public static async validateProject(validationType: ProjectValidationType, projectPath: string = ''): Promise<void> {
+        const errorMessage: string = 'The selected folder does not contain an ' +
+            (validationType === ProjectValidationType.ESP32PM_PROJ ? 'ESP32-PM' : 'Espressif') +
+            ' project.';
+
+        try {
+            // If the project path is not passed, use the workspace one.
+            if (projectPath.length === 0) {
+                projectPath = await Project.getWorkspacePath(ProjectValidationType.NONE);
+            }
+
+            // Select the files and folders to be used for validation.
+            var projectFolders: Array<string> = [];
+            var projectFiles: Array<string> = [];
+            switch (validationType) {
+                case ProjectValidationType.ESP32PM_PROJ: {
+                    projectFolders = Esp32PmProjectConsts.Paths.Folders;
+                    projectFiles = Esp32PmProjectConsts.Paths.Files;
+                    break;
+                }
+                case ProjectValidationType.ESPRESSIF_PROJ: {
+                    projectFolders = EspressifProjectConsts.Paths.Folders;
+                    projectFiles = EspressifProjectConsts.Paths.Files;
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+
+            // Check if each characteristic file exists.
+            for (let index = 0; index < projectFiles.length; index++) {
+                const projectFile: string = join(projectPath, projectFiles[index]);
+                if (!await fileExists(projectFile)) {
+                    throw Error(errorMessage);
+                }
+            }
+
+            // Check if each characteristic folder exists.
+            for (let index = 0; index < projectFolders.length; index++) {
+                const projectFolder: string = join(projectPath, projectFolders[index]);
+                if (!await folderExists(projectFolder)) {
+                    throw Error(errorMessage);
+                }
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private static jsonToValues(jsonString: string): ProjectPaths {
         try {
             // Parse string to Esp32PmProjectValues.
-            const values: Esp32PmProjectValues = JSON.parse(jsonString);
+            const values: ProjectPaths = JSON.parse(jsonString);
 
             // If the idfPath is undefined, assign an empty string.
             if (values.idfPath === undefined) {
@@ -77,7 +160,7 @@ export class Esp32PmProject {
         }
     }
 
-    private static valuesToJsonString(value: Esp32PmProjectValues): string {
+    private static valuesToJsonString(value: ProjectPaths): string {
         try {
             // Convert Esp32PmProjectValues to string.
             return JSON.stringify(value);
@@ -86,46 +169,143 @@ export class Esp32PmProject {
         }
     }
 
-    private static async setValues(values: Esp32PmProjectValues): Promise<void> {
+    private static async isValidPath(path: string, projectPathType: ProjectPathType): Promise<boolean> {
+        try {
+            if (!await folderExists(path)) {
+                return false;
+            }
+            var pathFolders: Array<string> = [];
+            switch (projectPathType) {
+                case ProjectPathType.IDF_PATH: {
+                    pathFolders = IdfConsts.Paths.Folders;
+                    break;
+                }
+                case ProjectPathType.TOOLCHAIN_PATH: {
+                    pathFolders = ToolchainConsts.Paths.Folders;
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+            for (let index = 0; index < pathFolders.length; index++) {
+                const pathFolder = pathFolders[index];
+                if (!await folderExists(join(path, pathFolder))) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private static async setValues(values: ProjectPaths): Promise<void> {
         try {
             // Validate if the project is an Espressif one.
-            const projectPath: string = await getWorkspacePath(ValidationType.ESP32_PM_PROJ);
+            const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
 
             // Write the values to the project values file.
             await writeFile(
-                join(projectPath, projectValuesFilePath),
-                Esp32PmProject.valuesToJsonString(values)
+                join(projectPath, Esp32PmProjectConsts.Paths.LocalConfigFile),
+                Project.valuesToJsonString(values)
             );
         } catch (error) {
             throw error;
         }
     }
 
-    public static async getValues(): Promise<Esp32PmProjectValues> {
+    private static async getValues(): Promise<ProjectPaths> {
         try {
             // Validate if the project is an Espressif one.
-            const projectPath: string = await getWorkspacePath(ValidationType.ESP32_PM_PROJ);
+            const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
 
             // Get the project values.
-            const values: Esp32PmProjectValues = Esp32PmProject.jsonToValues(
-                (await fileExists(join(projectPath, projectValuesFilePath)))
-                    ? (await readFile(join(projectPath, projectValuesFilePath)))
+            const values: ProjectPaths = Project.jsonToValues(
+                (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.LocalConfigFile)))
+                    ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.LocalConfigFile)))
                     : '{}'
             );
 
             // Filter existing folders only.
-            if (!await folderExists(values.idfPath)) {
+            if (!await Project.isValidPath(values.idfPath, ProjectPathType.IDF_PATH)) {
                 values.idfPath = '';
             }
-            if (!await folderExists(values.toolchainPath)) {
+            if (!await Project.isValidPath(values.toolchainPath, ProjectPathType.TOOLCHAIN_PATH)) {
                 values.toolchainPath = '';
             }
 
             // Update project values.
-            await Esp32PmProject.setValues(values);
+            await Project.setValues(values);
 
             // Return values.
             return values;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    public static async setProjectPath(pathType: ProjectPathType): Promise<void> {
+        try {
+            // Variables
+            var pathLabel: string = '';
+            var neededFolders: Array<string> = [];
+
+            // Set the label of the path to be registered.
+            // Set the characteristic folders for the path type of interest.
+            switch (pathType) {
+                case ProjectPathType.TOOLCHAIN_PATH: {
+                    pathLabel = "Espressif Toolchain";
+                    neededFolders = ToolchainConsts.Paths.Folders;
+                    break;
+                }
+                case ProjectPathType.IDF_PATH: {
+                    pathLabel = "ESP-IDF API";
+                    neededFolders = IdfConsts.Paths.Folders;
+                    break;
+                }
+            }
+
+            // The user must select the location of the folder.
+            const selectedElementAbsolutePath: string = (await pickFolder(
+                "Select a " + pathLabel + " folder",
+                pathLabel + " folder not selected")
+            ).replace(/\\/gi, '/');
+
+            // Check if the folder is valid.
+            for (let index = 0; index < neededFolders.length; index++) {
+                const neededFolder = neededFolders[index];
+                if (!await folderExists(join(selectedElementAbsolutePath, neededFolder))) {
+                    throw Error("Invalid " + pathLabel + " folder.");
+                }
+            }
+
+            // The folder path must not include empty spaces.
+            if (selectedElementAbsolutePath.includes(" ")) {
+                throw Error("The " + pathLabel + " path should not include spaces.");
+            }
+
+            // Register the selected value.
+            {        // Get the existing values.
+                const paths: ProjectPaths = await Project.getValues();
+
+                // Add the passed value to the values of interest.
+                switch (pathType) {
+                    case ProjectPathType.IDF_PATH: {
+                        paths.idfPath = selectedElementAbsolutePath;
+                        break;
+                    }
+                    case ProjectPathType.TOOLCHAIN_PATH: {
+                        paths.toolchainPath = selectedElementAbsolutePath;
+                        break;
+                    }
+                }
+
+                // Update the values stored in the extension values file.
+                await Project.setValues(paths);
+            }
+            // Notify the user.
+            await vscode.window.showInformationMessage(pathLabel + ' path registered.');
         } catch (error) {
             throw error;
         }

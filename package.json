@@ -36,69 +36,18 @@
 		"commands": [
 			{
 				"category": "ESP32-PM",
-				"title": "Register ESP-IDF API",
-				"command": "esp32-pm.register-esp-idf"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Register Espressif Toolchain",
-				"command": "esp32-pm.register-espressif-toolchain"
-			},
-			{
-				"category": "ESP32-PM",
 				"title": "Create project",
 				"command": "esp32-pm.create-project"
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Initialize exisiting project",
-				"command": "esp32-pm.init-project"
+				"title": "Set Espressif Toolchain",
+				"command": "esp32-pm.set-toolchain"
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Menuconfig",
-				"command": "esp32-pm.menuconfig"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Defconfig",
-				"command": "esp32-pm.defconfig"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Build sub-project",
-				"command": "esp32-pm.build-subproject",
-				"enablement": "workspaceFolderCount != 0"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Flash",
-				"command": "esp32-pm.flash",
-				"enablement": "workspaceFolderCount != 0"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Monitor",
-				"command": "esp32-pm.monitor",
-				"enablement": "workspaceFolderCount != 0"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Flash & Monitor",
-				"command": "esp32-pm.flash-monitor",
-				"enablement": "workspaceFolderCount != 0"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Clean",
-				"command": "esp32-pm.clean",
-				"enablement": "workspaceFolderCount != 0"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Remove auto-generated files",
-				"command": "esp32-pm.remove-auto-gen",
-				"enablement": "workspaceFolderCount != 0"
+				"title": "Set ESP-IDF API",
+				"command": "esp32-pm.set-idf"
 			}
 		]
 	},
