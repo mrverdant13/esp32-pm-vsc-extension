@@ -1,5 +1,5 @@
 {
-    opt/xtensa-esp32-elf    "env": {
+    "env": {
         "IDF_PATH": ":IDF:PATH:",
         "MSYS32_PATH": ":MSYS32_PATH:",
         "XTENSA_PATH": ":XTENSA_PATH:"
