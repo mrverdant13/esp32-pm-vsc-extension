@@ -34,6 +34,7 @@ import * as Esp32PmProjectConsts from "../constants/esp32pm-project";
 import * as EspressifProjectConsts from "../constants/espressif-project";
 import * as IdfConsts from "../constants/idf";
 import * as Msys32Consts from "../constants/msys32";
+import * as XtensaConsts from "../constants/xtensa";
 import {
     writeFile,
     fileExists,
@@ -51,7 +52,7 @@ export interface ProjectPaths {
 export enum ProjectPathType {
     IDF_PATH = 0,
     MSYS32_PATH = 1,
-    XTENSA_PATH = 1,
+    XTENSA_PATH = 2,
 }
 
 export enum ProjectValidationType {
@@ -193,7 +194,8 @@ export class Project {
                     pathFolders = Msys32Consts.Paths.Folders;
                     break;
                 }
-                default: {
+                case ProjectPathType.XTENSA_PATH: {
+                    pathFolders = XtensaConsts.Paths.Folders;
                     break;
                 }
             }
@@ -266,14 +268,19 @@ export class Project {
             // Set the label of the path to be registered.
             // Set the characteristic folders for the path type of interest.
             switch (pathType) {
+                case ProjectPathType.IDF_PATH: {
+                    pathLabel = "ESP-IDF API";
+                    neededFolders = IdfConsts.Paths.Folders;
+                    break;
+                }
                 case ProjectPathType.MSYS32_PATH: {
                     pathLabel = "'msys32'";
                     neededFolders = Msys32Consts.Paths.Folders;
                     break;
                 }
-                case ProjectPathType.IDF_PATH: {
-                    pathLabel = "ESP-IDF API";
-                    neededFolders = IdfConsts.Paths.Folders;
+                case ProjectPathType.XTENSA_PATH: {
+                    pathLabel = "'xtensa-esp32-elf'";
+                    neededFolders = XtensaConsts.Paths.Folders;
                     break;
                 }
             }

@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 			);
 
 			// Copy the project template.
-			await utils.copyFile(
+			await utils.copyElement(
 				context.asAbsolutePath(Paths.ProjectTemplate),
 				newProjectPath,
 			);
@@ -100,13 +100,36 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-toolchain', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-msys32', async () => {
 		try {
+			// This command is only available for Windows.
+			if (process.platform !== 'win32') {
+				throw Error('This command is only available for Windows.');
+			}
+
 			// Validate Espressif project.
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
-			// Set the Espressif Toolchain to be used with the project.
-			await Project.setProjectResourcePath(ProjectPathType.TOOLCHAIN_PATH);
+			// Set the 'msys32' folder to be used with the project.
+			await Project.setProjectResourcePath(ProjectPathType.MSYS32_PATH);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-xtensa', async () => {
+		try {
+			// This command is only available for Linux.
+			if (process.platform !== 'linux') {
+				throw Error('This command is only available for Windows.');
+			}
+
+			// Validate Espressif project.
+			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
+
+			// Set the 'msys32' folder to be used with the project.
+			await Project.setProjectResourcePath(ProjectPathType.XTENSA_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -118,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// Validate Espressif project.
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
-			// Set the Espressif Toolchain to be used with the project.
+			// Set the ESP-IDF API folder to be used with the project.
 			await Project.setProjectResourcePath(ProjectPathType.IDF_PATH);
 		} catch (error) {
 			// Show error message.
