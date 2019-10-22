@@ -1,25 +1,55 @@
 {
+    opt/xtensa-esp32-elf    "env": {
+        "IDF_PATH": ":IDF:PATH:",
+        "MSYS32_PATH": ":MSYS32_PATH:",
+        "XTENSA_PATH": ":XTENSA_PATH:"
+    },
     "configurations": [
         {
-            "name": "ESP32-Windows",
-            "intelliSenseMode": "clang-x64",
+            "name": "Win32",
+            "intelliSenseMode": "gcc-x64",
             "cStandard": "c11",
             "cppStandard": "c++11",
-            "compilerPath": "\":TOOLCHAIN_PATH:/opt/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc.exe\" -mlongcalls",
+            "compilerPath": "\"{env:MSYS32_PATH}/opt/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc.exe\" -mlongcalls",
             "includePath": [
-                ":TOOLCHAIN_PATH:/opt/xtensa-esp32-elf/**",
+                "${env:MSYS32_PATH}/opt/xtensa-esp32-elf/**",
                 "${workspaceFolder}/components/**",
                 "${workspaceFolder}/build/**",
                 "${workspaceFolder}/main",
-                ":IDF_PATH:/components/**"
+                "${env:IDF_PATH}/components/**"
             ],
             "browse": {
                 "path": [
-                    ":TOOLCHAIN_PATH:/opt/xtensa-esp32-elf/**",
+                    "${env:MSYS32_PATH}/opt/xtensa-esp32-elf/**",
                     "${workspaceFolder}/components/**",
                     "${workspaceFolder}/build/**",
                     "${workspaceFolder}/main",
-                    ":IDF_PATH:/components/**"
+                    "${env:IDF_PATH}/components/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.c_cpp.db"
+            }
+        },
+        {
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "\"{env:XTENSA_PATH}/bin/xtensa-esp32-elf-gcc.exe\" -mlongcalls",
+            "includePath": [
+                "${env:XTENSA_PATH}/**",
+                "${workspaceFolder}/components/**",
+                "${workspaceFolder}/build/**",
+                "${workspaceFolder}/main",
+                "${env:IDF_PATH}/components/**"
+            ],
+            "browse": {
+                "path": [
+                    "${env:XTENSA_PATH}/**",
+                    "${workspaceFolder}/components/**",
+                    "${workspaceFolder}/build/**",
+                    "${workspaceFolder}/main",
+                    "${env:IDF_PATH}/components/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.c_cpp.db"
