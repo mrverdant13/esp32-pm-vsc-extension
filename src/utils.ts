@@ -182,7 +182,7 @@ export async function writeFile(filePath: string, content: string): Promise<void
     );
 }
 
-export async function copyFile(originFilePath: string, destinationFilePath: string): Promise<void> {
+export async function copyElement(originFilePath: string, destinationFilePath: string): Promise<void> {
     try {
         await vscode.workspace.fs.copy(
             vscode.Uri.file(originFilePath),
