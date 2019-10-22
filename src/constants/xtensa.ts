@@ -8,3 +8,18 @@ export namespace Paths {
         'xtensa-esp32-elf/',
     ];
 }
+
+export const OneLevelSettings: Array<[string, Array<string>]> = [
+];
+
+export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
+    [
+        'terminal.integrated.env.linux',
+        [
+            [
+                'XTENSA_PATH',
+                ['', '']
+            ]
+        ]
+    ],
+];

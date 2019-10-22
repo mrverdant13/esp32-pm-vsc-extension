@@ -32,7 +32,6 @@ import * as vscode from 'vscode';
 
 import {
 	SupportedOSs,
-	Replaceables,
 	Paths,
 } from './constants/extension-const';
 import {
@@ -88,7 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// Set the project name in the project Makefile
 			await utils.replaceInFile(
 				join(newProjectPath, 'Makefile'),
-				RegExp(Replaceables.boundedReplaceable('PROJECT_NAME'), 'gi'),
+				RegExp(':PROJECT_NAME:', 'gi'),
 				newProjectName,
 			);
 
@@ -122,7 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
 		try {
 			// This command is only available for Linux.
 			if (process.platform !== 'linux') {
-				throw Error('This command is only available for Windows.');
+				throw Error('This command is only available for Linux.');
 			}
 
 			// Validate Espressif project.

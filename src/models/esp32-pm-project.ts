@@ -43,12 +43,6 @@ import {
     pickFolder,
 } from "../utils";
 
-export interface ProjectPaths {
-    idfPath: string;
-    msys32Path: string;
-    xtensaPath: string;
-}
-
 export enum ProjectPathType {
     IDF_PATH = 0,
     MSYS32_PATH = 1,
@@ -143,42 +137,6 @@ export class Project {
         }
     }
 
-    private static jsonToValues(jsonString: string): ProjectPaths {
-        try {
-            // Parse string to Esp32PmProjectValues.
-            const values: ProjectPaths = JSON.parse(jsonString);
-
-            // If the idfPath is undefined, assign an empty string.
-            if (values.idfPath === undefined) {
-                values.idfPath = '';
-            }
-
-            // If the msys32Path path is undefined, assign an empty string.
-            if (values.msys32Path === undefined) {
-                values.msys32Path = '';
-            }
-
-            // If the xtensaPath path is undefined, assign an empty string.
-            if (values.xtensaPath === undefined) {
-                values.xtensaPath = '';
-            }
-
-            // Return the parsed values.
-            return values;
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    private static valuesToJsonString(value: ProjectPaths): string {
-        try {
-            // Convert Esp32PmProjectValues to string.
-            return JSON.stringify(value);
-        } catch (error) {
-            throw error;
-        }
-    }
-
     private static async isValidPath(path: string, projectPathType: ProjectPathType): Promise<boolean> {
         try {
             if (!await folderExists(path)) {
@@ -206,54 +164,6 @@ export class Project {
                 }
             }
             return true;
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    private static async setValues(values: ProjectPaths): Promise<void> {
-        try {
-            // Validate if the project is an Espressif one.
-            const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
-
-            // Write the values to the project values file.
-            await writeFile(
-                join(projectPath, Esp32PmProjectConsts.Paths.LocalConfigFile),
-                Project.valuesToJsonString(values)
-            );
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    private static async getValues(): Promise<ProjectPaths> {
-        try {
-            // Validate if the project is an Espressif one.
-            const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
-
-            // Get the project values.
-            const values: ProjectPaths = Project.jsonToValues(
-                (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.LocalConfigFile)))
-                    ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.LocalConfigFile)))
-                    : '{}'
-            );
-
-            // Filter existing folders only.
-            if (!await Project.isValidPath(values.idfPath, ProjectPathType.IDF_PATH)) {
-                values.idfPath = '';
-            }
-            if (!await Project.isValidPath(values.msys32Path, ProjectPathType.MSYS32_PATH)) {
-                values.msys32Path = '';
-            }
-            if (!await Project.isValidPath(values.xtensaPath, ProjectPathType.XTENSA_PATH)) {
-                values.xtensaPath = '';
-            }
-
-            // Update project values.
-            await Project.setValues(values);
-
-            // Return values.
-            return values;
         } catch (error) {
             throw error;
         }
@@ -305,28 +215,75 @@ export class Project {
             }
 
             // Register the selected value.
-            {        // Get the existing values.
-                const paths: ProjectPaths = await Project.getValues();
+            {
+                var oneLevelSettings: Array<[string, Array<string>]> = [];
+                var twoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [];
+
+                // Validate if the project is an Espressif one.
+                const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
+
+                // Read the 'c_cpp_properties.json' file.
+                let configContent = JSON.parse(
+                    (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+                        ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+                        : '{}'
+                );
 
                 // Add the passed value to the values of interest.
                 switch (pathType) {
                     case ProjectPathType.IDF_PATH: {
-                        paths.idfPath = selectedElementAbsolutePath;
+                        configContent['env']['IDF_PATH'] = selectedElementAbsolutePath;
+                        oneLevelSettings = IdfConsts.OneLevelSettings;
+                        twoLevelSettings = IdfConsts.TwoLevelSettings;
                         break;
                     }
                     case ProjectPathType.MSYS32_PATH: {
-                        paths.msys32Path = selectedElementAbsolutePath;
+                        configContent['env']['MSYS32_PATH'] = selectedElementAbsolutePath;
+                        oneLevelSettings = Msys32Consts.OneLevelSettings;
+                        twoLevelSettings = Msys32Consts.TwoLevelSettings;
                         break;
                     }
                     case ProjectPathType.XTENSA_PATH: {
-                        paths.xtensaPath = selectedElementAbsolutePath;
+                        configContent['env']['XTENSA_PATH'] = selectedElementAbsolutePath;
+                        oneLevelSettings = XtensaConsts.OneLevelSettings;
+                        twoLevelSettings = XtensaConsts.TwoLevelSettings;
                         break;
                     }
                 }
 
-                // Update the values stored in the extension values file.
-                await Project.setValues(paths);
+                // Update the 'settings.json' file.
+                await writeFile(
+                    join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile),
+                    JSON.stringify(configContent, undefined, '\t')
+                );
+
+                // Update config files.
+                {
+                    // Read the 'settings.json' file.
+                    let configContent = JSON.parse(
+                        (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
+                            ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
+                            : '{}'
+                    );
+
+                    // Replace the IDF_PATH value when needed.
+                    oneLevelSettings.forEach((field: [string, Array<string>]) => {
+                        configContent[field[0]] = field[1].join(selectedElementAbsolutePath);
+                    });
+                    twoLevelSettings.forEach((field: [string, Array<[string, Array<string>]>]) => {
+                        field[1].forEach((subfield: [string, Array<string>]) => {
+                            configContent[field[0]][subfield[0]] = subfield[1].join(selectedElementAbsolutePath);
+                        });
+                    });
+
+                    // Update the 'settings.json' file.
+                    await writeFile(
+                        join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile),
+                        JSON.stringify(configContent, undefined, '\t')
+                    );
+                }
             }
+
             // Notify the user.
             await vscode.window.showInformationMessage(pathLabel + ' path registered.');
         } catch (error) {

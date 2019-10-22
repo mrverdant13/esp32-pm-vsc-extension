@@ -1,7 +1,4 @@
 export namespace Paths {
-    // ESP32-PM project config file.
-    export const LocalConfigFile: string = '.vscode/local_esp32pm_config.json';
-
     // VSCode settings file.
     export const VscSettingsFile: string = '.vscode/settings.json';
 
@@ -13,7 +10,6 @@ export namespace Paths {
 
     // Characteristic files of an ESP32-PM project.
     export const Files: Array<string> = [
-        LocalConfigFile,
         VscSettingsFile,
         VscCCppPropsFile,
         MenuconfigBashFile,
