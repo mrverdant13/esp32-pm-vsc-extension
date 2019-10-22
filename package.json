@@ -30,7 +30,8 @@
 		"*"
 	],
 	"os": [
-		"win32"
+		"win32",
+		"linux"
 	],
 	"contributes": {
 		"commands": [
@@ -41,12 +42,12 @@
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Set Espressif Toolchain",
-				"command": "esp32-pm.set-toolchain"
+				"title": "Set 'msys32' folder path",
+				"command": "esp32-pm.set-msys32"
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Set ESP-IDF API",
+				"title": "Set ESP-IDF API folder",
 				"command": "esp32-pm.set-idf"
 			}
 		]

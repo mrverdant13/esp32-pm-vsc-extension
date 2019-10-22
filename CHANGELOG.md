@@ -17,8 +17,8 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Support for more than one entry point per application/sub-program.
 - VSC Settings for project creation and initialization.
 - C/C++ settings for project creation and initialization.
-- `ESP32-PM: Register ESP-IDF API` command for Windows.
-- `ESP32-PM: Register Espressif Toolchain` command for Windows.
+- `ESP32-PM: Register ESP-IDF API folder` command for Windows.
+- `ESP32-PM: Register 'msys32' folder` command for Windows.
 - `ESP32-PM: Create project` command for Windows.
 - `ESP32-PM: Initialize exisiting project` command for Windows.
 - `ESP32-PM: Menuconfig` command for Windows.

@@ -1,6 +1,7 @@
 // Extension supported OSs.
 export const SupportedOSs: Array<string> = [
     'win32',
+    'linux',
 ];
 
 export namespace Paths {
@@ -18,13 +19,13 @@ export namespace Replaceables {
     // Bounded constant string for the ESP-IDF API path.
     export const IdfPath: string = 'IDF_PATH';
 
-    // Bounded constant string for the Espressif Toolchain path.
-    export const ToolchainPath: string = 'TOOLCHAIN_PATH';
+    // Bounded constant string for the 'msys32' folder path.
+    export const Msys32Path: string = 'MSYS32_PATH';
 
     // Unbounded constant strings.
     export const UnboundedList: Array<string> = [
         IdfPath,
-        ToolchainPath,
+        Msys32Path,
     ];
 
     // Bounded constant strings generator.

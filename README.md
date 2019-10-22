@@ -9,7 +9,7 @@
 <!-- STEP4: Update version in the "version" field of the package.json file -->
 <!-- STEP5:  -->
 
-<!-- TODO: Add TOOLCHAIN_PATH and IDF_PATH existence checking for projects. -->
+<!-- TODO: Add MSYS32_PATH and IDF_PATH existence checking for projects. -->
 
 # ESP32 project manager for Visual Studio Code
 
@@ -66,8 +66,8 @@ The project structure is as follows:
 
 ### Commands
 
-- `ESP32-PM: Register ESP-IDF API` [**Windows**]: Register the path of a folder that contains an ESP-IDF API.
-- `ESP32-PM: Register Espressif Toolchain` [**Windows**]: Register the path of a folder that contains an Espressif Toolchain.
+- `ESP32-PM: Register ESP-IDF API folder` [**Windows**]: Register the path of a folder that contains an ESP-IDF API.
+- `ESP32-PM: Register 'msys32' folder` [**Windows**]: Register the path of a 'msys32' folder.
 - `ESP32-PM: Create project` [**Windows**]: Create a new ESP32 project.
 - `ESP32-PM: Initialize exisiting project` [**Windows**]: Initialize an existing ESP32 project.
 - `ESP32-PM: Menuconfig` [**Windows**]: Run the `make menuconfig` command, which shows the configuration interface for a ESP32 project.
@@ -87,7 +87,7 @@ The project structure is as follows:
 
 The following elements are required to be previously installed:
 
-1. The [Espressif Toolchain](https://dl.espressif.com/dl/esp32_win32_msys2_environment_and_toolchain-20190611.zip) (the 'msys32' folder) unzziped in a folder located in a path with no spaces.
+1. The [Espressif 'msys32' folder](https://dl.espressif.com/dl/esp32_win32_msys2_environment_and_toolchain-20190611.zip) (the 'msys32' folder) unzziped in a folder located in a path with no spaces.
 2. The ESP-IDF by cloning [its repository](https://github.com/espressif/esp-idf) recursively (git clone --recursive \<repo\>) in a folder located in a path with no spaces. You could use any version.
 
 ----------
@@ -97,8 +97,8 @@ The following elements are required to be previously installed:
 After meeting the requirements and installing this extension, you could follow the steps below:
 
 ### First of all:
-- Register a ESP-IDF folder with the `ESP32-PM: Register ESP-IDF API` command.
-- Register a Espressif Toolchain folder with the `ESP32-PM: Register Espressif Toolchain` command.
+- Register a ESP-IDF folder with the `ESP32-PM: Register ESP-IDF API folder` command.
+- Register a 'msys32' folder with the `ESP32-PM: Register 'msys32' folder` command.
 
 ### Create a new project:
 - Create a new project with the `ESP32-PM: Create project`.

@@ -33,7 +33,7 @@ import * as vscode from 'vscode';
 import * as Esp32PmProjectConsts from "../constants/esp32pm-project";
 import * as EspressifProjectConsts from "../constants/espressif-project";
 import * as IdfConsts from "../constants/idf";
-import * as ToolchainConsts from "../constants/toolchain";
+import * as Msys32Consts from "../constants/msys32";
 import {
     writeFile,
     fileExists,
@@ -44,12 +44,14 @@ import {
 
 export interface ProjectPaths {
     idfPath: string;
-    toolchainPath: string;
+    msys32Path: string;
+    xtensaPath: string;
 }
 
 export enum ProjectPathType {
     IDF_PATH = 0,
-    TOOLCHAIN_PATH = 1,
+    MSYS32_PATH = 1,
+    XTENSA_PATH = 1,
 }
 
 export enum ProjectValidationType {
@@ -150,9 +152,14 @@ export class Project {
                 values.idfPath = '';
             }
 
-            // If the toolchainPath is undefined, assign an empty string.
-            if (values.toolchainPath === undefined) {
-                values.toolchainPath = '';
+            // If the msys32Path path is undefined, assign an empty string.
+            if (values.msys32Path === undefined) {
+                values.msys32Path = '';
+            }
+
+            // If the xtensaPath path is undefined, assign an empty string.
+            if (values.xtensaPath === undefined) {
+                values.xtensaPath = '';
             }
 
             // Return the parsed values.
@@ -182,8 +189,8 @@ export class Project {
                     pathFolders = IdfConsts.Paths.Folders;
                     break;
                 }
-                case ProjectPathType.TOOLCHAIN_PATH: {
-                    pathFolders = ToolchainConsts.Paths.Folders;
+                case ProjectPathType.MSYS32_PATH: {
+                    pathFolders = Msys32Consts.Paths.Folders;
                     break;
                 }
                 default: {
@@ -233,8 +240,11 @@ export class Project {
             if (!await Project.isValidPath(values.idfPath, ProjectPathType.IDF_PATH)) {
                 values.idfPath = '';
             }
-            if (!await Project.isValidPath(values.toolchainPath, ProjectPathType.TOOLCHAIN_PATH)) {
-                values.toolchainPath = '';
+            if (!await Project.isValidPath(values.msys32Path, ProjectPathType.MSYS32_PATH)) {
+                values.msys32Path = '';
+            }
+            if (!await Project.isValidPath(values.xtensaPath, ProjectPathType.XTENSA_PATH)) {
+                values.xtensaPath = '';
             }
 
             // Update project values.
@@ -256,9 +266,9 @@ export class Project {
             // Set the label of the path to be registered.
             // Set the characteristic folders for the path type of interest.
             switch (pathType) {
-                case ProjectPathType.TOOLCHAIN_PATH: {
-                    pathLabel = "Espressif Toolchain";
-                    neededFolders = ToolchainConsts.Paths.Folders;
+                case ProjectPathType.MSYS32_PATH: {
+                    pathLabel = "'msys32'";
+                    neededFolders = Msys32Consts.Paths.Folders;
                     break;
                 }
                 case ProjectPathType.IDF_PATH: {
@@ -297,8 +307,12 @@ export class Project {
                         paths.idfPath = selectedElementAbsolutePath;
                         break;
                     }
-                    case ProjectPathType.TOOLCHAIN_PATH: {
-                        paths.toolchainPath = selectedElementAbsolutePath;
+                    case ProjectPathType.MSYS32_PATH: {
+                        paths.msys32Path = selectedElementAbsolutePath;
+                        break;
+                    }
+                    case ProjectPathType.XTENSA_PATH: {
+                        paths.xtensaPath = selectedElementAbsolutePath;
                         break;
                     }
                 }
