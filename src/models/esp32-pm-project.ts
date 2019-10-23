@@ -137,38 +137,6 @@ export class Project {
         }
     }
 
-    private static async isValidPath(path: string, projectPathType: ProjectPathType): Promise<boolean> {
-        try {
-            if (!await folderExists(path)) {
-                return false;
-            }
-            var pathFolders: Array<string> = [];
-            switch (projectPathType) {
-                case ProjectPathType.IDF_PATH: {
-                    pathFolders = IdfConsts.Paths.Folders;
-                    break;
-                }
-                case ProjectPathType.MSYS32_PATH: {
-                    pathFolders = Msys32Consts.Paths.Folders;
-                    break;
-                }
-                case ProjectPathType.XTENSA_PATH: {
-                    pathFolders = XtensaConsts.Paths.Folders;
-                    break;
-                }
-            }
-            for (let index = 0; index < pathFolders.length; index++) {
-                const pathFolder = pathFolders[index];
-                if (!await folderExists(join(path, pathFolder))) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (error) {
-            throw error;
-        }
-    }
-
     public static async setProjectResourcePath(pathType: ProjectPathType): Promise<void> {
         try {
             // Variables
