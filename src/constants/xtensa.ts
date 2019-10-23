@@ -48,4 +48,13 @@ export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> =
             ]
         ]
     ],
+    [
+        'terminal.integrated.env.linux',
+        [
+            [
+                'PATH',
+                ['', '/bin:${env:PATH}']
+            ]
+        ]
+    ],
 ];

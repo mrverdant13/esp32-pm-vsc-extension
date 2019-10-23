@@ -148,22 +148,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
 		try {
-			// Validate ESP32-PM project.
-			const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
-
-			var commands: Array<string> = [];
-			if (process.platform === 'win32') {
-				commands = [
-					'make defconfig',
-				];
-			}
+			// Validate Espressif project.
+			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
 
 			// Execute the shell commands related to the make defconfing command.
 			utils.executeShellCommands(
 				"Defconfig",
 				[
 					'echo -e "ESP32-PM: Applying default config values...\n"',
-					...commands,
+					'make defconfig',
 				]
 			);
 		} catch (error) {

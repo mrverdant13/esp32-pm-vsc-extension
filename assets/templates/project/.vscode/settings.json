@@ -9,7 +9,9 @@
         "--login"
     ],
     "terminal.integrated.env.linux": {
+        "CHERE_INVOKING": "1",
         "IDF_PATH": ":IDF_PATH:",
+        "PATH": ":XTENSA_PATH:/bin:${env:PATH}",
         "XTENSA_PATH": ":XTENSA_PATH:"
     },
     "C_Cpp.intelliSenseEngine": "Tag Parser",
