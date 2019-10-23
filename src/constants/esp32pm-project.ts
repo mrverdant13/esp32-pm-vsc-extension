@@ -6,7 +6,7 @@ export namespace Paths {
     export const VscCCppPropsFile: string = '.vscode/c_cpp_properties.json';
 
     // Menuconfig bash file.
-    export const MenuconfigBashFile: string = '.vscode/Menuconfig.sh';
+    const MenuconfigBashFile: string = '.vscode/Menuconfig.sh';
 
     // Characteristic files of an ESP32-PM project.
     export const Files: Array<string> = [
@@ -16,7 +16,7 @@ export namespace Paths {
     ];
 
     // Sub-projects folder.
-    export const SubprojectsFolder: string = 'main/src/';
+    const SubprojectsFolder: string = 'main/src/';
 
     // Characteristic folders of an ESP32-PM project.
     export const Folders: Array<string> = [
