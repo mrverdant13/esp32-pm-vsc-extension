@@ -14,6 +14,9 @@
         "PATH": ":XTENSA_PATH:/bin:${env:PATH}",
         "XTENSA_PATH": ":XTENSA_PATH:"
     },
+    "terminal.integrated.shellArgs.linux": [
+        "--login"
+    ],
     "C_Cpp.intelliSenseEngine": "Tag Parser",
     "files.associations": {
         "*.cpp": "cpp"
