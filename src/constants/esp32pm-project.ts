@@ -31,14 +31,10 @@ export namespace Paths {
     // VSCode C/C++ properties file.
     export const VscCCppPropsFile: string = '.vscode/c_cpp_properties.json';
 
-    // Menuconfig bash file.
-    const MenuconfigBashFile: string = '.vscode/Menuconfig.sh';
-
     // Characteristic files of an ESP32-PM project.
     export const Files: Array<string> = [
         VscSettingsFile,
         VscCCppPropsFile,
-        MenuconfigBashFile,
     ];
 
     // Sub-projects folder.

@@ -59,6 +59,11 @@
 				"category": "ESP32-PM",
 				"title": "Defconfig",
 				"command": "esp32-pm.defconfig"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Menuconfig",
+				"command": "esp32-pm.menuconfig"
 			}
 		]
 	},

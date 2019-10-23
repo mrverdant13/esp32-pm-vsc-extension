@@ -30,10 +30,8 @@ import {
 
 import * as vscode from 'vscode';
 
-import {
-	SupportedOSs,
-	Paths,
-} from './constants/extension-const';
+import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
+import * as ExtensionConsts from './constants/extension-const';
 import {
 	Project,
 	ProjectValidationType,
@@ -45,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Check if the OS is supported.
 	{
-		const isSupported: boolean = SupportedOSs.some((os) => {
+		const isSupported: boolean = ExtensionConsts.SupportedOSs.some((os) => {
 			return (process.platform === os);
 		});
 		if (!isSupported) {
@@ -80,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Copy the project template.
 			await utils.copyElement(
-				context.asAbsolutePath(Paths.ProjectTemplate),
+				context.asAbsolutePath(ExtensionConsts.Paths.ProjectTemplate),
 				newProjectPath,
 			);
 
@@ -159,6 +157,40 @@ export function activate(context: vscode.ExtensionContext) {
 				[
 					'echo -e "ESP32-PM: Applying default config values...\n"',
 					'make defconfig',
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.menuconfig', async () => {
+		try {
+			// Validate ESP32-PM project.
+			const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
+
+			var commands: Array<string> = [];
+			if (process.platform === 'win32') {
+				// Read the 'c_cpp_properties.json' file.
+				let configContent = JSON.parse(
+					(await utils.fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+						? (await utils.readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+						: ExtensionConsts.Paths.VscCCppPropsFile
+				);
+
+				commands = [
+					'set CHERE_INVOKING=1',
+					'start ' + configContent['env']['MSYS32_PATH'] + '/mingw32.exe make menuconfig',
+				];
+			}
+
+			// Execute the shell commands related to the make menuconfig command.
+			utils.executeShellCommands(
+				"Menuconfig",
+				[
+					'echo -e "ESP32-PM: Launching graphical config menu...\n"',
+					...commands
 				]
 			);
 		} catch (error) {
