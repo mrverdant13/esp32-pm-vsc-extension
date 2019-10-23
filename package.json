@@ -3,7 +3,7 @@
 	"name": "esp32-pm",
 	"displayName": "ESP32 project manager",
 	"description": "ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ESP32 applications.",
-	"icon": "assets/local-data/icon.png",
+	"icon": "assets/img/icon.png",
 	"version": "0.1.0",
 	"publisher": "mrverdant13",
 	"author": {
