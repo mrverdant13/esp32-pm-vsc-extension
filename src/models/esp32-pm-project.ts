@@ -32,6 +32,7 @@ import * as vscode from 'vscode';
 
 import * as Esp32PmProjectConsts from "../constants/esp32pm-project";
 import * as EspressifProjectConsts from "../constants/espressif-project";
+import * as ExtensionConsts from "../constants/extension-const";
 import * as IdfConsts from "../constants/idf";
 import * as Msys32Consts from "../constants/msys32";
 import * as XtensaConsts from "../constants/xtensa";
@@ -194,7 +195,7 @@ export class Project {
                 let configContent = JSON.parse(
                     (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
                         ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
-                        : '{}'
+                        : ExtensionConsts.Paths.VscCCppPropsFile
                 );
 
                 // Add the passed value to the values of interest.
@@ -231,7 +232,7 @@ export class Project {
                     let configContent = JSON.parse(
                         (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
                             ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
-                            : '{}'
+                            : ExtensionConsts.Paths.VscSettingsFile
                     );
 
                     // Replace the IDF_PATH value when needed.
