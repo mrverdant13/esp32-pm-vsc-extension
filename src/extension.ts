@@ -147,6 +147,25 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showErrorMessage(error.message);
 		}
 	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
+		try {
+			// Validate ESP32-PM project.
+			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
+
+			// Execute the shell commands related to the make defconfing command.
+			utils.executeShellCommands(
+				"Defconfig",
+				[
+					'echo -e "ESP32-PM: Applying default config values...\n"',
+					'make defconfig',
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
 }
 
 export function deactivate() { }

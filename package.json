@@ -54,6 +54,11 @@
 				"category": "ESP32-PM",
 				"title": "Set 'xtensa-esp32-elf' folder path",
 				"command": "esp32-pm.set-xtensa"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Defconfig",
+				"command": "esp32-pm.defconfig"
 			}
 		]
 	},
