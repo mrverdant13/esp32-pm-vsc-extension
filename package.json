@@ -74,6 +74,16 @@
 				"category": "ESP32-PM",
 				"title": "Flash",
 				"command": "esp32-pm.flash"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Monitor",
+				"command": "esp32-pm.monitor"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Flash & Monitor",
+				"command": "esp32-pm.flash-monitor"
 			}
 		]
 	},

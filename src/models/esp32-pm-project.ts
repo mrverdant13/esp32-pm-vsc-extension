@@ -251,7 +251,6 @@ export class Project {
                         JSON.stringify(configContent, undefined, '\t')
                     );
 
-                    // Launch the new project according to the user election.
                     await vscode.commands.executeCommand('workbench.action.reloadWindow');
                 }
             }

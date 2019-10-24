@@ -265,7 +265,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
+	vscode.commands.registerCommand('esp32-pm.serial-action', async (serialActionType: ExtensionConsts.SerialActionType) => {
 		try {
 			// Validate Espressif project.
 			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
@@ -279,14 +279,34 @@ export function activate(context: vscode.ExtensionContext) {
 			utils.executeShellCommands(
 				"Build",
 				[
-					'echo -e "ESP32-PM: Flashing project...\n"',
-					'make flash ESPPORT=' + selectedSerialPort,
+					'echo -e "ESP32-PM: ' +
+					(serialActionType === ExtensionConsts.SerialActionType.Flash ? 'Flashing' :
+						(serialActionType === ExtensionConsts.SerialActionType.Monitor ? 'Monitoring' :
+							'Flashing and monitoring')) +
+					' project...\n"',
+					'make ' +
+					(serialActionType === ExtensionConsts.SerialActionType.Flash ? 'flash' :
+						(serialActionType === ExtensionConsts.SerialActionType.Monitor ? 'monitor' :
+							'flash monitor')) +
+					' ESPPORT=' + selectedSerialPort,
 				]
 			);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
 		}
+	});
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
+		await vscode.commands.executeCommand('esp32-pm.serial-action', ExtensionConsts.SerialActionType.Flash);
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
+		await vscode.commands.executeCommand('esp32-pm.serial-action', ExtensionConsts.SerialActionType.Monitor);
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash-monitor', async () => {
+		await vscode.commands.executeCommand('esp32-pm.serial-action', ExtensionConsts.SerialActionType.FlashAndMonitor);
 	}));
 }
 

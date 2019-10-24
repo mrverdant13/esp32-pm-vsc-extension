@@ -30,6 +30,12 @@ export const SupportedOSs: Array<string> = [
     'linux',
 ];
 
+export enum SerialActionType {
+    Flash = 0,
+    Monitor = 1,
+    FlashAndMonitor = 2,
+}
+
 export namespace Paths {
     // VSCode settings template file.
     export const ProjectTemplate: string = 'assets/templates/project/';

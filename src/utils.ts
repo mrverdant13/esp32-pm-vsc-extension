@@ -259,7 +259,7 @@ export async function getSerialPorts(context: vscode.ExtensionContext): Promise<
                 'echo -e "ESP32-PM: Generating serial ports list...\n"',
                 'export serialPortsFile="' + serialPortsFile + '"',
                 'export platform="' + process.platform + '"',
-                'bash ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateComList.sh',
+                'bash ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateSerialPortsList.sh',
             ]
         );
 
