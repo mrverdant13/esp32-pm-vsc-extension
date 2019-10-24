@@ -69,6 +69,11 @@
 				"category": "ESP32-PM",
 				"title": "Build",
 				"command": "esp32-pm.build"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Flash",
+				"command": "esp32-pm.flash"
 			}
 		]
 	},

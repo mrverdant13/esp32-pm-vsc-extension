@@ -264,6 +264,30 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showErrorMessage(error.message);
 		}
 	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
+		try {
+			// Validate Espressif project.
+			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
+
+			const selectedSerialPort: string = await utils.pickElement(
+				await utils.getSerialPorts(context),
+				'Serial port to be used.',
+				'No serial port selected.'
+			);
+
+			utils.executeShellCommands(
+				"Build",
+				[
+					'echo -e "ESP32-PM: Flashing project...\n"',
+					'make flash ESPPORT=' + selectedSerialPort,
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
 }
 
 export function deactivate() { }
