@@ -183,8 +183,8 @@ export function activate(context: vscode.ExtensionContext) {
 					'set CHERE_INVOKING=1',
 					'start ' + configContent['env']['MSYS32_PATH'] + '/mingw32.exe make menuconfig',
 				];
-			}else if (process.platform==='linux'){
-				commands =[
+			} else if (process.platform === 'linux') {
+				commands = [
 					'command -v gnome-terminal >/dev/null 2>&1 || { apt install gnome-terminal; }',
 					'gnome-terminal -- make menuconfig',
 				];
@@ -196,6 +196,67 @@ export function activate(context: vscode.ExtensionContext) {
 				[
 					'echo -e "ESP32-PM: Launching graphical config menu...\n"',
 					...commands
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build', async () => {
+		try {
+			// Validate ESP32-PM project.
+			const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
+
+			const activeFileAbsolutePath: string = utils.getActiveFile();
+
+			if (!activeFileAbsolutePath.includes(Esp32PmProjectConsts.Paths.SubprojectsFolder)) {
+				throw Error('The active file is not contained in the sub-projects folder.');
+			}
+
+			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(Esp32PmProjectConsts.Paths.SubprojectsFolder) + Esp32PmProjectConsts.Paths.SubprojectsFolder.length);
+
+			const isEntryPointCandidate: boolean = Esp32PmProjectConsts.EntryPoint.Extensions.some((extension) => {
+				return entryPointRelativePath.endsWith(extension);
+			});
+
+			if (!isEntryPointCandidate) {
+				throw Error('The active file is not a C/C++ file.');
+			}
+
+			// Construct the final main file content.
+			const mainFileContent: Array<string> = [
+				'#include "src/' + entryPointRelativePath + '"',
+				'extern "C"',
+				'{',
+				'\tvoid app_main();',
+				'}'
+			];
+
+			// Write the final content to the main file.
+			await vscode.workspace.fs.writeFile(
+				vscode.Uri.file(join(projectPath, 'main/main.cpp')),
+				Buffer.from(mainFileContent.join('\n'))
+			);
+
+			// Construct the final main pseudo-component make file.
+			const mainComponentFileContent: Array<string> = [
+				'include $(PROJECT_PATH)/' + Esp32PmProjectConsts.Paths.SubprojectsFolder + entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/', entryPointRelativePath.indexOf('/'))) + '/component.mk',
+			];
+
+			// Write the final content to the main component make file.
+			await vscode.workspace.fs.writeFile(
+				vscode.Uri.file(join(projectPath, 'main/component.mk')),
+				Buffer.from(mainComponentFileContent.join('\n'))
+			);
+
+			// Execute the shell commands related to the make all command using the selected sub-project and entry point.
+			utils.executeShellCommands(
+				"Build",
+				[
+					'echo -e "ESP32-PM: Building sub-project...\n"',
+					'make -j all',
 				]
 			);
 		} catch (error) {

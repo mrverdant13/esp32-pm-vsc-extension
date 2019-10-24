@@ -38,10 +38,19 @@ export namespace Paths {
     ];
 
     // Sub-projects folder.
-    const SubprojectsFolder: string = 'main/src/';
+    export const SubprojectsFolder: string = 'main/src/';
 
     // Characteristic folders of an ESP32-PM project.
     export const Folders: Array<string> = [
         SubprojectsFolder,
+    ];
+}
+
+export namespace EntryPoint {
+    export const Suffix: string = 'main';
+
+    export const Extensions: Array<string> = [
+        '.c',
+        '.cpp',
     ];
 }

@@ -79,6 +79,17 @@ export async function pickFolder(prompt: string, errorMessage: string): Promise<
     }
 }
 
+export function getActiveFile(): string {
+    try {
+        if (vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.document.isClosed || vscode.window.activeTextEditor.document.isUntitled) {
+            throw Error('There is no active file.');
+        }
+        return vscode.window.activeTextEditor.document.fileName;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export async function introduceString(prompt: string, errorMessage: string) {
     try {
         // Show a custom text input.
