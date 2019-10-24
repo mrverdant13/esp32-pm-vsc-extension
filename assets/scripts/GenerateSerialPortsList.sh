@@ -22,17 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-rm -f "build/$comPortsFile"
+touch "build/$serialPortsFile"
 
-touch "build/$comPortsFile"
+if [ "$platform" == "win32" ]; then
+    serialPortsLines=$(cmd.exe /c mode)
+    for serialPortLine in $serialPortsLines ; do
+        if [[ $serialPortLine == *"COM"* ]]; then
+            echo -e "${serialPortLine%:*}" >> "build/$serialPortsFile"
+        fi
+    done
+elif [ "$platform" == "linux" ]; then
+    serialPortsLines=$(ls /sys/class/tty/ttyUSB*)
+    for serialPortLine in $serialPortsLines ; do
+        if [[ $serialPortLine == *"tty"* ]]; then
+            serialPortLine=${serialPortLine##*/}
+            echo -e "/dev/${serialPortLine%:*}" >> "build/$serialPortsFile"
+        fi
+    done
+fi
 
-line=$(cmd.exe /c mode)
-for comLine in $line ; do
-    if [[ $comLine == *"COM"* ]]; then
-        echo -e "${comLine%:*}" >> "build/$comPortsFile"
-    fi
-done
-
-cat "build/$comPortsFile" > "build/$comPortsFile.txt"
+cat "build/$serialPortsFile" > "build/$serialPortsFile.txt"
 sleep 1
-rm -f "build/$comPortsFile"
+rm -f "build/$serialPortsFile"
