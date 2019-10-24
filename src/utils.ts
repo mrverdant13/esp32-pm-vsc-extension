@@ -32,6 +32,10 @@ import {
     readdirSync,
     lstatSync,
 } from 'fs';
+import {
+    Project,
+    ProjectValidationType,
+} from './models/esp32-pm-project';
 
 export function delay(ms: number) {
     // Create a promise with specific duration.
@@ -183,7 +187,7 @@ export async function filterExistingFolders(folders: Array<string>): Promise<Arr
 }
 
 export async function readFile(filePath: string): Promise<string> {
-    return (await vscode.workspace.fs.readFile(vscode.Uri.file(filePath))).toString();
+    return (await vscode.workspace.fs.readFile(vscode.Uri.file(filePath))).toString().trim();
 }
 
 export async function writeFile(filePath: string, content: string): Promise<void> {
@@ -239,6 +243,56 @@ export function executeShellCommands(name: string, commandLines: Array<string>):
 
         // Execute the task.
         vscode.tasks.executeTask(task);
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function getSerialPorts(context: vscode.ExtensionContext): Promise<Array<string>> {
+    try {
+        const serialPortsFile: string = "serialPortsFile";
+
+        // Execute the Windows commands to list the available COM ports.
+        executeShellCommands(
+            'Generate serial ports',
+            [
+                'echo -e "ESP32-PM: Generating serial ports list...\n"',
+                'export serialPortsFile="' + serialPortsFile + '"',
+                'export platform="' + process.platform + '"',
+                'bash ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateComList.sh',
+            ]
+        );
+
+        // Create a watcher for the serial ports file deletion.
+        const fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher('**/build/' + serialPortsFile, true, true, false);
+        var serialPorts: Array<string> = [];
+        var serialPortsChecked: boolean = false;
+
+        // When the serial ports file is deleted, get the found serial ports.
+        fsw.onDidDelete(
+            async () => {
+                const fileContent = (await readFile(join(await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ), "build", serialPortsFile + ".txt")));
+                if (fileContent.length > 0) {
+                    serialPorts = fileContent.split("\n");
+                }
+                serialPortsChecked = true;
+            }
+        );
+
+        // Wait until all serial ports are checked.
+        while (!serialPortsChecked) {
+            await delay(100);
+        }
+
+        // Delete the watcher.
+        fsw.dispose();
+
+        if (serialPorts.length === 0) {
+            throw Error('No serial port available.');
+        }
+
+        // Return the found serial ports.
+        return serialPorts;
     } catch (error) {
         throw error;
     }
