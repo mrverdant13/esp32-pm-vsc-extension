@@ -183,6 +183,11 @@ export function activate(context: vscode.ExtensionContext) {
 					'set CHERE_INVOKING=1',
 					'start ' + configContent['env']['MSYS32_PATH'] + '/mingw32.exe make menuconfig',
 				];
+			}else if (process.platform==='linux'){
+				commands =[
+					'command -v gnome-terminal >/dev/null 2>&1 || { apt install gnome-terminal; }',
+					'gnome-terminal -- make menuconfig',
+				];
 			}
 
 			// Execute the shell commands related to the make menuconfig command.
