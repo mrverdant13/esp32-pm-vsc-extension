@@ -138,7 +138,7 @@ export class Project {
         }
     }
 
-    public static async setProjectResourcePath(pathType: ProjectPathType): Promise<void> {
+    public static async setProjectResourcePath(context: vscode.ExtensionContext, pathType: ProjectPathType): Promise<void> {
         try {
             // Variables
             var pathLabel: string = '';
@@ -195,7 +195,7 @@ export class Project {
                 let configContent = JSON.parse(
                     (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
                         ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
-                        : ExtensionConsts.Paths.VscCCppPropsFile
+                        : (await readFile(context.asAbsolutePath(ExtensionConsts.Paths.VscCCppPropsFile)))
                 );
 
                 // Add the passed value to the values of interest.
@@ -232,7 +232,7 @@ export class Project {
                     let configContent = JSON.parse(
                         (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
                             ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
-                            : ExtensionConsts.Paths.VscSettingsFile
+                            : (await readFile(context.asAbsolutePath(ExtensionConsts.Paths.VscSettingsFile)))
                     );
 
                     // Replace the IDF_PATH value when needed.
@@ -250,6 +250,9 @@ export class Project {
                         join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile),
                         JSON.stringify(configContent, undefined, '\t')
                     );
+
+                    // Launch the new project according to the user election.
+                    await vscode.commands.executeCommand('workbench.action.reloadWindow');
                 }
             }
 

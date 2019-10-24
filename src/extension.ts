@@ -108,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the 'msys32' folder to be used with the project.
-			await Project.setProjectResourcePath(ProjectPathType.MSYS32_PATH);
+			await Project.setProjectResourcePath(context, ProjectPathType.MSYS32_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the 'msys32' folder to be used with the project.
-			await Project.setProjectResourcePath(ProjectPathType.XTENSA_PATH);
+			await Project.setProjectResourcePath(context, ProjectPathType.XTENSA_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -139,7 +139,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the ESP-IDF API folder to be used with the project.
-			await Project.setProjectResourcePath(ProjectPathType.IDF_PATH);
+			await Project.setProjectResourcePath(context, ProjectPathType.IDF_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
