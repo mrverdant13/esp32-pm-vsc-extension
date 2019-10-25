@@ -113,7 +113,7 @@ After meeting the requirements and installing this extension, you could follow t
 - For **Windows**, set the 'msys32' folder with the `ESP32-PM: Set 'msys32' folder` command.
 - For **Linux**, set the 'xtensa-esp32-elf' folder with the `ESP32-PM: Set 'xtensa-esp32-elf' folder` command.
 
-### Build, flash, monitor and clean regular `make` commands:
+### 3. Build, flash, monitor and clean regular `make` commands:
 These commands are often used with ESP32 projects based on GNU Make. They can be used with their corresponding extension command as long as the current workspace is an ESP32-PM project.
 
 ----------
