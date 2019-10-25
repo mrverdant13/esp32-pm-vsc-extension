@@ -37,7 +37,7 @@ import {
     ProjectValidationType,
 } from './models/esp32-pm-project';
 
-export function delay(ms: number) {
+export function delay(ms: number): Promise<unknown> {
     // Create a promise with specific duration.
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -77,7 +77,7 @@ export async function pickFolder(prompt: string, errorMessage: string): Promise<
         }
 
         // Return the selected folder.
-        return selectedFolder[0].fsPath;
+        return join(selectedFolder[0].fsPath);
     } catch (error) {
         throw error;
     }
@@ -88,7 +88,7 @@ export function getActiveFile(): string {
         if (vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.document.isClosed || vscode.window.activeTextEditor.document.isUntitled) {
             throw Error('There is no active file.');
         }
-        return vscode.window.activeTextEditor.document.fileName;
+        return join(vscode.window.activeTextEditor.document.fileName);
     } catch (error) {
         throw error;
     }
@@ -147,7 +147,7 @@ export function getFolders(path: string): Array<string> {
         // Get the elements inside the passed folder and filter the directories.
         return readdirSync(path).filter((element) => {
             if (lstatSync(join(path, element)).isDirectory()) {
-                return element;
+                return join(element);
             }
         });
     } catch (error) {
@@ -160,7 +160,7 @@ export function getFiles(path: string): Array<string> {
         // Get the elements inside the passed folder and filter the files.
         return readdirSync(path).filter((element) => {
             if (lstatSync(join(path, element)).isFile()) {
-                return element;
+                return join(element);
             }
         });
     } catch (error) {
@@ -175,7 +175,7 @@ export async function filterExistingFolders(folders: Array<string>): Promise<Arr
         // Check if each of the passed folders exist and, if so, append them to a final array.
         for (var index: number = 0; index < folders.length; index++) {
             if (await folderExists(folders[index])) {
-                existingPaths.push(folders[index]);
+                existingPaths.push(join(folders[index]));
             }
         }
 
@@ -250,7 +250,7 @@ export function executeShellCommands(name: string, commandLines: Array<string>):
 
 export async function getSerialPorts(context: vscode.ExtensionContext): Promise<Array<string>> {
     try {
-        const serialPortsFile: string = "serialPortsFile";
+        const serialPortsFile: string = join("build/serialPortsFile");
 
         // Execute the Windows commands to list the available COM ports.
         executeShellCommands(
@@ -259,19 +259,19 @@ export async function getSerialPorts(context: vscode.ExtensionContext): Promise<
                 'echo -e "ESP32-PM: Generating serial ports list...\n"',
                 'export serialPortsFile="' + serialPortsFile + '"',
                 'export platform="' + process.platform + '"',
-                'bash ' + context.extensionPath.replace(/\\/gi, '/') + '/assets/scripts/GenerateSerialPortsList.sh',
+                'bash ' + join(context.extensionPath, 'assets/scripts/GenerateSerialPortsList.sh'),
             ]
         );
 
         // Create a watcher for the serial ports file deletion.
-        const fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher('**/build/' + serialPortsFile, true, true, false);
+        const fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(join('**', serialPortsFile), true, true, false);
         var serialPorts: Array<string> = [];
         var serialPortsChecked: boolean = false;
 
         // When the serial ports file is deleted, get the found serial ports.
         fsw.onDidDelete(
             async () => {
-                const fileContent = (await readFile(join(await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ), "build", serialPortsFile + ".txt")));
+                const fileContent = (await readFile(join(await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ), serialPortsFile + ".txt")));
                 if (fileContent.length > 0) {
                     serialPorts = fileContent.split("\n");
                 }

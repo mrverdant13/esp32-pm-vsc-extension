@@ -227,7 +227,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main file content.
 			const mainFileContent: Array<string> = [
-				'#include "src/' + entryPointRelativePath + '"',
+				'#include "' + join('src', entryPointRelativePath).replace(/\\/gi, '/') + '"',
 				'extern "C"',
 				'{',
 				'\tvoid app_main();',
@@ -242,7 +242,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main pseudo-component make file.
 			const mainComponentFileContent: Array<string> = [
-				'include $(PROJECT_PATH)/' + Esp32PmProjectConsts.Paths.SubprojectsFolder + entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/', entryPointRelativePath.indexOf('/'))) + '/component.mk',
+				'include $(PROJECT_PATH)/' + join(Esp32PmProjectConsts.Paths.SubprojectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/', entryPointRelativePath.indexOf('/'))), 'component.mk').replace(/\\/gi, '/'),
 			];
 
 			// Write the final content to the main component make file.
