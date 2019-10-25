@@ -22,25 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-touch "build/$serialPortsFile"
+touch "$serialPortsFile"
 
 if [ "$platform" == "win32" ]; then
     serialPortsLines=$(cmd.exe /c mode)
     for serialPortLine in $serialPortsLines ; do
         if [[ $serialPortLine == *"COM"* ]]; then
-            echo -e "${serialPortLine%:*}" >> "build/$serialPortsFile"
+            echo -e "${serialPortLine%:*}" >> "$serialPortsFile"
         fi
     done
 elif [ "$platform" == "linux" ]; then
-    serialPortsLines=$(ls /sys/class/tty/ttyUSB*)
+    serialPortsLines=$(ls -l /sys/class/tty/ttyUSB*)
     for serialPortLine in $serialPortsLines ; do
         if [[ $serialPortLine == *"tty"* ]]; then
             serialPortLine=${serialPortLine##*/}
-            echo -e "/dev/${serialPortLine%:*}" >> "build/$serialPortsFile"
+            echo -e "/dev/${serialPortLine%:*}" >> "$serialPortsFile"
         fi
     done
 fi
 
-cat "build/$serialPortsFile" > "build/$serialPortsFile.txt"
+cat "$serialPortsFile" > "$serialPortsFile.txt"
 sleep 1
-rm -f "build/$serialPortsFile"
+rm -f "$serialPortsFile"

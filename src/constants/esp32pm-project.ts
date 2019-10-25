@@ -28,6 +28,8 @@ import {
     join,
 } from "path";
 
+export const SubprojectsFolderName: string = 'src';
+
 export namespace Paths {
     // VSCode settings file.
     export const VscSettingsFile: string = join('.vscode/settings.json');
@@ -42,7 +44,7 @@ export namespace Paths {
     ];
 
     // Sub-projects folder.
-    export const SubprojectsFolder: string = join('main/src');
+    export const SubprojectsFolder: string = join('main', SubprojectsFolderName);
 
     // Characteristic folders of an ESP32-PM project.
     export const Folders: Array<string> = [

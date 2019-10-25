@@ -211,11 +211,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 			const activeFileAbsolutePath: string = utils.getActiveFile();
 
-			if (!activeFileAbsolutePath.includes(Esp32PmProjectConsts.Paths.SubprojectsFolder)) {
+			if (!activeFileAbsolutePath.includes(Esp32PmProjectConsts.SubprojectsFolderName)) {
 				throw Error('The active file is not contained in the sub-projects folder.');
 			}
 
-			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(Esp32PmProjectConsts.Paths.SubprojectsFolder) + Esp32PmProjectConsts.Paths.SubprojectsFolder.length);
+			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(Esp32PmProjectConsts.SubprojectsFolderName) + Esp32PmProjectConsts.SubprojectsFolderName.length + 1);
 
 			const isEntryPointCandidate: boolean = Esp32PmProjectConsts.EntryPoint.Extensions.some((extension) => {
 				return entryPointRelativePath.endsWith(extension);
@@ -227,7 +227,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main file content.
 			const mainFileContent: Array<string> = [
-				'#include "' + join('src', entryPointRelativePath).replace(/\\/gi, '/') + '"',
+				'#include "' + join(Esp32PmProjectConsts.SubprojectsFolderName, entryPointRelativePath).replace(/\\/gi, '/') + '"',
 				'extern "C"',
 				'{',
 				'\tvoid app_main();',
@@ -242,7 +242,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main pseudo-component make file.
 			const mainComponentFileContent: Array<string> = [
-				'include $(PROJECT_PATH)/' + join(Esp32PmProjectConsts.Paths.SubprojectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/', entryPointRelativePath.indexOf('/'))), 'component.mk').replace(/\\/gi, '/'),
+				'include $(PROJECT_PATH)/' + join(Esp32PmProjectConsts.Paths.SubprojectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk').replace(/\\/gi, '/'),
 			];
 
 			// Write the final content to the main component make file.
