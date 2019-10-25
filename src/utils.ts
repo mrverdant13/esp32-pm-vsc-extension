@@ -259,21 +259,21 @@ export async function getSerialPorts(context: vscode.ExtensionContext): Promise<
                 'echo -e "ESP32-PM: Generating serial ports list...\n"',
                 'export serialPortsFile="' + serialPortsFile + '"',
                 'export platform="' + process.platform + '"',
-                'bash ' + join(context.extensionPath, 'assets/scripts/GenerateSerialPortsList.sh'),
+                'bash ' + context.asAbsolutePath('assets/scripts/GenerateSerialPortsList.sh'),
             ]
         );
 
         // Create a watcher for the serial ports file deletion.
         const fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(join('**', serialPortsFile), true, true, false);
-        var serialPorts: Array<string> = [];
+        var serialPorts: Set<string> = new Set();
         var serialPortsChecked: boolean = false;
 
         // When the serial ports file is deleted, get the found serial ports.
         fsw.onDidDelete(
             async () => {
-                const fileContent = (await readFile(join(await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ), serialPortsFile + ".txt")));
+                const fileContent = (await readFile(join((await Project.getWorkspacePath(ProjectValidationType.ESP32PM_PROJ)), serialPortsFile + ".txt")));
                 if (fileContent.length > 0) {
-                    serialPorts = fileContent.split("\n");
+                    serialPorts = new Set(fileContent.split("\n"));
                 }
                 serialPortsChecked = true;
             }
@@ -287,12 +287,12 @@ export async function getSerialPorts(context: vscode.ExtensionContext): Promise<
         // Delete the watcher.
         fsw.dispose();
 
-        if (serialPorts.length === 0) {
+        if (serialPorts.size === 0) {
             throw Error('No serial port available.');
         }
 
         // Return the found serial ports.
-        return serialPorts;
+        return [...serialPorts];
     } catch (error) {
         throw error;
     }
