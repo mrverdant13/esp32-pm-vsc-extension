@@ -9,7 +9,7 @@
 <!-- STEP4: Update version in the "version" field of the package.json file -->
 
 <!-- TODO: Add MSYS32_PATH and IDF_PATH existence checking for projects. -->
-<!-- TODO: Add a 'make clean' command execution command. -->
+<!-- TODO: Add a 'make clean' related command. -->
 
 # ESP32 project manager for Visual Studio Code
 
