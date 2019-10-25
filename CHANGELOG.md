@@ -15,17 +15,15 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Standard project structure for the use of this extension.
 - Support for more than one application/sub-program.
 - Support for more than one entry point per application/sub-program.
-- VSC Settings for project creation and initialization.
-- C/C++ settings for project creation and initialization.
-- `ESP32-PM: Register ESP-IDF API folder` command for Windows.
-- `ESP32-PM: Register 'msys32' folder` command for Windows.
-- `ESP32-PM: Create project` command for Windows.
-- `ESP32-PM: Initialize exisiting project` command for Windows.
-- `ESP32-PM: Menuconfig` command for Windows.
-- `ESP32-PM: Defconfig` command for Windows.
-- `ESP32-PM: Build sub-project` command for Windows.
-- `ESP32-PM: Flash` command for Windows.
-- `ESP32-PM: Monitor` command for Windows.
-- `ESP32-PM: Flash & Monitor` command for Windows.
-- `ESP32-PM: Clean` command for Windows.
-- `ESP32-PM: Remove auto-generated files` command for Windows.
+- VSC project settings for project creation.
+- VSC project C/C++ settings for project creation.
+- `ESP32-PM: Create project` command for Windows and Linux.
+- `ESP32-PM: Set ESP-IDF API folder` command for Windows and Linux.
+- `ESP32-PM: Set 'msys32' folder` command for Windows.
+- `ESP32-PM: Set 'xtensa-esp32-elf' folder` command for Linux.
+- `ESP32-PM: Defconfig` command for Windows and Linux.
+- `ESP32-PM: Menuconfig` command for Windows and Linux.
+- `ESP32-PM: Build` command for Windows and Linux.
+- `ESP32-PM: Flash` command for Windows and Linux.
+- `ESP32-PM: Monitor` command for Windows and Linux.
+- `ESP32-PM: Flash & Monitor` command for Windows and Linux.

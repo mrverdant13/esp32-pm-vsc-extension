@@ -8,7 +8,7 @@
 	"publisher": "mrverdant13",
 	"author": {
 		"name": "Karlo Verde",
-		"url": "https://www.linkedin.com/in/karlo-verde"
+		"url": "https://www.linkedin.com/in/mrverdant13"
 	},
 	"repository": {
 		"type": "git",
@@ -47,12 +47,12 @@
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Set 'msys32' folder path",
+				"title": "Set 'msys32' folder",
 				"command": "esp32-pm.set-msys32"
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Set 'xtensa-esp32-elf' folder path",
+				"title": "Set 'xtensa-esp32-elf' folder",
 				"command": "esp32-pm.set-xtensa"
 			},
 			{
