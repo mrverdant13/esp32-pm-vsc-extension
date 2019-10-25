@@ -27,12 +27,14 @@ SOFTWARE.
 import * as joiner from "../joiner";
 
 export namespace Paths {
+    // Characteristic folders.
     export const Folders: Array<string> = [
         joiner.joinPaths('home'),
         joiner.joinPaths('etc/profile.d'),
     ];
 }
 
+// One level settings usage.
 export const OneLevelSettings: Array<[string, Array<string>]> = [
     [
         'terminal.integrated.shell.windows',
@@ -40,5 +42,6 @@ export const OneLevelSettings: Array<[string, Array<string>]> = [
     ],
 ];
 
+// Two level settings usage.
 export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
 ];

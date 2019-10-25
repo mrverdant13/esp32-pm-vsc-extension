@@ -27,15 +27,18 @@ SOFTWARE.
 import * as joiner from "../joiner";
 
 export namespace Paths {
+    // Characteristic folders.
     export const Folders: Array<string> = [
         joiner.joinPaths('components'),
         joiner.joinPaths('examples'),
     ];
 }
 
+// One level settings usage.
 export const OneLevelSettings: Array<[string, Array<string>]> = [
 ];
 
+// Two level settings usage.
 export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
     [
         'terminal.integrated.env.windows',

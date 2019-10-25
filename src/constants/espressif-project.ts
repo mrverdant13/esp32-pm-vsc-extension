@@ -30,15 +30,15 @@ export namespace Paths {
     // Project Makefile.
     const MakefileFile: string = joiner.joinPaths('Makefile');
 
-    // Characteristic files of an Espressif project.
+    // Characteristic files.
     export const Files: Array<string> = [
         MakefileFile,
     ];
 
-    // Project Makefile.
+    // Project source files container folder.
     const MainFolder: string = joiner.joinPaths('main');
 
-    // Characteristic folders of an Espressif project.
+    // Characteristic folders.
     export const Folders: Array<string> = [
         MainFolder,
     ];

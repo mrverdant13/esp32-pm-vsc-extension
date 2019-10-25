@@ -43,12 +43,14 @@ import {
     joinPaths,
 } from "../joiner";
 
+// Project path type.
 export enum ProjectPathType {
     IDF_PATH = 0,
     MSYS32_PATH = 1,
     XTENSA_PATH = 2,
 }
 
+// Project validation type.
 export enum ProjectValidationType {
     NONE = 0,
     ESP32PM_PROJ = 1,
@@ -167,12 +169,11 @@ export class Project {
             const selectedElementAbsolutePath: string = (await pickFolder(
                 "Select a " + pathLabel + " folder",
                 pathLabel + " folder not selected")
-            ).replace(/\\/gi, '/');
+            );
 
             // Check if the folder is valid.
             for (let index = 0; index < neededFolders.length; index++) {
-                const neededFolder = neededFolders[index];
-                if (!await folderExists(joinPaths(selectedElementAbsolutePath, neededFolder))) {
+                if (!await folderExists(joinPaths(selectedElementAbsolutePath, neededFolders[index]))) {
                     throw Error("Invalid " + pathLabel + " folder.");
                 }
             }
@@ -182,12 +183,12 @@ export class Project {
                 throw Error("The " + pathLabel + " path should not include spaces.");
             }
 
-            // Register the selected value.
+            // Set the folder for the project.
             {
                 var oneLevelSettings: Array<[string, Array<string>]> = [];
                 var twoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [];
 
-                // Validate if the project is an Espressif one.
+                // Get the project path.
                 const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
 
                 // Read the 'c_cpp_properties.json' file.
@@ -197,7 +198,7 @@ export class Project {
                         : (await readFile(context.asAbsolutePath(ExtensionConsts.Paths.VscCCppPropsFile)))
                 );
 
-                // Add the passed value to the values of interest.
+                // Set usage paths.
                 switch (pathType) {
                     case ProjectPathType.IDF_PATH: {
                         configContent['env']['IDF_PATH'] = selectedElementAbsolutePath;
@@ -219,7 +220,7 @@ export class Project {
                     }
                 }
 
-                // Update the 'settings.json' file.
+                // Update the 'c_cpp_properties.json' file.
                 await writeFile(
                     joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile),
                     JSON.stringify(configContent, undefined, '\t')
@@ -234,7 +235,7 @@ export class Project {
                             : (await readFile(context.asAbsolutePath(ExtensionConsts.Paths.VscSettingsFile)))
                     );
 
-                    // Replace the IDF_PATH value when needed.
+                    // Set the necessary paths.
                     oneLevelSettings.forEach((field: [string, Array<string>]) => {
                         configContent[field[0]] = field[1].join(selectedElementAbsolutePath);
                     });
@@ -250,12 +251,11 @@ export class Project {
                         JSON.stringify(configContent, undefined, '\t')
                     );
 
-                    await vscode.commands.executeCommand('workbench.action.reloadWindow');
                 }
             }
-
-            // Notify the user.
-            await vscode.window.showInformationMessage(pathLabel + ' path registered.');
+            
+            // Reload window.
+            await vscode.commands.executeCommand('workbench.action.reloadWindow');
         } catch (error) {
             throw error;
         }

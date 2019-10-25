@@ -26,16 +26,20 @@ SOFTWARE.
 
 import * as joiner from "../joiner";
 
+// Sub-projects folder name.
 export const SubprojectsFolderName: string = 'src';
 
 export namespace Paths {
-    // VSCode settings file.
+    // Available serial ports file.
+    export const SerialPortsFile: string = joiner.joinPaths("build/serialPortsFile");
+    
+    // VSCode workspace settings file.
     export const VscSettingsFile: string = joiner.joinPaths('.vscode/settings.json');
-
-    // VSCode C/C++ properties file.
+    
+    // VSCode workspace C/C++ properties file.
     export const VscCCppPropsFile: string = joiner.joinPaths('.vscode/c_cpp_properties.json');
 
-    // Characteristic files of an ESP32-PM project.
+    // Characteristic files.
     export const Files: Array<string> = [
         VscSettingsFile,
         VscCCppPropsFile,
@@ -44,15 +48,17 @@ export namespace Paths {
     // Sub-projects folder.
     export const SubprojectsFolder: string = joiner.joinPaths('main', SubprojectsFolderName);
 
-    // Characteristic folders of an ESP32-PM project.
+    // Characteristic folders.
     export const Folders: Array<string> = [
         SubprojectsFolder,
     ];
 }
 
 export namespace EntryPoint {
+    // Sub-project entry point suffix.
     export const Suffix: string = 'main';
 
+    // Sub-project entry point potential extensions.
     export const Extensions: Array<string> = [
         '.c',
         '.cpp',

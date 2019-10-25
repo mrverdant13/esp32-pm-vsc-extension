@@ -36,6 +36,8 @@ import {
     Project,
     ProjectValidationType,
 } from './models/esp32-pm-project';
+import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
+import * as ExtensionConsts from "./constants/extension-const";
 
 export function delay(ms: number): Promise<unknown> {
     // Create a promise with specific duration.
@@ -43,27 +45,31 @@ export function delay(ms: number): Promise<unknown> {
 }
 
 export async function pickElement(elements: Array<string>, hint: string, errorMessage: string, canPickMany: boolean = false): Promise<string> {
-    // Show a custom pick menu.
-    const selectedElement = await vscode.window.showQuickPick(
-        elements,
-        {
-            placeHolder: hint,
-            canPickMany: canPickMany
+    try {
+        // Show a custom pick menu.
+        const selectedElement = await vscode.window.showQuickPick(
+            elements,
+            {
+                placeHolder: hint,
+                canPickMany: canPickMany
+            }
+        );
+
+        // If no element was selected, throw an error.
+        if (selectedElement === undefined) {
+            throw Error(errorMessage);
         }
-    );
 
-    // If no element was selected, throw an error.
-    if (selectedElement === undefined) {
-        throw Error(errorMessage);
+        // Return the selected element.
+        return selectedElement;
+    } catch (error) {
+        throw error;
     }
-
-    // Return the selected element.
-    return selectedElement;
 }
 
 export async function pickFolder(prompt: string, errorMessage: string): Promise<string> {
     try {
-        // Show a custom folder selection folder.
+        // Show a custom folder selection dialog.
         const selectedFolder: Array<vscode.Uri> | undefined = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
@@ -85,9 +91,12 @@ export async function pickFolder(prompt: string, errorMessage: string): Promise<
 
 export function getActiveFile(): string {
     try {
+        // Check if there is active file.
         if (vscode.window.activeTextEditor === undefined || vscode.window.activeTextEditor.document.isClosed || vscode.window.activeTextEditor.document.isUntitled) {
             throw Error('There is no active file.');
         }
+
+        // Return the active file path.
         return joinPaths(vscode.window.activeTextEditor.document.fileName);
     } catch (error) {
         throw error;
@@ -99,7 +108,7 @@ export async function introduceString(prompt: string, errorMessage: string) {
         // Show a custom text input.
         const newProjectName: string | undefined = await vscode.window.showInputBox({ prompt: prompt });
 
-        // If no text was introduced, throw an error.
+        // Check if no text was introduced.
         if (newProjectName === undefined || newProjectName.trim().length === 0) {
             throw Error(errorMessage);
         }
@@ -187,18 +196,29 @@ export async function filterExistingFolders(folders: Array<string>): Promise<Arr
 }
 
 export async function readFile(filePath: string): Promise<string> {
-    return (await vscode.workspace.fs.readFile(vscode.Uri.file(filePath))).toString().trim();
+    try {
+        // Return file content as string.
+        return (await vscode.workspace.fs.readFile(vscode.Uri.file(filePath))).toString().trim();
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function writeFile(filePath: string, content: string): Promise<void> {
-    await vscode.workspace.fs.writeFile(
-        vscode.Uri.file(filePath),
-        Buffer.from(content)
-    );
+    try {
+        // Write content to file.
+        await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(filePath),
+            Buffer.from(content)
+        );
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function copyElement(originFilePath: string, destinationFilePath: string): Promise<void> {
     try {
+        // Copy element.
         await vscode.workspace.fs.copy(
             vscode.Uri.file(originFilePath),
             vscode.Uri.file(destinationFilePath),
@@ -211,7 +231,10 @@ export async function copyElement(originFilePath: string, destinationFilePath: s
 
 export async function replaceInFile(filePath: string, find: RegExp, replace: string): Promise<void> {
     try {
+        // Read file.
         const fileContent: string = await readFile(filePath);
+
+        // Replace value in content and write to file.
         await writeFile(
             filePath,
             fileContent.replace(find, replace)
@@ -241,6 +264,9 @@ export function executeShellCommands(name: string, commandLines: Array<string>):
         // The generated terminal will take focus.
         task.presentationOptions.focus = true;
 
+        // Use the same panel for command terminal execution.
+        task.presentationOptions.panel = vscode.TaskPanelKind.Shared;
+
         // Execute the task.
         vscode.tasks.executeTask(task);
     } catch (error) {
@@ -250,28 +276,26 @@ export function executeShellCommands(name: string, commandLines: Array<string>):
 
 export async function getSerialPorts(context: vscode.ExtensionContext): Promise<Array<string>> {
     try {
-        const serialPortsFile: string = joinPaths("build/serialPortsFile");
-
         // Execute the Windows commands to list the available COM ports.
         executeShellCommands(
             'Generate serial ports',
             [
                 'echo -e "ESP32-PM: Generating serial ports list...\n"',
-                'export serialPortsFile="' + serialPortsFile + '"',
+                'export serialPortsFile="' + Esp32PmProjectConsts.Paths.SerialPortsFile + '"',
                 'export platform="' + process.platform + '"',
-                'bash ' + joinPaths(context.asAbsolutePath('assets/scripts/GenerateSerialPortsList.sh')),
+                'bash ' + joinPaths(context.asAbsolutePath(ExtensionConsts.Paths.SerialPortGeneratorFile)),
             ]
         );
 
         // Create a watcher for the serial ports file deletion.
-        const fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(joinPaths('**', serialPortsFile), true, true, false);
+        const fsw: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher(joinPaths('**', Esp32PmProjectConsts.Paths.SerialPortsFile), true, true, false);
         var serialPorts: Set<string> = new Set();
         var serialPortsChecked: boolean = false;
 
         // When the serial ports file is deleted, get the found serial ports.
         fsw.onDidDelete(
             async () => {
-                const fileContent = (await readFile(joinPaths((await Project.getWorkspacePath(ProjectValidationType.ESP32PM_PROJ)), serialPortsFile + ".txt")));
+                const fileContent = (await readFile(joinPaths((await Project.getWorkspacePath(ProjectValidationType.ESP32PM_PROJ)), Esp32PmProjectConsts.Paths.SerialPortsFile + ".txt")));
                 if (fileContent.length > 0) {
                     serialPorts = new Set(fileContent.split("\n"));
                 }

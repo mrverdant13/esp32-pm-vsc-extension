@@ -32,6 +32,8 @@ export const SupportedOSs: Array<string> = [
     'linux',
 ];
 
+
+// Serial action types.
 export enum SerialActionType {
     Flash = 0,
     Monitor = 1,
@@ -39,12 +41,15 @@ export enum SerialActionType {
 }
 
 export namespace Paths {
-    // VSCode settings template file.
+    // Available serial ports generator bash file.
+    export const SerialPortGeneratorFile: string = joiner.joinPaths('assets/scripts/GenerateSerialPortsList.sh');
+
+    // Project template.
     export const ProjectTemplate: string = joiner.joinPaths('assets/templates/project');
 
-    // VSCode settings file.
+    // VSCode workspace settings template.
     export const VscSettingsFile: string = joiner.joinPaths(ProjectTemplate, '.vscode/settings.json');
 
-    // VSCode C/C++ properties file.
+    // VSCode workspace C/C++ properties template.
     export const VscCCppPropsFile: string = joiner.joinPaths(ProjectTemplate, '.vscode/c_cpp_properties.json');
 }

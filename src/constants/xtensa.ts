@@ -27,6 +27,7 @@ SOFTWARE.
 import * as joiner from "../joiner";
 
 export namespace Paths {
+    // Characteristic folders.
     export const Folders: Array<string> = [
         joiner.joinPaths('bin/'),
         joiner.joinPaths('include/'),
@@ -37,9 +38,11 @@ export namespace Paths {
     ];
 }
 
+// One level settings usage.
 export const OneLevelSettings: Array<[string, Array<string>]> = [
 ];
 
+// Two level settings usage.
 export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
     [
         'terminal.integrated.env.linux',
