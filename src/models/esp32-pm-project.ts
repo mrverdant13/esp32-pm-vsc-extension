@@ -24,10 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import {
-    join,
-} from "path";
-
 import * as vscode from 'vscode';
 
 import * as Esp32PmProjectConsts from "../constants/esp32pm-project";
@@ -43,6 +39,9 @@ import {
     folderExists,
     pickFolder,
 } from "../utils";
+import {
+    joinPaths,
+} from "../joiner";
 
 export enum ProjectPathType {
     IDF_PATH = 0,
@@ -120,7 +119,7 @@ export class Project {
 
             // Check if each characteristic file exists.
             for (let index = 0; index < projectFiles.length; index++) {
-                const projectFile: string = join(projectPath, projectFiles[index]);
+                const projectFile: string = joinPaths(projectPath, projectFiles[index]);
                 if (!await fileExists(projectFile)) {
                     throw Error(errorMessage);
                 }
@@ -128,7 +127,7 @@ export class Project {
 
             // Check if each characteristic folder exists.
             for (let index = 0; index < projectFolders.length; index++) {
-                const projectFolder: string = join(projectPath, projectFolders[index]);
+                const projectFolder: string = joinPaths(projectPath, projectFolders[index]);
                 if (!await folderExists(projectFolder)) {
                     throw Error(errorMessage);
                 }
@@ -173,7 +172,7 @@ export class Project {
             // Check if the folder is valid.
             for (let index = 0; index < neededFolders.length; index++) {
                 const neededFolder = neededFolders[index];
-                if (!await folderExists(join(selectedElementAbsolutePath, neededFolder))) {
+                if (!await folderExists(joinPaths(selectedElementAbsolutePath, neededFolder))) {
                     throw Error("Invalid " + pathLabel + " folder.");
                 }
             }
@@ -193,8 +192,8 @@ export class Project {
 
                 // Read the 'c_cpp_properties.json' file.
                 let configContent = JSON.parse(
-                    (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
-                        ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+                    (await fileExists(joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+                        ? (await readFile(joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
                         : (await readFile(context.asAbsolutePath(ExtensionConsts.Paths.VscCCppPropsFile)))
                 );
 
@@ -222,7 +221,7 @@ export class Project {
 
                 // Update the 'settings.json' file.
                 await writeFile(
-                    join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile),
+                    joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile),
                     JSON.stringify(configContent, undefined, '\t')
                 );
 
@@ -230,8 +229,8 @@ export class Project {
                 {
                     // Read the 'settings.json' file.
                     let configContent = JSON.parse(
-                        (await fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
-                            ? (await readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
+                        (await fileExists(joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
+                            ? (await readFile(joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile)))
                             : (await readFile(context.asAbsolutePath(ExtensionConsts.Paths.VscSettingsFile)))
                     );
 
@@ -247,7 +246,7 @@ export class Project {
 
                     // Update the 'settings.json' file.
                     await writeFile(
-                        join(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile),
+                        joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscSettingsFile),
                         JSON.stringify(configContent, undefined, '\t')
                     );
 

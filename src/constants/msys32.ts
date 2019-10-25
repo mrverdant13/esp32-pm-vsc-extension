@@ -24,14 +24,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import {
-    join,
-} from "path";
+import * as joiner from "../joiner";
 
 export namespace Paths {
     export const Folders: Array<string> = [
-        join('home'),
-        join('etc/profile.d'),
+        joiner.joinPaths('home'),
+        joiner.joinPaths('etc/profile.d'),
     ];
 }
 

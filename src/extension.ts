@@ -24,10 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import {
-	join,
-} from 'path';
-
 import * as vscode from 'vscode';
 
 import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
@@ -38,6 +34,7 @@ import {
 	ProjectPathType,
 } from './models/esp32-pm-project';
 import * as utils from './utils';
+import * as joiner from './joiner';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -67,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
 			)).trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
 
 			// Set the new project path.
-			const newProjectPath: string = join(newProjectLocation, newProjectName);
+			const newProjectPath: string = joiner.joinPaths(newProjectLocation, newProjectName);
 
 			// Ask the user if the new project should be launched in the current window or in a new one.
 			const windowAction: string = await utils.pickElement(
@@ -84,7 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Set the project name in the project Makefile
 			await utils.replaceInFile(
-				join(newProjectPath, 'Makefile'),
+				joiner.joinPaths(newProjectPath, 'Makefile'),
 				RegExp(':PROJECT_NAME:', 'gi'),
 				newProjectName,
 			);
@@ -174,8 +171,8 @@ export function activate(context: vscode.ExtensionContext) {
 			if (process.platform === 'win32') {
 				// Read the 'c_cpp_properties.json' file.
 				let configContent = JSON.parse(
-					(await utils.fileExists(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
-						? (await utils.readFile(join(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+					(await utils.fileExists(joiner.joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
+						? (await utils.readFile(joiner.joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
 						: ExtensionConsts.Paths.VscCCppPropsFile
 				);
 
@@ -227,7 +224,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main file content.
 			const mainFileContent: Array<string> = [
-				'#include "' + join(Esp32PmProjectConsts.SubprojectsFolderName, entryPointRelativePath).replace(/\\/gi, '/') + '"',
+				'#include "' + joiner.joinPaths(Esp32PmProjectConsts.SubprojectsFolderName, entryPointRelativePath) + '"',
 				'extern "C"',
 				'{',
 				'\tvoid app_main();',
@@ -236,18 +233,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Write the final content to the main file.
 			await vscode.workspace.fs.writeFile(
-				vscode.Uri.file(join(projectPath, 'main/main.cpp')),
+				vscode.Uri.file(joiner.joinPaths(projectPath, 'main/main.cpp')),
 				Buffer.from(mainFileContent.join('\n'))
 			);
 
 			// Construct the final main pseudo-component make file.
 			const mainComponentFileContent: Array<string> = [
-				'include $(PROJECT_PATH)/' + join(Esp32PmProjectConsts.Paths.SubprojectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk').replace(/\\/gi, '/'),
+				'include $(PROJECT_PATH)/' + joiner.joinPaths(Esp32PmProjectConsts.Paths.SubprojectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk'),
 			];
 
 			// Write the final content to the main component make file.
 			await vscode.workspace.fs.writeFile(
-				vscode.Uri.file(join(projectPath, 'main/component.mk')),
+				vscode.Uri.file(joiner.joinPaths(projectPath, 'main/component.mk')),
 				Buffer.from(mainComponentFileContent.join('\n'))
 			);
 

@@ -24,18 +24,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import {
-    join,
-} from "path";
+import * as joiner from "../joiner";
 
 export namespace Paths {
     export const Folders: Array<string> = [
-        join('bin/'),
-        join('include/'),
-        join('lib/'),
-        join('libexec/'),
-        join('share/'),
-        join('xtensa-esp32-elf/'),
+        joiner.joinPaths('bin/'),
+        joiner.joinPaths('include/'),
+        joiner.joinPaths('lib/'),
+        joiner.joinPaths('libexec/'),
+        joiner.joinPaths('share/'),
+        joiner.joinPaths('xtensa-esp32-elf/'),
     ];
 }
 
