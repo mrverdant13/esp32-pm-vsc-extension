@@ -24,9 +24,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import {
+    join,
+} from "path";
+
 export namespace Paths {
     // Project Makefile.
-    const MakefileFile: string = 'Makefile';
+    const MakefileFile: string = join('Makefile');
 
     // Characteristic files of an Espressif project.
     export const Files: Array<string> = [
@@ -34,7 +38,7 @@ export namespace Paths {
     ];
 
     // Project Makefile.
-    const MainFolder: string = 'main/';
+    const MainFolder: string = join('main');
 
     // Characteristic folders of an Espressif project.
     export const Folders: Array<string> = [

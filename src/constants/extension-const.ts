@@ -24,6 +24,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import {
+    join,
+} from "path";
+
 // Extension supported OSs.
 export const SupportedOSs: Array<string> = [
     'win32',
@@ -38,11 +42,11 @@ export enum SerialActionType {
 
 export namespace Paths {
     // VSCode settings template file.
-    export const ProjectTemplate: string = 'assets/templates/project/';
+    export const ProjectTemplate: string = join('assets/templates/project');
 
     // VSCode settings file.
-    export const VscSettingsFile: string = ProjectTemplate + '.vscode/settings.json';
+    export const VscSettingsFile: string = join(ProjectTemplate, '.vscode/settings.json');
 
     // VSCode C/C++ properties file.
-    export const VscCCppPropsFile: string = ProjectTemplate + '.vscode/c_cpp_properties.json';
+    export const VscCCppPropsFile: string = join(ProjectTemplate, '.vscode/c_cpp_properties.json');
 }

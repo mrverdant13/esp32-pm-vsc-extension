@@ -24,12 +24,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import {
+    join,
+} from "path";
+
 export namespace Paths {
     // VSCode settings file.
-    export const VscSettingsFile: string = '.vscode/settings.json';
+    export const VscSettingsFile: string = join('.vscode/settings.json');
 
     // VSCode C/C++ properties file.
-    export const VscCCppPropsFile: string = '.vscode/c_cpp_properties.json';
+    export const VscCCppPropsFile: string = join('.vscode/c_cpp_properties.json');
 
     // Characteristic files of an ESP32-PM project.
     export const Files: Array<string> = [
@@ -38,7 +42,7 @@ export namespace Paths {
     ];
 
     // Sub-projects folder.
-    export const SubprojectsFolder: string = 'main/src/';
+    export const SubprojectsFolder: string = join('main/src');
 
     // Characteristic folders of an ESP32-PM project.
     export const Folders: Array<string> = [

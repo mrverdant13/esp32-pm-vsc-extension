@@ -24,14 +24,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import {
+    join,
+} from "path";
+
 export namespace Paths {
     export const Folders: Array<string> = [
-        'bin/',
-        'include/',
-        'lib/',
-        'libexec/',
-        'share/',
-        'xtensa-esp32-elf/',
+        join('bin/'),
+        join('include/'),
+        join('lib/'),
+        join('libexec/'),
+        join('share/'),
+        join('xtensa-esp32-elf/'),
     ];
 }
 
