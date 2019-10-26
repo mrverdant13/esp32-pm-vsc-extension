@@ -35,7 +35,7 @@ import {
 import {
     Project,
     ProjectValidationType,
-} from './models/esp32-pm-project';
+} from './models/esp32pm-project';
 import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
 import * as ExtensionConsts from "./constants/extension-const";
 

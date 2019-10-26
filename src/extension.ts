@@ -32,7 +32,7 @@ import {
 	Project,
 	ProjectValidationType,
 	ProjectPathType,
-} from './models/esp32-pm-project';
+} from './models/esp32pm-project';
 import * as utils from './utils';
 import * as joiner from './joiner';
 
