@@ -31,7 +31,7 @@ import * as ExtensionConsts from './constants/extension-const';
 import {
 	Project,
 	ProjectValidationType,
-	ProjectPathType,
+	ProjectResourceType,
 } from './models/esp32pm-project';
 import * as utils from './utils';
 import * as joiner from './joiner';
@@ -105,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the 'msys32' folder to be used with the project.
-			await Project.setProjectResourcePath(context, ProjectPathType.MSYS32_PATH);
+			await Project.setProjectResourcePath(context, ProjectResourceType.MSYS32_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -123,7 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the 'xtensa-esp32-elf' folder to be used with the project.
-			await Project.setProjectResourcePath(context, ProjectPathType.XTENSA_PATH);
+			await Project.setProjectResourcePath(context, ProjectResourceType.XTENSA_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -136,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
 
 			// Set the ESP-IDF API folder to be used with the project.
-			await Project.setProjectResourcePath(context, ProjectPathType.IDF_PATH);
+			await Project.setProjectResourcePath(context, ProjectResourceType.IDF_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);

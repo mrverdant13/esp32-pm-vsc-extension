@@ -44,7 +44,7 @@ import {
 } from "../joiner";
 
 // Project path type.
-export enum ProjectPathType {
+export enum ProjectResourceType {
     IDF_PATH = 0,
     MSYS32_PATH = 1,
     XTENSA_PATH = 2,
@@ -139,7 +139,7 @@ export class Project {
         }
     }
 
-    public static async setProjectResourcePath(context: vscode.ExtensionContext, pathType: ProjectPathType): Promise<void> {
+    public static async setProjectResourcePath(context: vscode.ExtensionContext, pathType: ProjectResourceType): Promise<void> {
         try {
             // Variables
             var pathLabel: string = '';
@@ -148,17 +148,17 @@ export class Project {
             // Set the label of the path to be registered.
             // Set the characteristic folders for the path type of interest.
             switch (pathType) {
-                case ProjectPathType.IDF_PATH: {
+                case ProjectResourceType.IDF_PATH: {
                     pathLabel = "ESP-IDF API";
                     neededFolders = IdfConsts.Paths.Folders;
                     break;
                 }
-                case ProjectPathType.MSYS32_PATH: {
+                case ProjectResourceType.MSYS32_PATH: {
                     pathLabel = "'msys32'";
                     neededFolders = Msys32Consts.Paths.Folders;
                     break;
                 }
-                case ProjectPathType.XTENSA_PATH: {
+                case ProjectResourceType.XTENSA_PATH: {
                     pathLabel = "'xtensa-esp32-elf'";
                     neededFolders = XtensaConsts.Paths.Folders;
                     break;
@@ -200,19 +200,19 @@ export class Project {
 
                 // Set usage paths.
                 switch (pathType) {
-                    case ProjectPathType.IDF_PATH: {
+                    case ProjectResourceType.IDF_PATH: {
                         configContent['env']['IDF_PATH'] = selectedElementAbsolutePath;
                         oneLevelSettings = IdfConsts.OneLevelSettings;
                         twoLevelSettings = IdfConsts.TwoLevelSettings;
                         break;
                     }
-                    case ProjectPathType.MSYS32_PATH: {
+                    case ProjectResourceType.MSYS32_PATH: {
                         configContent['env']['MSYS32_PATH'] = selectedElementAbsolutePath;
                         oneLevelSettings = Msys32Consts.OneLevelSettings;
                         twoLevelSettings = Msys32Consts.TwoLevelSettings;
                         break;
                     }
-                    case ProjectPathType.XTENSA_PATH: {
+                    case ProjectResourceType.XTENSA_PATH: {
                         configContent['env']['XTENSA_PATH'] = selectedElementAbsolutePath;
                         oneLevelSettings = XtensaConsts.OneLevelSettings;
                         twoLevelSettings = XtensaConsts.TwoLevelSettings;
@@ -253,7 +253,7 @@ export class Project {
 
                 }
             }
-            
+
             // Reload window.
             await vscode.commands.executeCommand('workbench.action.reloadWindow');
         } catch (error) {
