@@ -33,15 +33,15 @@ import * as IdfConsts from "../constants/idf";
 import * as Msys32Consts from "../constants/msys32";
 import * as XtensaConsts from "../constants/xtensa";
 import {
+    joinPaths,
+} from "../joiner";
+import {
     writeFile,
     fileExists,
     readFile,
     folderExists,
     pickFolder,
 } from "../utils";
-import {
-    joinPaths,
-} from "../joiner";
 
 // Project path type.
 export enum ProjectResourceType {

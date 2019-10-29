@@ -28,13 +28,13 @@ import * as vscode from 'vscode';
 
 import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
 import * as ExtensionConsts from './constants/extension-const';
+import * as joiner from './joiner';
 import {
 	Project,
 	ProjectValidationType,
 	ProjectResourceType,
 } from './models/esp32pm-project';
 import * as utils from './utils';
-import * as joiner from './joiner';
 
 export function activate(context: vscode.ExtensionContext) {
 

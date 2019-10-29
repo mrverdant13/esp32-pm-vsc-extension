@@ -26,18 +26,18 @@ SOFTWARE.
 
 import * as vscode from 'vscode';
 import {
-    joinPaths,
-} from './joiner';
-import {
     readdirSync,
     lstatSync,
 } from 'fs';
+import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
+import * as ExtensionConsts from "./constants/extension-const";
+import {
+    joinPaths,
+} from './joiner';
 import {
     Project,
     ProjectValidationType,
 } from './models/esp32pm-project';
-import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
-import * as ExtensionConsts from "./constants/extension-const";
 
 export function delay(ms: number): Promise<unknown> {
     // Create a promise with specific duration.
