@@ -26,7 +26,7 @@ SOFTWARE.
 
 import * as joiner from "../joiner";
 
-export const SubprojectsFolderName: string = 'src';
+export const SubProjectsFolderName: string = 'src';
 
 export namespace Paths {
     // VSCode settings file.
@@ -42,11 +42,11 @@ export namespace Paths {
     ];
 
     // Sub-projects folder.
-    export const SubprojectsFolder: string = joiner.joinPaths('main', SubprojectsFolderName);
+    export const SubProjectsFolder: string = joiner.joinPaths('main', SubProjectsFolderName);
 
     // Characteristic folders of an ESP32-PM project.
     export const Folders: Array<string> = [
-        SubprojectsFolder,
+        SubProjectsFolder,
     ];
 }
 

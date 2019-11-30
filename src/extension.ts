@@ -148,7 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// Validate Espressif project.
 			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
 
-			// Execute the shell commands related to the make defconfing command.
+			// Execute the shell commands related to the make defconfig command.
 			utils.executeShellCommands(
 				"Defconfig",
 				[
@@ -208,11 +208,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 			const activeFileAbsolutePath: string = utils.getActiveFile();
 
-			if (!activeFileAbsolutePath.includes(Esp32PmProjectConsts.SubprojectsFolderName)) {
+			if (!activeFileAbsolutePath.includes(Esp32PmProjectConsts.SubProjectsFolderName)) {
 				throw Error('The active file is not contained in the sub-projects folder.');
 			}
 
-			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(Esp32PmProjectConsts.SubprojectsFolderName) + Esp32PmProjectConsts.SubprojectsFolderName.length + 1);
+			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(Esp32PmProjectConsts.SubProjectsFolderName) + Esp32PmProjectConsts.SubProjectsFolderName.length + 1);
 
 			const isEntryPointCandidate: boolean = Esp32PmProjectConsts.EntryPoint.Extensions.some((extension) => {
 				return entryPointRelativePath.endsWith(extension);
@@ -224,7 +224,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main file content.
 			const mainFileContent: Array<string> = [
-				'#include "' + joiner.joinPaths(Esp32PmProjectConsts.SubprojectsFolderName, entryPointRelativePath) + '"',
+				'#include "' + joiner.joinPaths(Esp32PmProjectConsts.SubProjectsFolderName, entryPointRelativePath) + '"',
 				'extern "C"',
 				'{',
 				'\tvoid app_main();',
@@ -239,7 +239,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Construct the final main pseudo-component make file.
 			const mainComponentFileContent: Array<string> = [
-				'include $(PROJECT_PATH)/' + joiner.joinPaths(Esp32PmProjectConsts.Paths.SubprojectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk'),
+				'include $(PROJECT_PATH)/' + joiner.joinPaths(Esp32PmProjectConsts.Paths.SubProjectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk'),
 			];
 
 			// Write the final content to the main component make file.
