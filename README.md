@@ -18,6 +18,8 @@ ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ES
 
 ## Features [Unreleased]
 
+- `make` commands execution available for the integrated VSC terminal.
+
 - Standard project structure for the use of this extension.\
 This project structure allows the use of more than one application program or 'sub-project' that may have more than one entry point.\
 The project structure is as follows:
