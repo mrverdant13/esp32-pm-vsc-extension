@@ -13,7 +13,6 @@ export class UninitEsp32pmProj extends Project {
     ];
 
     public static async validate() {
-        // TODO: Include resource checking (IDF_PATH, XTENSA_PATH, MSYS32_PATH).
         try {
             await EspressifProj.validate();
             if (!(await this.isValidFolder())) {
