@@ -28,11 +28,6 @@ import * as vscode from 'vscode';
 
 import { SerialAction } from './extension/serial-action';
 
-import {
-	ProjectResource,
-	setProjectResourcePath,
-} from './resources/_resource';
-
 import * as EntryPointUtils from './utils/entry-point';
 import * as FileUtils from './utils/file';
 import * as PathUtils from './utils/path';
@@ -48,6 +43,10 @@ import { ProjectAssets } from './project/assets';
 
 import { Supported } from './extension/support';
 import { ExtensionPaths } from './extension/paths';
+
+import { Idf } from './resources/idf';
+import { Msys32 } from './resources/msys32';
+import { Xtensa } from './resources/xtensa';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -118,7 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await UninitEsp32pmProj.validate();
 
 			// Set the 'msys32' folder to be used with the project.
-			await setProjectResourcePath(context, ProjectResource.MSYS32_PATH);
+			await Msys32.register(context);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -136,7 +135,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await UninitEsp32pmProj.validate();
 
 			// Set the 'xtensa-esp32-elf' folder to be used with the project.
-			await setProjectResourcePath(context, ProjectResource.XTENSA_PATH);
+			await Xtensa.register(context);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -149,7 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
 			await UninitEsp32pmProj.validate();
 
 			// Set the ESP-IDF API folder to be used with the project.
-			await setProjectResourcePath(context, ProjectResource.IDF_PATH);
+			await Idf.register(context);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);

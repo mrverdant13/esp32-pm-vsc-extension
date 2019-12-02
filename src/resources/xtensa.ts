@@ -1,9 +1,15 @@
+import * as vscode from 'vscode';
+
 import { Resource } from "./resource";
 
 export class Xtensa extends Resource {
     protected constructor() {
         super();
     }
+
+    protected static readonly label: string = '"xtensa"';
+
+    protected static readonly field: string = 'XTENSA_PATH';
 
     // Mandatory folders.
     protected static readonly MandatoryFolders: Array<string> = [
@@ -46,4 +52,9 @@ export class Xtensa extends Resource {
         ],
     ];
 
+    public static async register(context: vscode.ExtensionContext) {
+        try {
+            await this.registerResource(context, this.label, this.field);
+        } catch (error) { throw error; }
+    }
 }
