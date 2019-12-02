@@ -21,17 +21,7 @@ export class Xtensa extends Resource {
         'xtensa-esp32-elf/',
     ];
 
-    public static async validate(resourceAbsolutePath: string) {
-        try {
-            if (!(await this.isValidFolder(resourceAbsolutePath))) {
-                throw Error('The selected folder is not an "xtensa" one.');
-            }
-        } catch (error) {
-            throw error;
-        }
-    }
-
-    public static readonly TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
+    protected static readonly TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
         [
             'terminal.integrated.env.linux',
             [

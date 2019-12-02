@@ -32,7 +32,7 @@ export abstract class Resource {
     protected static readonly MutuallyExclusiveFoldersGroup: Array<Array<string>> = [];
 
     // Validation method.
-    protected static async isValidFolder(resourceAbsolutePath: string): Promise<boolean> {
+    protected static async isValidResourceFolder(resourceAbsolutePath: string): Promise<boolean> {
         try {
             const mandatoryFiles: Array<string> =
                 PathUtils.prefixPaths(resourceAbsolutePath, this.MandatoryFiles);
@@ -51,17 +51,21 @@ export abstract class Resource {
         } catch (error) { throw error; }
     }
 
-    public static readonly OneLevelSettings: Array<[string, Array<string>]> = [];
+    protected static readonly OneLevelSettings: Array<[string, Array<string>]> = [];
 
-    public static readonly TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [];
+    protected static readonly TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [];
 
-    public static async registerResource(context: vscode.ExtensionContext, label: string, field: string): Promise<void> {
+    protected static async registerResource(context: vscode.ExtensionContext, label: string, field: string): Promise<void> {
         try {
             // The user must select the location of the folder.
             const selectedElementAbsolutePath: string = (await VscUtils.pickFolder(
                 "Select a " + label + " folder",
                 label + " folder not selected")
             );
+
+            if(!await this.isValidResourceFolder(selectedElementAbsolutePath)){
+                throw Error("The selected folder does not correspond to a " + label + " one.");
+            }
 
             // The folder path must not include empty spaces.
             if (selectedElementAbsolutePath.includes(" ")) {
@@ -123,4 +127,7 @@ export abstract class Resource {
         }
     }
 
+    protected static validateExistence() {
+
+    }
 }
