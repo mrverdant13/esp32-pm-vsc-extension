@@ -330,6 +330,25 @@ export function activate(context: vscode.ExtensionContext) {
 		// Execute the 'make flash monitor' command by using its serial action.
 		await vscode.commands.executeCommand('esp32-pm.serial-action', SerialAction.FlashAndMonitor);
 	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.clean', async () => {
+		try {
+			// Validate the project.
+			await InitEsp32pmProj.validate(context);
+
+			// Execute the shell commands related to the 'make clean' command.
+			TerminalUtils.executeShellCommands(
+				"Clean",
+				[
+					'echo -e "ESP32-PM: Removing built files...\n"',
+					'make clean',
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
 }
 
 export function deactivate() { }

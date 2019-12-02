@@ -27,3 +27,4 @@ which adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `ESP32-PM: Flash` command for Windows and Linux.
 - `ESP32-PM: Monitor` command for Windows and Linux.
 - `ESP32-PM: Flash & Monitor` command for Windows and Linux.
+- `ESP32-PM: Clean` command for Windows and Linux.
