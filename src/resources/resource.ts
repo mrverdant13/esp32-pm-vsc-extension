@@ -63,7 +63,7 @@ export abstract class Resource {
                 label + " folder not selected")
             );
 
-            if(!await this.isValidResourceFolder(selectedElementAbsolutePath)){
+            if (!await this.isValidResourceFolder(selectedElementAbsolutePath)) {
                 throw Error("The selected folder does not correspond to a " + label + " one.");
             }
 
@@ -127,7 +127,25 @@ export abstract class Resource {
         }
     }
 
-    protected static validateExistence() {
+    protected static async isRegisteredAndValid(context: vscode.ExtensionContext, field: string): Promise<boolean> {
+        try {
+            const projectPath: string = VscUtils.getWorkspacePath();
 
+            let configContent = JSON.parse(
+                (await SysItemUtils.fileExists(PathUtils.joinPaths(projectPath, ProjectAssets.VscCCppPropsFile)))
+                    ? (await FileUtils.readFile(PathUtils.joinPaths(projectPath, ProjectAssets.VscCCppPropsFile)))
+                    : (await FileUtils.readFile(context.asAbsolutePath(ExtensionPaths.VscCCppPropsFile)))
+            );
+
+            if (configContent.env[field] === undefined) {
+                return false;
+            }
+
+            if (!await this.isValidResourceFolder(configContent.env[field])) {
+                return false;
+            }
+
+            return true;
+        } catch (error) { throw error; }
     }
 }

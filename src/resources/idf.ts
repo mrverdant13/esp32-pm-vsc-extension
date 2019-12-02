@@ -42,4 +42,12 @@ export class Idf extends Resource {
             await this.registerResource(context, this.label, this.field);
         } catch (error) { throw error; }
     }
+
+    public static async validate(context: vscode.ExtensionContext) {
+        try {
+            if (!await this.isRegisteredAndValid(context, this.field)) {
+                throw Error('The ' + this.label + ' folder has not been registered or is not valid.');
+            }
+        } catch (error) { throw error; }
+    }
 }

@@ -158,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
 		try {
 			// Validate the project.
-			await InitEsp32pmProj.validate();
+			await InitEsp32pmProj.validate(context);
 
 			// Execute the shell commands related to the 'make defconfig' command.
 			TerminalUtils.executeShellCommands(
@@ -177,7 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.menuconfig', async () => {
 		try {
 			// Validate the project.
-			await InitEsp32pmProj.validate();
+			await InitEsp32pmProj.validate(context);
 
 			// Get the project path.
 			const projectPath: string = VscUtils.getWorkspacePath();
@@ -220,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build', async () => {
 		try {
 			// Validate the project.
-			await InitEsp32pmProj.validate();
+			await InitEsp32pmProj.validate(context);
 
 			// Get the project path.
 			const projectPath: string = VscUtils.getWorkspacePath();
@@ -283,7 +283,7 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('esp32-pm.serial-action', async (serialActionType: SerialAction) => {
 		try {
 			// Validate the project.
-			await InitEsp32pmProj.validate();
+			await InitEsp32pmProj.validate(context);
 
 			// Ask the user to select a serial port for the serial action.
 			const selectedSerialPort: string = await VscUtils.pickElement(
