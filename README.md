@@ -4,11 +4,10 @@
 
 <!-- ** PUBLISHING STEPS ** -->
 <!-- STEP1: Update version in the Features section of the README.md file -->
-<!-- STEP2: Change the [Unreleased] section by the version section of the CHANGELOG.md file and update its repository link -->
-<!-- STEP3: Add a version comparison link to the CHANGELOG.md file -->
-<!-- STEP4: Update version in the "version" field of the package.json file -->
-
-<!-- TODO: Add a 'make clean' related command. -->
+<!-- STEP2: Change the [Unreleased] section by the version section of the CHANGELOG.md file -->
+<!-- STEP3: Update its repository link of the section changed in the previous step in the CHANGELOG.md file-->
+<!-- STEP4: Add a version comparison link to the CHANGELOG.md file -->
+<!-- STEP5: Update version in the "version" field of the package.json file -->
 
 # ESP32 project manager for Visual Studio Code
 
@@ -16,7 +15,8 @@ ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ES
 
 ----------
 
-## Features [Unreleased]
+<!-- TODO #1 Update version number. -->
+## Features [v0.1.0]
 
 - `make` commands execution available for the integrated VSC terminal.
 
@@ -97,7 +97,7 @@ The following elements are required to be previously obtained:
 The following elements are required to be previously obtained:
 
 1. Installing the [prerequisites to compile with the ESP-IDF in Linux](https://docs.espressif.com/projects/esp-idf/en/latest/get-started-legacy/linux-setup.html#install-prerequisites).
-3. The Espressif 'xtensa-esp32-elf' folder for [64-bit architecture](https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_2_0-esp32-2019r1-linux-amd64.tar.gz) or [32-bit architecture](https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_2_0-esp32-2019r1-linux-i686.tar.gz) unzipped in a folder located in a path with no spaces.
+3. The Espressif 'xtensa-esp32-elf' folder for [64-bit architecture](https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_2_0-esp-2019r2-linux-amd64.tar.gz) or [32-bit architecture](https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_2_0-esp-2019r2-linux-i686.tar.gz) unzipped in a folder located in a path with no spaces.
 3. The ESP-IDF by cloning [its repository](https://github.com/espressif/esp-idf) recursively (git clone --recursive \<repo\>) in a folder located in a path with no spaces. You could use any version.
 
 ----------

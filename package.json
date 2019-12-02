@@ -12,9 +12,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension"
+		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension/tree/v0.1.0"
 	},
-	"homepage": "https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/develop/README.md",
+	"homepage": "https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/v0.1.0/README.md",
 	"bugs": {
 		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension/issues"
 	},
