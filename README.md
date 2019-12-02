@@ -8,7 +8,6 @@
 <!-- STEP3: Add a version comparison link to the CHANGELOG.md file -->
 <!-- STEP4: Update version in the "version" field of the package.json file -->
 
-<!-- TODO: Add MSYS32_PATH and IDF_PATH existence checking for projects. -->
 <!-- TODO: Add a 'make clean' related command. -->
 
 # ESP32 project manager for Visual Studio Code
@@ -17,7 +16,7 @@ ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ES
 
 ----------
 
-## Features (v0.1.0)
+## Features [Unreleased]
 
 - Standard project structure for the use of this extension.\
 This project structure allows the use of more than one application program or 'sub-project' that may have more than one entry point.\
@@ -106,14 +105,27 @@ The following elements are required to be previously obtained:
 After meeting the requirements and installing this extension, you could follow the steps below:
 
 ### 1. Create a new project:
+
 - Create a new project with the `ESP32-PM: Create project`.
 
 ### 2. Set important folders for the project:
+
 - Set the ESP-IDF API folder with the `ESP32-PM: Set ESP-IDF API folder` command.
 - For **Windows**, set the 'msys32' folder with the `ESP32-PM: Set 'msys32' folder` command.
 - For **Linux**, set the 'xtensa-esp32-elf' folder with the `ESP32-PM: Set 'xtensa-esp32-elf' folder` command.
 
-### 3. Build, flash, monitor and clean regular `make` commands:
+### 4. Set the project configuration:
+
+You could run either the `ESP32-PM: Defconfig` or the `ESP32-PM: Menuconfig` command.
+
+### 4. Build an application:
+
+Use the `ESP32-PM: Build` command, which corresponds to the `make all` command. This command should be executed with an entry point file as the active VSC file.
+
+Any entry point file should be contained in a sup-project folder and its name should start with the `main` string. This entry point could use the `.c` or the `.cpp` extension.
+
+### 4. Execute other regular `make` commands (flash, monitor and clean):
+
 These commands are often used with ESP32 projects based on GNU Make. They can be used with their corresponding extension command as long as the current workspace is an ESP32-PM project.
 
 ----------
