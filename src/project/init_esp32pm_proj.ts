@@ -20,7 +20,7 @@ export class InitEsp32pmProj extends Project {
         try {
             await EspressifProj.validate();
             await UninitEsp32pmProj.validate();
-            if (!(await this.isValidFolder())) {
+            if (!(await this.isValidProjectFolder())) {
                 throw Error('This ESP32-PM project is not initialized.');
             }
         } catch (error) {

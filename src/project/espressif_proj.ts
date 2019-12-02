@@ -18,7 +18,7 @@ export class EspressifProj extends Project {
 
     public static async validate() {
         try {
-            if (!(await this.isValidFolder())) {
+            if (!(await this.isValidProjectFolder())) {
                 throw Error('This is not an Espressif project.');
             }
         } catch (error) {

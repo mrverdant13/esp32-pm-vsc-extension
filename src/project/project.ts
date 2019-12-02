@@ -18,7 +18,7 @@ export abstract class Project {
     protected static readonly MutuallyExclusiveFoldersGroup: Array<Array<string>> = [];
 
     // Validation method.
-    protected static async isValidFolder(): Promise<boolean> {
+    protected static async isValidProjectFolder(): Promise<boolean> {
         try {
             const workspacePath: string = VscUtils.getWorkspacePath();
 

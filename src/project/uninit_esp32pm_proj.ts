@@ -15,7 +15,7 @@ export class UninitEsp32pmProj extends Project {
     public static async validate() {
         try {
             await EspressifProj.validate();
-            if (!(await this.isValidFolder())) {
+            if (!(await this.isValidProjectFolder())) {
                 throw Error('This is not an ESP32-PM project.');
             }
         } catch (error) {
