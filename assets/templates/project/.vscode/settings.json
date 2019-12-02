@@ -1,0 +1,24 @@
+{
+    "terminal.integrated.shell.windows": ":MSYS32_PATH:/usr/bin/bash.exe",
+    "terminal.integrated.env.windows": {
+        "CHERE_INVOKING": "1",
+        "MSYSTEM": "MINGW32",
+        "IDF_PATH": ":IDF_PATH:"
+    },
+    "terminal.integrated.shellArgs.windows": [
+        "--login"
+    ],
+    "terminal.integrated.env.linux": {
+        "CHERE_INVOKING": "1",
+        "IDF_PATH": ":IDF_PATH:",
+        "PATH": ":XTENSA_PATH:/bin:${env:PATH}",
+        "XTENSA_PATH": ":XTENSA_PATH:"
+    },
+    "terminal.integrated.shellArgs.linux": [
+        "--login"
+    ],
+    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "files.associations": {
+        "*.cpp": "cpp"
+    }
+}

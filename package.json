@@ -3,18 +3,18 @@
 	"name": "esp32-pm",
 	"displayName": "ESP32 project manager",
 	"description": "ESP32 project manager for Visual Studio Code. Setup, build, flash and monitor ESP32 applications.",
-	"icon": "assets/local-data/icon.png",
+	"icon": "assets/img/icon.png",
 	"version": "0.1.0",
 	"publisher": "mrverdant13",
 	"author": {
 		"name": "Karlo Verde",
-		"url": "https://www.linkedin.com/in/karlo-verde"
+		"url": "https://www.linkedin.com/in/mrverdant13"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension"
+		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension/tree/v0.1.0"
 	},
-	"homepage": "https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/master/README.md",
+	"homepage": "https://github.com/mrverdant13/esp32-pm-vsc-extension/blob/v0.1.0/README.md",
 	"bugs": {
 		"url": "https://github.com/mrverdant13/esp32-pm-vsc-extension/issues"
 	},
@@ -30,20 +30,11 @@
 		"*"
 	],
 	"os": [
-		"win32"
+		"win32",
+		"linux"
 	],
 	"contributes": {
 		"commands": [
-			{
-				"category": "ESP32-PM",
-				"title": "Register ESP-IDF API",
-				"command": "esp32-pm.register-esp-idf"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Register Espressif Toolchain",
-				"command": "esp32-pm.register-espressif-toolchain"
-			},
 			{
 				"category": "ESP32-PM",
 				"title": "Create project",
@@ -51,56 +42,53 @@
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Initialize exisiting project",
-				"command": "esp32-pm.init-project"
+				"title": "Set ESP-IDF API folder",
+				"command": "esp32-pm.set-idf"
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Menuconfig",
-				"command": "esp32-pm.menuconfig",
-				"enablement": "workspaceFolderCount != 0"
+				"title": "Set 'msys32' folder",
+				"command": "esp32-pm.set-msys32"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Set 'xtensa-esp32-elf' folder",
+				"command": "esp32-pm.set-xtensa"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Defconfig",
-				"command": "esp32-pm.defconfig",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.defconfig"
 			},
 			{
 				"category": "ESP32-PM",
-				"title": "Build sub-project",
-				"command": "esp32-pm.build-subproject",
-				"enablement": "workspaceFolderCount != 0"
+				"title": "Menuconfig",
+				"command": "esp32-pm.menuconfig"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Build",
+				"command": "esp32-pm.build"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Flash",
-				"command": "esp32-pm.flash",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.flash"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Monitor",
-				"command": "esp32-pm.monitor",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.monitor"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Flash & Monitor",
-				"command": "esp32-pm.flash-monitor",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.flash-monitor"
 			},
 			{
 				"category": "ESP32-PM",
 				"title": "Clean",
-				"command": "esp32-pm.clean",
-				"enablement": "workspaceFolderCount != 0"
-			},
-			{
-				"category": "ESP32-PM",
-				"title": "Remove auto-generated files",
-				"command": "esp32-pm.remove-auto-gen",
-				"enablement": "workspaceFolderCount != 0"
+				"command": "esp32-pm.clean"
 			}
 		]
 	},
@@ -115,8 +103,8 @@
 		"@types/vscode": "^1.37.0",
 		"glob": "^7.1.4",
 		"mocha": "^6.1.4",
-		"typescript": "^3.3.1",
 		"tslint": "^5.12.1",
+		"typescript": "^3.3.1",
 		"vscode-test": "^1.0.2"
 	},
 	"scripts": {
