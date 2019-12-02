@@ -24,9 +24,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { join } from "path";
+// import * as PathUtils from "../utils/path";
 
-export function joinPaths(...paths: Array<string>): string {
-    // Join the paths and normalize the slashing.
-    return join(...paths).replace(/\\/gi, '/');
-}
+// // Sub-projects folder name.
+// export const SubProjectsFolderName: string = 'src';
+
+// export namespace Paths {
+//     // Available serial ports file.
+//     export const SerialPortsFile: string = PathUtils.joinPaths("build/serialPortsFile");
+    
+//     // VSCode workspace settings file.
+//     export const VscSettingsFile: string = PathUtils.joinPaths('.vscode/settings.json');
+    
+//     // VSCode workspace C/C++ properties file.
+//     export const VscCCppPropsFile: string = PathUtils.joinPaths('.vscode/c_cpp_properties.json');
+
+//     // Characteristic files.
+//     export const Files: Array<string> = [
+//         VscSettingsFile,
+//         VscCCppPropsFile,
+//     ];
+
+//     // Sub-projects folder.
+//     export const SubProjectsFolder: string = PathUtils.joinPaths('main', SubProjectsFolderName);
+
+//     // Characteristic folders.
+//     export const Folders: Array<string> = [
+//         SubProjectsFolder,
+//     ];
+// }
+

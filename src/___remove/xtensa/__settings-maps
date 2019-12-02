@@ -1,0 +1,25 @@
+// One level settings usage.
+export const OneLevelSettings: Array<[string, Array<string>]> = [
+];
+
+// Two level settings usage.
+export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
+    [
+        'terminal.integrated.env.linux',
+        [
+            [
+                'XTENSA_PATH',
+                ['', '']
+            ]
+        ]
+    ],
+    [
+        'terminal.integrated.env.linux',
+        [
+            [
+                'PATH',
+                ['', '/bin:${env:PATH}']
+            ]
+        ]
+    ],
+];

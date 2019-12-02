@@ -24,22 +24,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import * as joiner from "../joiner";
+import * as PathUtils from "./utils/path";
+
+// Extension supported OSs.
+export const SupportedOSs: Array<string> = [
+    'win32',
+    'linux',
+];
+
+// Serial action types.
+export enum SerialActionType {
+    Flash = 0,
+    Monitor = 1,
+    FlashAndMonitor = 2,
+}
 
 export namespace Paths {
-    // Project Makefile.
-    const MakefileFile: string = joiner.joinPaths('Makefile');
+    // Available serial ports generator bash file.
+    export const SerialPortGeneratorFile: string = 'assets/scripts/GenerateSerialPortsList.sh';
 
-    // Characteristic files.
-    export const Files: Array<string> = [
-        MakefileFile,
-    ];
+    // Project template.
+    export const ProjectTemplate: string = 'assets/templates/project';
 
-    // Project source files container folder.
-    const MainFolder: string = joiner.joinPaths('main');
+    // VSCode workspace settings template.
+    export const VscSettingsFile: string = PathUtils.joinPaths(ProjectTemplate, '.vscode/settings.json');
 
-    // Characteristic folders.
-    export const Folders: Array<string> = [
-        MainFolder,
-    ];
+    // VSCode workspace C/C++ properties template.
+    export const VscCCppPropsFile: string = PathUtils.joinPaths(ProjectTemplate, '.vscode/c_cpp_properties.json');
 }

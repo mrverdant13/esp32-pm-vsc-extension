@@ -1,0 +1,15 @@
+// Mandatory files.
+export const MandatoryFiles: Array<string> = [];
+
+// Mandatory folders.
+export const MandatoryFolders: Array<string> = [
+    'home',
+    'etc/profile.d',
+];
+
+// Mutually exclusive files group.
+export const MutuallyExclusiveFilesGroup: Array<Array<string>> = [];
+
+// Mutually exclusive folders group.
+export const MutuallyExclusiveFoldersGroup: Array<Array<string>> = [];
+

@@ -24,32 +24,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import * as joiner from "../joiner";
+import { join } from "path";
 
-// Extension supported OSs.
-export const SupportedOSs: Array<string> = [
-    'win32',
-    'linux',
-];
-
-
-// Serial action types.
-export enum SerialActionType {
-    Flash = 0,
-    Monitor = 1,
-    FlashAndMonitor = 2,
+export function joinPaths(...paths: Array<string>): string {
+    // Join the paths and normalize the slashing.
+    return join(...paths).replace(/\\/gi, '/');
 }
 
-export namespace Paths {
-    // Available serial ports generator bash file.
-    export const SerialPortGeneratorFile: string = joiner.joinPaths('assets/scripts/GenerateSerialPortsList.sh');
-
-    // Project template.
-    export const ProjectTemplate: string = joiner.joinPaths('assets/templates/project');
-
-    // VSCode workspace settings template.
-    export const VscSettingsFile: string = joiner.joinPaths(ProjectTemplate, '.vscode/settings.json');
-
-    // VSCode workspace C/C++ properties template.
-    export const VscCCppPropsFile: string = joiner.joinPaths(ProjectTemplate, '.vscode/c_cpp_properties.json');
+export function prefixPaths(prefixPath: string, paths: Array<string>): Array<string> {
+    // Prefix the paths with a given string.
+    return paths.map<string>((path, _, __) => joinPaths(prefixPath, path));
 }

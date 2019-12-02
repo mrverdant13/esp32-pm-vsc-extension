@@ -24,42 +24,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import * as joiner from "../joiner";
+// export namespace Paths {
+//     // Project Makefile.
+//     export const MakefileFile: string = 'Makefile';
 
-export namespace Paths {
-    // Characteristic folders.
-    export const Folders: Array<string> = [
-        joiner.joinPaths('bin/'),
-        joiner.joinPaths('include/'),
-        joiner.joinPaths('lib/'),
-        joiner.joinPaths('libexec/'),
-        joiner.joinPaths('share/'),
-        joiner.joinPaths('xtensa-esp32-elf/'),
-    ];
-}
+//     // Characteristic files.
+//     export const Files: Array<string> = [
+//         MakefileFile,
+//     ];
 
-// One level settings usage.
-export const OneLevelSettings: Array<[string, Array<string>]> = [
-];
+//     // Project source files container folder.
+//     const MainFolder: string = 'main';
 
-// Two level settings usage.
-export const TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
-    [
-        'terminal.integrated.env.linux',
-        [
-            [
-                'XTENSA_PATH',
-                ['', '']
-            ]
-        ]
-    ],
-    [
-        'terminal.integrated.env.linux',
-        [
-            [
-                'PATH',
-                ['', '/bin:${env:PATH}']
-            ]
-        ]
-    ],
-];
+//     // Characteristic folders.
+//     export const Folders: Array<string> = [
+//         MainFolder,
+//     ];
+// }

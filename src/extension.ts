@@ -26,21 +26,34 @@ SOFTWARE.
 
 import * as vscode from 'vscode';
 
-import * as Esp32PmProjectConsts from "./constants/esp32pm-project";
-import * as ExtensionConsts from './constants/extension-const';
-import * as joiner from './joiner';
+import { SerialAction } from './extension/serial-action';
+
 import {
-	Project,
-	ProjectValidationType,
-	ProjectResourceType,
-} from './models/esp32pm-project';
-import * as utils from './utils';
+	ProjectResource,
+	setProjectResourcePath,
+} from './resources/_resource';
+
+import * as EntryPointUtils from './utils/entry-point';
+import * as FileUtils from './utils/file';
+import * as PathUtils from './utils/path';
+import * as SerialPortUtils from './utils/serial-port';
+import * as SysItemUtils from './utils/sys-item';
+import * as TerminalUtils from './utils/terminal';
+import * as VscUtils from './utils/vsc';
+
+import { InitEsp32pmProj } from './project/init_esp32pm_proj';
+import { UninitEsp32pmProj } from './project/uninit_esp32pm_proj';
+
+import { ProjectAssets } from './project/assets';
+
+import { Supported } from './extension/support';
+import { ExtensionPaths } from './extension/paths';
 
 export function activate(context: vscode.ExtensionContext) {
 
 	// Check if the OS is supported.
 	{
-		const isSupported: boolean = ExtensionConsts.SupportedOSs.some((os) => {
+		const isSupported: boolean = Supported.OSs.some((os) => {
 			return (process.platform === os);
 		});
 		if (!isSupported) {
@@ -52,36 +65,36 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.create-project', async () => {
 		try {
 			// Ask the user for the new project location.
-			const newProjectLocation: string = await utils.pickFolder(
+			const newProjectLocation: string = await VscUtils.pickFolder(
 				'Select new project location.',
 				'Project location not selected.',
 			);
 
 			// Ask the user for the new project name.
-			const newProjectName: string = (await utils.introduceString(
+			const newProjectName: string = (await VscUtils.introduceString(
 				'Introduce a name to be assigned to the new project.',
 				'Project name not introduced.',
 			)).trim().replace(/ (?= )/gi, '').replace(/ /gi, '_').toLowerCase();
 
 			// Set the new project path.
-			const newProjectPath: string = joiner.joinPaths(newProjectLocation, newProjectName);
+			const newProjectPath: string = PathUtils.joinPaths(newProjectLocation, newProjectName);
 
 			// Ask the user if the new project should be launched in the current window or in a new one.
-			const windowAction: string = await utils.pickElement(
+			const windowAction: string = await VscUtils.pickElement(
 				['Open in new window', 'Open in current window'],
 				'Select the window to be used with the new project.',
 				'Process cancelled.',
 			);
 
 			// Copy the project template.
-			await utils.copyElement(
-				context.asAbsolutePath(ExtensionConsts.Paths.ProjectTemplate),
+			await SysItemUtils.copyElement(
+				context.asAbsolutePath(ExtensionPaths.ProjectTemplate),
 				newProjectPath,
 			);
 
 			// Set the project name in the project Makefile
-			await utils.replaceInFile(
-				joiner.joinPaths(newProjectPath, 'Makefile'),
+			await FileUtils.replaceInFile(
+				PathUtils.joinPaths(newProjectPath, ProjectAssets.ProjMakeFile),
 				RegExp(':PROJECT_NAME:', 'gi'),
 				newProjectName,
 			);
@@ -101,11 +114,11 @@ export function activate(context: vscode.ExtensionContext) {
 				throw Error('This command is only available for Windows.');
 			}
 
-			// Validate Espressif project.
-			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
+			// Validate the project.
+			await UninitEsp32pmProj.validate();
 
 			// Set the 'msys32' folder to be used with the project.
-			await Project.setProjectResourcePath(context, ProjectResourceType.MSYS32_PATH);
+			await setProjectResourcePath(context, ProjectResource.MSYS32_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -119,11 +132,11 @@ export function activate(context: vscode.ExtensionContext) {
 				throw Error('This command is only available for Linux.');
 			}
 
-			// Validate Espressif project.
-			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
+			// Validate the project.
+			await UninitEsp32pmProj.validate();
 
 			// Set the 'xtensa-esp32-elf' folder to be used with the project.
-			await Project.setProjectResourcePath(context, ProjectResourceType.XTENSA_PATH);
+			await setProjectResourcePath(context, ProjectResource.XTENSA_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -132,11 +145,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-idf', async () => {
 		try {
-			// Validate Espressif project.
-			await Project.validateProject(ProjectValidationType.ESPRESSIF_PROJ);
+			// Validate the project.
+			await UninitEsp32pmProj.validate();
 
 			// Set the ESP-IDF API folder to be used with the project.
-			await Project.setProjectResourcePath(context, ProjectResourceType.IDF_PATH);
+			await setProjectResourcePath(context, ProjectResource.IDF_PATH);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
@@ -145,11 +158,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.defconfig', async () => {
 		try {
-			// Validate Espressif project.
-			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
+			// Validate the project.
+			await InitEsp32pmProj.validate();
 
 			// Execute the shell commands related to the 'make defconfig' command.
-			utils.executeShellCommands(
+			TerminalUtils.executeShellCommands(
 				"Defconfig",
 				[
 					'echo -e "ESP32-PM: Applying default config values...\n"',
@@ -164,17 +177,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.menuconfig', async () => {
 		try {
-			// Get ESP32-PM project path.
-			const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
+			// Validate the project.
+			await InitEsp32pmProj.validate();
+
+			// Get the project path.
+			const projectPath: string = VscUtils.getWorkspacePath();
 
 			// Set commands to launch terminal in a new window.
 			var commands: Array<string> = [];
 			if (process.platform === 'win32') {
 				// Read the 'c_cpp_properties.json' file.
 				let configContent = JSON.parse(
-					(await utils.fileExists(joiner.joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
-						? (await utils.readFile(joiner.joinPaths(projectPath, Esp32PmProjectConsts.Paths.VscCCppPropsFile)))
-						: ExtensionConsts.Paths.VscCCppPropsFile
+					(await SysItemUtils.fileExists(PathUtils.joinPaths(projectPath, ProjectAssets.VscCCppPropsFile)))
+						? (await FileUtils.readFile(PathUtils.joinPaths(projectPath, ProjectAssets.VscCCppPropsFile)))
+						: ExtensionPaths.VscCCppPropsFile
 				);
 
 				commands = [
@@ -189,7 +205,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			// Execute the shell commands related to the 'make menuconfig' command.
-			utils.executeShellCommands(
+			TerminalUtils.executeShellCommands(
 				"Menuconfig",
 				[
 					'echo -e "ESP32-PM: Launching graphical config menu...\n"',
@@ -204,32 +220,30 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build', async () => {
 		try {
-			// Get ESP32-PM project path.
-			const projectPath: string = await Project.getWorkspacePath(ProjectValidationType.ESPRESSIF_PROJ);
+			// Validate the project.
+			await InitEsp32pmProj.validate();
+
+			// Get the project path.
+			const projectPath: string = VscUtils.getWorkspacePath();
 
 			// Get active file path.
-			const activeFileAbsolutePath: string = utils.getActiveFile();
+			const activeFileAbsolutePath: string = VscUtils.getActiveFile();
 
 
 			// Check if the active file is contained in a sub-project.
-			if (!activeFileAbsolutePath.includes(Esp32PmProjectConsts.SubProjectsFolderName)) {
+			if (!activeFileAbsolutePath.includes(ProjectAssets.SubProjectsFolderName)) {
 				throw Error('The active file is not contained in the sub-projects folder.');
 			}
 
 			// Get entry point path.
-			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(Esp32PmProjectConsts.SubProjectsFolderName) + Esp32PmProjectConsts.SubProjectsFolderName.length + 1);
+			const entryPointRelativePath: string = activeFileAbsolutePath.substring(activeFileAbsolutePath.indexOf(ProjectAssets.SubProjectsFolderName) + ProjectAssets.SubProjectsFolderName.length + 1);
 
 			// Check if the entry point has any of the acceptable file extensions.
-			const isEntryPointCandidate: boolean = Esp32PmProjectConsts.EntryPoint.Extensions.some((extension) => {
-				return entryPointRelativePath.endsWith(extension);
-			});
-			if (!isEntryPointCandidate) {
-				throw Error('The active file is not a C/C++ file.');
-			}
+			EntryPointUtils.validateEntryPoint(entryPointRelativePath);
 
 			// Construct the main entry point file content.
 			const mainFileContent: Array<string> = [
-				'#include "' + joiner.joinPaths(Esp32PmProjectConsts.SubProjectsFolderName, entryPointRelativePath) + '"',
+				'#include "' + PathUtils.joinPaths(ProjectAssets.SubProjectsFolderName, entryPointRelativePath) + '"',
 				'extern "C"',
 				'{',
 				'\tvoid app_main();',
@@ -238,23 +252,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Write the final content to the main entry point file.
 			await vscode.workspace.fs.writeFile(
-				vscode.Uri.file(joiner.joinPaths(projectPath, 'main/main.cpp')),
+				vscode.Uri.file(PathUtils.joinPaths(projectPath, 'main/main.cpp')),
 				Buffer.from(mainFileContent.join('\n'))
 			);
 
 			// Construct the final main pseudo-component make file.
 			const mainComponentFileContent: Array<string> = [
-				'include $(PROJECT_PATH)/' + joiner.joinPaths(Esp32PmProjectConsts.Paths.SubProjectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk'),
+				'include $(PROJECT_PATH)/' + PathUtils.joinPaths(ProjectAssets.SubProjectsFolder, entryPointRelativePath.substring(0, entryPointRelativePath.indexOf('/')), 'component.mk'),
 			];
 
 			// Write the final content to the main pseudo-component make file.
 			await vscode.workspace.fs.writeFile(
-				vscode.Uri.file(joiner.joinPaths(projectPath, 'main/component.mk')),
+				vscode.Uri.file(PathUtils.joinPaths(projectPath, 'main/component.mk')),
 				Buffer.from(mainComponentFileContent.join('\n'))
 			);
 
 			// Execute the shell commands related to the 'make all' command.
-			utils.executeShellCommands(
+			TerminalUtils.executeShellCommands(
 				"Build",
 				[
 					'echo -e "ESP32-PM: Building sub-project...\n"',
@@ -267,32 +281,32 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	vscode.commands.registerCommand('esp32-pm.serial-action', async (serialActionType: ExtensionConsts.SerialActionType) => {
+	vscode.commands.registerCommand('esp32-pm.serial-action', async (serialActionType: SerialAction) => {
 		try {
-			// Validate ESP32-PM project.
-			await Project.validateProject(ProjectValidationType.ESP32PM_PROJ);
+			// Validate the project.
+			await InitEsp32pmProj.validate();
 
 			// Ask the user to select a serial port for the serial action.
-			const selectedSerialPort: string = await utils.pickElement(
-				await utils.getSerialPorts(context),
+			const selectedSerialPort: string = await VscUtils.pickElement(
+				await SerialPortUtils.getSerialPorts(context),
 				'Serial port to be used.',
 				'No serial port selected.'
 			);
 
 			// Execute the shell commands related to the serial action.
-			utils.executeShellCommands(
-				(serialActionType === ExtensionConsts.SerialActionType.Flash ? 'Flash' :
-					(serialActionType === ExtensionConsts.SerialActionType.Monitor ? 'Monitor' :
+			TerminalUtils.executeShellCommands(
+				(serialActionType === SerialAction.Flash ? 'Flash' :
+					(serialActionType === SerialAction.Monitor ? 'Monitor' :
 						'Flash & Monitor')),
 				[
 					'echo -e "ESP32-PM: ' +
-					(serialActionType === ExtensionConsts.SerialActionType.Flash ? 'Flashing' :
-						(serialActionType === ExtensionConsts.SerialActionType.Monitor ? 'Monitoring' :
+					(serialActionType === SerialAction.Flash ? 'Flashing' :
+						(serialActionType === SerialAction.Monitor ? 'Monitoring' :
 							'Flashing and monitoring')) +
 					' project...\n"',
 					'make ' +
-					(serialActionType === ExtensionConsts.SerialActionType.Flash ? 'flash' :
-						(serialActionType === ExtensionConsts.SerialActionType.Monitor ? 'monitor' :
+					(serialActionType === SerialAction.Flash ? 'flash' :
+						(serialActionType === SerialAction.Monitor ? 'monitor' :
 							'flash monitor')) +
 					' ESPPORT=' + selectedSerialPort,
 				]
@@ -305,17 +319,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash', async () => {
 		// Execute the 'make flash' command by using its serial action.
-		await vscode.commands.executeCommand('esp32-pm.serial-action', ExtensionConsts.SerialActionType.Flash);
+		await vscode.commands.executeCommand('esp32-pm.serial-action', SerialAction.Flash);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.monitor', async () => {
 		// Execute the 'make monitor' command by using its serial action.
-		await vscode.commands.executeCommand('esp32-pm.serial-action', ExtensionConsts.SerialActionType.Monitor);
+		await vscode.commands.executeCommand('esp32-pm.serial-action', SerialAction.Monitor);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.flash-monitor', async () => {
 		// Execute the 'make flash monitor' command by using its serial action.
-		await vscode.commands.executeCommand('esp32-pm.serial-action', ExtensionConsts.SerialActionType.FlashAndMonitor);
+		await vscode.commands.executeCommand('esp32-pm.serial-action', SerialAction.FlashAndMonitor);
 	}));
 }
 

@@ -22,13 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-touch "$serialPortsFile"
+touch "$tempSerialPortsFile"
 
 if [ "$platform" == "win32" ]; then
     serialPortsLines=$(cmd.exe /c mode)
     for serialPortLine in $serialPortsLines ; do
         if [[ $serialPortLine == *"COM"* ]]; then
-            echo -e "${serialPortLine%:*}" >> "$serialPortsFile"
+            echo -e "${serialPortLine%:*}" >> "$tempSerialPortsFile"
         fi
     done
 elif [ "$platform" == "linux" ]; then
@@ -36,11 +36,11 @@ elif [ "$platform" == "linux" ]; then
     for serialPortLine in $serialPortsLines ; do
         if [[ $serialPortLine == *"tty"* ]]; then
             serialPortLine=${serialPortLine##*/}
-            echo -e "/dev/${serialPortLine%:*}" >> "$serialPortsFile"
+            echo -e "/dev/${serialPortLine%:*}" >> "$tempSerialPortsFile"
         fi
     done
 fi
 
-cat "$serialPortsFile" > "$serialPortsFile.txt"
+cat "$tempSerialPortsFile" > "$finalSerialPortsFile"
 sleep 1
-rm -f "$serialPortsFile"
+rm -f "$tempSerialPortsFile"
