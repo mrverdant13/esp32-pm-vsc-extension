@@ -46,7 +46,7 @@ export class Idf extends Resource {
     public static async validate(context: vscode.ExtensionContext) {
         try {
             if (!await this.isRegisteredAndValid(context, this.field)) {
-                throw Error('The ' + this.label + ' folder has not been registered or is not valid.');
+                throw Error('The ' + this.label + ' folder has not been registered or is not valid. Execute the "Set ESP-IDF API folder" command.');
             }
         } catch (error) { throw error; }
     }

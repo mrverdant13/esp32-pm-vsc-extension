@@ -51,7 +51,7 @@ export class Xtensa extends Resource {
     public static async validate(context: vscode.ExtensionContext) {
         try {
             if (!await this.isRegisteredAndValid(context, this.field)) {
-                throw Error('The ' + this.label + ' folder has not been registered or is not valid.');
+                throw Error('The ' + this.label + ' folder has not been registered or is not valid. Execute the "Set \'xtensa-esp32-elf\' folder" command');
             }
         } catch (error) { throw error; }
     }

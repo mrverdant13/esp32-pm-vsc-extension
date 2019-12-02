@@ -33,7 +33,7 @@ export class Msys32 extends Resource {
     public static async validate(context: vscode.ExtensionContext) {
         try {
             if (!await this.isRegisteredAndValid(context, this.field)) {
-                throw Error('The ' + this.label + ' folder has not been registered or is not valid.');
+                throw Error('The ' + this.label + ' folder has not been registered or is not valid. Execute the "Set \'msys32\' folder" command.');
             }
         } catch (error) { throw error; }
     }
