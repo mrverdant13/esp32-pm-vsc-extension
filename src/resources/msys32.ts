@@ -7,8 +7,10 @@ export class Msys32 extends Resource {
         super();
     }
 
+    // Resource label.
     protected static readonly label: string = '"msys32"';
 
+    // Resource field.
     protected static readonly field: string = 'MSYS32_PATH';
 
     // Mandatory folders.
@@ -17,6 +19,7 @@ export class Msys32 extends Resource {
         'etc/profile.d',
     ];
 
+    // One level settings (JSON).
     protected static readonly OneLevelSettings: Array<[string, Array<string>]> = [
         [
             'terminal.integrated.shell.windows',
@@ -26,13 +29,15 @@ export class Msys32 extends Resource {
 
     public static async register(context: vscode.ExtensionContext) {
         try {
-            await this.registerResource(context, this.label, this.field);
+            // Register resource.
+            await this.registerResource(context);
         } catch (error) { throw error; }
     }
 
     public static async validate(context: vscode.ExtensionContext) {
         try {
-            if (!await this.isRegisteredAndValid(context, this.field)) {
+            // Check if the resource has been registered and is valid.
+            if (!await this.isRegisteredAndValid(context)) {
                 throw Error('The ' + this.label + ' folder has not been registered or is not valid. Execute the "Set \'msys32\' folder" command.');
             }
         } catch (error) { throw error; }

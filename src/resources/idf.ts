@@ -7,15 +7,19 @@ export class Idf extends Resource {
         super();
     }
 
+    // Resource label.
     protected static readonly label: string = 'ESP-IDF API';
 
+    // Resource field.
     protected static readonly field: string = 'IDF_PATH';
 
+    // Mandatory folders.
     protected static readonly MandatoryFolders: Array<string> = [
         'components',
         'examples',
     ];
 
+    // Two level settings (JSON).
     protected static readonly TwoLevelSettings: Array<[string, Array<[string, Array<string>]>]> = [
         [
             'terminal.integrated.env.windows',
@@ -39,13 +43,15 @@ export class Idf extends Resource {
 
     public static async register(context: vscode.ExtensionContext) {
         try {
-            await this.registerResource(context, this.label, this.field);
+            // Register resource.
+            await this.registerResource(context);
         } catch (error) { throw error; }
     }
 
     public static async validate(context: vscode.ExtensionContext) {
         try {
-            if (!await this.isRegisteredAndValid(context, this.field)) {
+            // Check if the resource has been registered and is valid.
+            if (!await this.isRegisteredAndValid(context)) {
                 throw Error('The ' + this.label + ' folder has not been registered or is not valid. Execute the "Set ESP-IDF API folder" command.');
             }
         } catch (error) { throw error; }
