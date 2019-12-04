@@ -16,13 +16,13 @@ export class EspressifProj extends Project {
         [ProjectAssets.ProjMakeFile, ProjectAssets.CMakeListFile],
     ];
 
+    // Espressif project validation.
     public static async validate() {
         try {
+            // Check if the active workspace contains a valid Espressif project folder.
             if (!(await this.isValidProjectFolder())) {
                 throw Error('This is not an Espressif project.');
             }
-        } catch (error) {
-            throw error;
-        }
+        } catch (error) { throw error; }
     }
 }

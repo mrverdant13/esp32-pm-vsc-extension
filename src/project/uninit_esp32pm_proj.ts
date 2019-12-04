@@ -12,14 +12,16 @@ export class UninitEsp32pmProj extends Project {
         ProjectAssets.SubProjectsFolder,
     ];
 
+    // Uninitialized ESP32-PM project validation.
     public static async validate() {
         try {
+            // Espressif project validation.
             await EspressifProj.validate();
+
+            // Check if the active workspace contains a valid uninitialized project folder.
             if (!(await this.isValidProjectFolder())) {
                 throw Error('This is not an ESP32-PM project.');
             }
-        } catch (error) {
-            throw error;
-        }
+        } catch (error) { throw error; }
     }
 }

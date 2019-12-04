@@ -21,22 +21,33 @@ export class InitEsp32pmProj extends Project {
         ProjectAssets.VscSettingsFile,
     ];
 
+    // Initialized ESP32-PM project validation.
     public static async validate(context: vscode.ExtensionContext) {
         try {
+            // Espressif project validation.
             await EspressifProj.validate();
+
+            // Uninitialized ESP32-PM project validation.
             await UninitEsp32pmProj.validate();
+
+            // Check if the active workspace contains a valid initialized project folder.
             if (!(await this.isValidProjectFolder())) {
                 throw Error('This ESP32-PM project is not initialized.');
             }
+
+            // Registered ESP-IDF validation.
             await Idf.validate(context);
+
+            // Resource validation for Windows.
             if (process.platform === 'win32') {
+                // Registered MSYS32 validation.
                 await Msys32.validate(context);
             }
+            // Resource validation for Linux.
             else if (process.platform === 'linux') {
+                // Registered XTENSA validation.
                 await Xtensa.validate(context);
             }
-        } catch (error) {
-            throw error;
-        }
+        } catch (error) { throw error; }
     }
 }
