@@ -30,6 +30,7 @@ import { SerialAction } from './extension/serial-action';
 
 import * as EntryPointUtils from './utils/entry-point';
 import * as FileUtils from './utils/file';
+import * as IncludePathsUtils from './utils/include-path';
 import * as PathUtils from './utils/path';
 import * as SerialPortUtils from './utils/serial-port';
 import * as SysItemUtils from './utils/sys-item';
@@ -44,6 +45,7 @@ import { ProjectAssets } from './project/assets';
 import { Supported } from './extension/support';
 import { ExtensionPaths } from './extension/paths';
 
+import { Resource, ProjectConfig } from './resources/resource';
 import { Idf } from './resources/idf';
 import { Msys32 } from './resources/msys32';
 import { Xtensa } from './resources/xtensa';
@@ -344,6 +346,32 @@ export function activate(context: vscode.ExtensionContext) {
 					'make clean',
 				]
 			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.update-include-paths', async () => {
+		try {
+			// Validate the project.
+			await InitEsp32pmProj.validate(context);
+
+			// Get include paths.
+			const includePaths: Array<string> = await IncludePathsUtils.getIncludePaths(context);
+
+			// Get content from the project C/C++ properties file.
+			let configContent = await Resource.getProjectConfigContent(context, ProjectConfig.VscCCppProps);
+
+			// Set the resource field.
+			configContent.configurations.forEach((config: any) => {
+				config.includePath = includePaths;
+				config.browse.path = includePaths;
+			});
+
+			// Update the project C/C++ properties file content.
+			await Resource.setProjectConfigContent(ProjectConfig.VscCCppProps, configContent);
+
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
