@@ -34,9 +34,12 @@ const Extensions: Array<string> = [
 ];
 
 export function validateEntryPoint(entryPointCandidate: string): void {
-    if (!Extensions.some((extension) => {
-        return entryPointCandidate.endsWith(extension) && entryPointCandidate.startsWith(Suffix);
-    })) {
-        throw Error('The active file is not a valid entry point. It should starts with ' + Suffix + ' and should be a C/C++ file.');
+    if (
+        !Extensions.some(
+            (extension) =>
+                entryPointCandidate.substring(entryPointCandidate.lastIndexOf('/') + 1).startsWith(Suffix) && entryPointCandidate.endsWith(extension)
+        )
+    ) {
+        throw Error('The active file is not a valid entry point. It should start with ' + Suffix + ' and should be a C/C++ file.');
     }
 }
