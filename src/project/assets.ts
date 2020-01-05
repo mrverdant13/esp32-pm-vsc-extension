@@ -27,7 +27,7 @@ SOFTWARE.
 import * as PathUtils from '../utils/path';
 
 export namespace ProjectAssets {
-    
+
     // Sub-projects folder name.
     export const SubProjectsFolderName: string = 'src';
 
@@ -36,6 +36,12 @@ export namespace ProjectAssets {
 
     // Generated available serial ports list final file name.
     export const FinalGeneratedSerialPortsFileName: string = 'finalSerialPortsFile.txt';
+
+    // Generated include paths list temporal file name.
+    export const TempGeneratedIncludePathsFileName: string = 'tempIncludePathsFile.txt';
+
+    // Generated include paths list final file name.
+    export const FinalGeneratedIncludePathsFileName: string = 'finalIncludePathsFile.txt';
 
     // Project Make file.
     export const ProjMakeFile: string = 'Makefile';
@@ -60,4 +66,10 @@ export namespace ProjectAssets {
 
     // Generated available serial ports list final file.
     export const FinalGeneratedSerialPortsFile: string = PathUtils.joinPaths('build', FinalGeneratedSerialPortsFileName);
+
+    // Generated include paths list temporal file.
+    export const TempGeneratedIncludePathsFile: string = PathUtils.joinPaths('build', TempGeneratedIncludePathsFileName);
+
+    // Generated include paths list final file.
+    export const FinalGeneratedIncludePathsFile: string = PathUtils.joinPaths('build', FinalGeneratedIncludePathsFileName);
 }
