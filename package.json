@@ -89,6 +89,11 @@
 				"category": "ESP32-PM",
 				"title": "Clean",
 				"command": "esp32-pm.clean"
+			},
+			{
+				"category": "ESP32-PM",
+				"title": "Update include paths",
+				"command": "esp32-pm.update-include-paths"
 			}
 		]
 	},
