@@ -24,3 +24,12 @@
 
 PROJECT_NAME := :PROJECT_NAME:
 include $(IDF_PATH)/make/project.mk
+
+.PHONY: generate-includes
+
+# TEMP_INCLUDES_FILE and FINAL_INCLUDES_FILE are passed.
+generate-includes:
+	$(file > $(TEMP_INCLUDES_FILE),)
+	$(foreach component_include,$(COMPONENT_INCLUDES), $(file >> $(TEMP_INCLUDES_FILE),$(component_include)))
+	echo `cat "$(TEMP_INCLUDES_FILE)" > "$(FINAL_INCLUDES_FILE)"`
+	rm -f $(TEMP_INCLUDES_FILE)
