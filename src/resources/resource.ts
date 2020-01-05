@@ -37,7 +37,7 @@ import { ExtensionPaths } from '../extension/paths';
 import { ProjectAssets } from '../project/assets';
 import { Interface } from 'readline';
 
-enum ProjectConfig {
+export enum ProjectConfig {
     VscSettings,
     VscCCppProps,
 }
@@ -140,7 +140,7 @@ export abstract class Resource {
         return [projConfigFile, projConfigTemplate];
     }
 
-    protected static async getProjectConfigContent(context: vscode.ExtensionContext, config: ProjectConfig) {
+    public static async getProjectConfigContent(context: vscode.ExtensionContext, config: ProjectConfig) {
         try {
             // Get the project path.
             const projectPath: string = VscUtils.getWorkspacePath();
@@ -154,7 +154,7 @@ export abstract class Resource {
         } catch (error) { throw error; }
     }
 
-    protected static async setProjectConfigContent(config: ProjectConfig, configContent: any) {
+    public static async setProjectConfigContent(config: ProjectConfig, configContent: any) {
         try {
             // Get the project path.
             const projectPath: string = VscUtils.getWorkspacePath();
