@@ -282,6 +282,22 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.build-latest', async () => {
+		try {
+			// Execute the shell commands related to the 'make all' command.
+			TerminalUtils.executeShellCommands(
+				"Build",
+				[
+					'echo -e "ESP32-PM: Re-building latest built sub-project...\n"',
+					'make -j all',
+				]
+			);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
 	vscode.commands.registerCommand('esp32-pm.serial-action', async (serialActionType: SerialAction) => {
 		try {
 			// Validate the project.
