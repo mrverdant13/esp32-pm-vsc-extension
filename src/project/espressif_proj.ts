@@ -39,7 +39,7 @@ export class EspressifProj extends Project {
 
     // Mutually exclusive files group.
     protected static readonly MutuallyExclusiveFilesGroup: Array<Array<string>> = [
-        [ProjectAssets.ProjMakeFile, ProjectAssets.CMakeListFile],
+        [ProjectAssets.ProjMakeFile, ProjectAssets.CMakeListsFile],
     ];
 
     // Espressif project validation.

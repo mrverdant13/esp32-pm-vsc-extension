@@ -47,7 +47,7 @@ export namespace ProjectAssets {
     export const ProjMakeFile: string = 'Makefile';
 
     // Project CMake file.
-    export const CMakeListFile: string = 'CMakeList.txt';
+    export const CMakeListsFile: string = 'CMakeLists.txt';
 
     // Project main folder.
     export const MainFolder: string = 'main';

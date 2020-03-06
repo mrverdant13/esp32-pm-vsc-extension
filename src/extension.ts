@@ -49,6 +49,7 @@ import { Resource, ProjectConfig } from './resources/resource';
 import { Idf } from './resources/idf';
 import { Msys32 } from './resources/msys32';
 import { Xtensa } from './resources/xtensa';
+import { IdfTools } from './resources/idf_tools';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -108,6 +109,19 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-idf', async () => {
+		try {
+			// Validate the project.
+			await UninitEsp32pmProj.validate();
+
+			// Set the ESP-IDF API folder to be used with the project.
+			await Idf.register(context);
+		} catch (error) {
+			// Show error message.
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-msys32', async () => {
 		try {
 			// This command is only available for Windows.
@@ -144,13 +158,13 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-idf', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('esp32-pm.set-idf-tools', async () => {
 		try {
 			// Validate the project.
 			await UninitEsp32pmProj.validate();
 
-			// Set the ESP-IDF API folder to be used with the project.
-			await Idf.register(context);
+			// Set the ESP-IDF tools folder to be used with the project.
+			await IdfTools.register(context);
 		} catch (error) {
 			// Show error message.
 			vscode.window.showErrorMessage(error.message);
